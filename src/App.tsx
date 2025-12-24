@@ -11,9 +11,7 @@ import { GallerySkeleton } from "@/components/gallery/GallerySkeleton";
 
 const Home = lazy(() => import("./pages/Home"));
 const SeriesPage = lazy(() => import("./pages/SeriesPage"));
-const About = lazy(() => import("./pages/About"));
 const Generate = lazy(() => import("./pages/Generate"));
-const Instructions = lazy(() => import("./pages/Instructions"));
 const Account = lazy(() => import("./pages/Account"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
@@ -39,9 +37,7 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/series/:slug" element={<SeriesPage />} />
-                <Route path="/about" element={<About />} />
                 <Route path="/generate" element={<Generate />} />
-                <Route path="/instructions" element={<Instructions />} />
                 <Route path="/account" element={<Account />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

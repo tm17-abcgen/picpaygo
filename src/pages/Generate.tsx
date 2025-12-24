@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
-import { Sparkles, Loader2 } from 'lucide-react';
+import { Sparkles, Loader2, Camera, Sun, User, Circle, ChevronDown, ChevronUp } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { SEO } from '@/components/seo/SEO';
 import { Button } from '@/components/ui/button';
@@ -14,6 +13,29 @@ import { useCredits } from '@/context/CreditsContext';
 import { generateImage, getGenerationStatus } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
 
+const tips = [
+  {
+    icon: Camera,
+    title: 'Good lighting',
+    description: 'Natural daylight or even indoor lighting. Avoid harsh shadows.',
+  },
+  {
+    icon: Sun,
+    title: 'Neutral background',
+    description: 'A simple, uncluttered background helps AI focus on you.',
+  },
+  {
+    icon: User,
+    title: 'Face the camera',
+    description: 'Look directly at the camera with your face clearly visible.',
+  },
+  {
+    icon: Circle,
+    title: 'Remove accessories',
+    description: 'Take off hats or sunglasses for best results.',
+  },
+];
+
 export default function Generate() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -24,6 +46,7 @@ export default function Generate() {
   const [showBuyModal, setShowBuyModal] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showTips, setShowTips] = useState(false);
   
   const { credits, isLoggedIn, refreshCredits } = useCredits();
   const { toast } = useToast();
@@ -117,26 +140,26 @@ export default function Generate() {
   const isGenerating = status === 'uploading' || status === 'queued' || status === 'processing';
 
   return (
-    <Layout fullPage>
+    <Layout>
       <SEO
         title="Generate AI Portrait"
         description="Upload your photo and create a stunning professional portrait with AI"
       />
       
-      <div className="max-w-xl mx-auto py-8 px-4">
-        <div className="text-center mb-8">
+      <div className="max-w-xl mx-auto py-4 sm:py-6 px-4">
+        <div className="text-center mb-6">
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
             Generate Your Portrait
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-muted-foreground text-sm sm:text-base">
             Upload a photo, choose a style, and let AI create magic.
           </p>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-5">
           {/* Result display */}
           {resultUrl && status === 'completed' ? (
-            <div className="space-y-6">
+            <div className="space-y-5">
               <ResultCard
                 imageUrl={resultUrl}
                 onGenerateAnother={handleGenerateAnother}
@@ -206,14 +229,36 @@ export default function Generate() {
             </>
           )}
 
-          {/* Instructions link */}
-          <div className="text-center">
-            <Link
-              to="/instructions"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors underline"
+          {/* Collapsible Tips section */}
+          <div className="border border-border rounded-lg overflow-hidden">
+            <button
+              onClick={() => setShowTips(!showTips)}
+              className="w-full flex items-center justify-between p-4 text-left hover:bg-secondary/50 transition-colors"
             >
-              Tips for best results
-            </Link>
+              <span className="text-sm font-medium text-foreground">Tips for best results</span>
+              {showTips ? (
+                <ChevronUp className="h-4 w-4 text-muted-foreground" />
+              ) : (
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              )}
+            </button>
+            
+            {showTips && (
+              <div className="px-4 pb-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {tips.map((tip) => (
+                  <div
+                    key={tip.title}
+                    className="flex gap-3 p-3 rounded-lg bg-secondary/50"
+                  >
+                    <tip.icon className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h3 className="text-sm font-medium text-foreground">{tip.title}</h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">{tip.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
