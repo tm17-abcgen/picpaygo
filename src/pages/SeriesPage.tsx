@@ -4,6 +4,7 @@ import { Layout } from "@/components/layout/Layout";
 import { usePortfolio } from "@/context/PortfolioContext";
 import { FilmstripGallery } from "@/components/gallery/FilmstripGallery";
 import { GallerySkeleton } from "@/components/gallery/GallerySkeleton";
+import { DemoGallery } from "@/components/demo/DemoGallery";
 import { SEO } from "@/components/seo/SEO";
 import NotFound from "./NotFound";
 
@@ -12,6 +13,7 @@ export default function SeriesPage() {
   const { getSeriesBySlug, photographer, loading } = usePortfolio();
 
   const series = slug ? getSeriesBySlug(slug) : null;
+  const isDemo = slug === 'demo';
 
   const seoTitle = series
     ? `${series.title} - ${photographer?.name || "Portrait Photographer"}`
@@ -35,19 +37,9 @@ export default function SeriesPage() {
       }
     : undefined;
 
-  // Set page title and preload critical resources
   useEffect(() => {
     if (series) {
       document.title = seoTitle;
-    }
-
-    // Preconnect to image CDN for faster loading
-    const preconnectLink = document.createElement("link");
-    preconnectLink.rel = "preconnect";
-    preconnectLink.href = "https://images.unsplash.com";
-
-    if (!document.querySelector(`link[href="${preconnectLink.href}"]`)) {
-      document.head.appendChild(preconnectLink);
     }
   }, [series, seoTitle]);
 
@@ -67,7 +59,7 @@ export default function SeriesPage() {
   }
 
   return (
-    <Layout>
+    <Layout fullPage={isDemo}>
       <SEO
         title={seoTitle}
         description={seoDescription}
@@ -75,9 +67,15 @@ export default function SeriesPage() {
         type="article"
         structuredData={structuredData}
       />
-      <div className="h-full flex items-center justify-center">
-        <FilmstripGallery images={series.images} />
-      </div>
+      {isDemo ? (
+        <div className="py-8 px-4">
+          <DemoGallery />
+        </div>
+      ) : (
+        <div className="h-full flex items-center justify-center">
+          <FilmstripGallery images={series.images} />
+        </div>
+      )}
     </Layout>
   );
 }
