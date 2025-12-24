@@ -5,18 +5,20 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { PortfolioProvider } from "@/context/PortfolioContext";
+import { CreditsProvider } from "@/context/CreditsContext";
 import { Layout } from "@/components/layout/Layout";
 import { GallerySkeleton } from "@/components/gallery/GallerySkeleton";
 
-// Lazy load page components for code splitting
 const Home = lazy(() => import("./pages/Home"));
 const SeriesPage = lazy(() => import("./pages/SeriesPage"));
 const About = lazy(() => import("./pages/About"));
+const Generate = lazy(() => import("./pages/Generate"));
+const Instructions = lazy(() => import("./pages/Instructions"));
+const Account = lazy(() => import("./pages/Account"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
 
-// Loading fallback component
 const LoadingFallback = () => (
   <Layout>
     <div className="h-full flex items-center justify-center px-4 sm:px-8 lg:px-12">
@@ -32,14 +34,19 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <PortfolioProvider>
-          <Suspense fallback={<LoadingFallback />}>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/series/:slug" element={<SeriesPage />} />
-              <Route path="/about" element={<About />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
+          <CreditsProvider>
+            <Suspense fallback={<LoadingFallback />}>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/series/:slug" element={<SeriesPage />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/generate" element={<Generate />} />
+                <Route path="/instructions" element={<Instructions />} />
+                <Route path="/account" element={<Account />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </CreditsProvider>
         </PortfolioProvider>
       </BrowserRouter>
     </TooltipProvider>

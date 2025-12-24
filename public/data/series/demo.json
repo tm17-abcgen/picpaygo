@@ -1,0 +1,57 @@
+{
+  "id": "demo-01",
+  "title": "Demo",
+  "slug": "demo",
+  "description": "See the transformation: before and after AI enhancement",
+  "featured": false,
+  "images": [
+    {
+      "id": "demo-001-before",
+      "src": "https://images.pexels.com/photos/774909/pexels-photo-774909.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "alt": "Original casual selfie before AI enhancement",
+      "aspectRatio": 0.75,
+      "caption": {
+        "subject": "Professional Portrait Enhancement",
+        "description": "From casual selfie to studio-quality portrait"
+      }
+    },
+    {
+      "id": "demo-001-after",
+      "src": "https://images.pexels.com/photos/19456424/pexels-photo-19456424.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "alt": "AI-enhanced professional portrait",
+      "aspectRatio": 0.75
+    },
+    {
+      "id": "demo-002-before",
+      "src": "https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "alt": "Original outdoor photo before AI enhancement",
+      "aspectRatio": 0.75,
+      "caption": {
+        "subject": "Editorial Style Transformation",
+        "description": "Natural lighting to magazine-ready"
+      }
+    },
+    {
+      "id": "demo-002-after",
+      "src": "https://images.pexels.com/photos/2681751/pexels-photo-2681751.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "alt": "AI-enhanced editorial portrait",
+      "aspectRatio": 0.75
+    },
+    {
+      "id": "demo-003-before",
+      "src": "https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "alt": "Original professional headshot before enhancement",
+      "aspectRatio": 0.75,
+      "caption": {
+        "subject": "Documentary Style",
+        "description": "Authentic moments, beautifully captured"
+      }
+    },
+    {
+      "id": "demo-003-after",
+      "src": "https://images.pexels.com/photos/3785079/pexels-photo-3785079.jpeg?auto=compress&cs=tinysrgb&w=800",
+      "alt": "AI-enhanced documentary portrait",
+      "aspectRatio": 0.75
+    }
+  ]
+}
