@@ -1,8 +1,11 @@
+import { Link } from "react-router-dom";
+import { Sparkles } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { usePortfolio } from "@/context/PortfolioContext";
 import { FilmstripGallery } from "@/components/gallery/FilmstripGallery";
 import { GallerySkeleton } from "@/components/gallery/GallerySkeleton";
 import { SEO } from "@/components/seo/SEO";
+import { Button } from "@/components/ui/button";
 import { useEffect } from "react";
 
 export default function Home() {
@@ -10,31 +13,12 @@ export default function Home() {
 
   const featuredSeries = series.find((s) => s.featured) || series[0];
 
-  const seoTitle = featuredSeries
-    ? `${featuredSeries.title} - ${photographer?.name || "Portrait Photographer"}`
-    : photographer?.name || "Portrait Photographer Portfolio";
+  const seoTitle = "AI Portrait Generator - Create Professional Portraits";
+  const seoDescription = "Transform your photos into stunning professional portraits with AI. Upload a photo, choose a style, and get magazine-quality results in seconds.";
 
-  const seoDescription =
-    featuredSeries?.description ||
-    photographer?.tagline ||
-    "Professional portrait photography portfolio featuring documentary, editorial, and commercial work.";
-
-  // Set page title and preload critical resources
   useEffect(() => {
     document.title = seoTitle;
-
-    // Preconnect to image CDN for faster loading
-    const preconnectLink = document.createElement("link");
-    preconnectLink.rel = "preconnect";
-    preconnectLink.href = "https://images.unsplash.com";
-    document.head.appendChild(preconnectLink);
-
-    return () => {
-      if (document.head.contains(preconnectLink)) {
-        document.head.removeChild(preconnectLink);
-      }
-    };
-  }, [seoTitle]);
+  }, []);
 
   if (loading) {
     return (
@@ -67,22 +51,32 @@ export default function Home() {
     );
   }
 
-  if (!featuredSeries) {
-    return (
-      <Layout>
-        <SEO title="No Series" description="No portfolio series available" />
-        <div className="flex items-center justify-center h-full">
-          <p className="text-muted-foreground">No portfolio series available</p>
-        </div>
-      </Layout>
-    );
-  }
-
   return (
     <Layout>
-      <SEO title={seoTitle} description={seoDescription} image={featuredSeries.images[0]?.src} type="website" />
-      <div className="h-full flex items-center justify-center">
-        <FilmstripGallery images={featuredSeries.images} />
+      <SEO title={seoTitle} description={seoDescription} type="website" />
+      <div className="h-full flex flex-col">
+        {/* Hero section */}
+        <div className="text-center py-6 px-4">
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
+            Create professional images from your own photo
+          </h2>
+          <p className="text-muted-foreground mb-4 max-w-md mx-auto">
+            Upload any portrait and transform it into stunning professional photography with AI.
+          </p>
+          <Link to="/generate">
+            <Button size="lg">
+              <Sparkles className="h-4 w-4 mr-2" />
+              Generate Now
+            </Button>
+          </Link>
+        </div>
+        
+        {/* Gallery */}
+        {featuredSeries && (
+          <div className="flex-1 flex items-center justify-center">
+            <FilmstripGallery images={featuredSeries.images} />
+          </div>
+        )}
       </div>
     </Layout>
   );

@@ -31,7 +31,7 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
         const photographerData = await photographerResponse.json();
 
         // Load all series
-        const seriesSlugs = ['portraits', 'documentary', 'editorial'];
+        const seriesSlugs = ['portraits', 'documentary', 'editorial', 'demo'];
         const seriesPromises = seriesSlugs.map(async (slug) => {
           const response = await fetch(`/data/series/${slug}.json`);
           return response.json();
