@@ -59,22 +59,23 @@ export function UploadPanel({ onFileSelect, selectedFile, previewUrl, onClear, d
 
   if (previewUrl && selectedFile) {
     return (
-      <div className="relative w-full aspect-square max-w-sm mx-auto rounded-lg overflow-hidden bg-secondary">
+      <div className="relative w-full aspect-[3/4] max-w-md mx-auto rounded-[28px] overflow-hidden border border-border/70 bg-card/60 shadow-sm">
         <img
           src={previewUrl}
           alt="Preview of uploaded photo"
-          className="w-full h-full object-cover"
+          className="h-full w-full object-cover"
         />
         <button
           onClick={onClear}
           disabled={disabled}
-          className="absolute top-3 right-3 p-2 rounded-full bg-background/80 hover:bg-background transition-colors disabled:opacity-50"
+          className="absolute top-4 right-4 p-2 rounded-full border border-border bg-background/80 hover:bg-background transition-colors disabled:opacity-50"
           aria-label="Remove image"
         >
           <X className="h-4 w-4" />
         </button>
-        <div className="absolute bottom-3 left-3 right-3 text-xs text-background bg-foreground/70 px-3 py-1.5 rounded">
-          {selectedFile.name}
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-4 pb-4 pt-10">
+          <p className="text-[11px] uppercase tracking-[0.3em] text-white/90">Ready to generate</p>
+          <p className="text-xs text-white/80 mt-1 truncate">{selectedFile.name}</p>
         </div>
       </div>
     );
@@ -86,10 +87,10 @@ export function UploadPanel({ onFileSelect, selectedFile, previewUrl, onClear, d
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
-      className={`w-full aspect-square max-w-sm mx-auto rounded-lg border-2 border-dashed transition-all cursor-pointer flex flex-col items-center justify-center gap-4 p-6 ${
+      className={`grain-panel w-full aspect-[3/4] max-w-md mx-auto rounded-[28px] border border-dashed transition-all cursor-pointer flex flex-col items-center justify-center gap-4 p-6 ${
         isDragging
-          ? 'border-accent bg-accent/5'
-          : 'border-border hover:border-accent/50 bg-secondary/50'
+          ? 'border-accent bg-accent/5 ring-1 ring-accent/30'
+          : 'border-border/70 hover:border-foreground/50 bg-card/40'
       } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
       role="button"
       tabIndex={disabled ? -1 : 0}
@@ -106,16 +107,20 @@ export function UploadPanel({ onFileSelect, selectedFile, previewUrl, onClear, d
         aria-hidden="true"
       />
       
-      <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center">
-        <ImageIcon className="h-8 w-8 text-muted-foreground" />
+      <p className="text-[11px] uppercase tracking-[0.35em] text-muted-foreground">
+        Upload portrait
+      </p>
+
+      <div className="w-14 h-14 rounded-full border border-border bg-background/80 flex items-center justify-center">
+        <ImageIcon className="h-6 w-6 text-muted-foreground" />
       </div>
       
       <div className="text-center">
         <p className="font-medium text-foreground">
-          Drop your photo here
+          Drop or click to upload
         </p>
-        <p className="text-sm text-muted-foreground mt-1">
-          or click to browse
+        <p className="text-xs text-muted-foreground mt-1">
+          JPG or PNG, up to 10MB
         </p>
       </div>
       

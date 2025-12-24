@@ -57,6 +57,17 @@ export function HeaderNavigation() {
                   <ul className="flex flex-col gap-6">
                     <li>
                       <Link
+                        to="/"
+                        onClick={handleNavClick}
+                        className={`text-lg transition-all duration-200 ${
+                          isActive('/') ? "font-semibold text-foreground" : "font-normal text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        Home
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
                         to="/generate"
                         onClick={handleNavClick}
                         className={`text-lg transition-all duration-200 ${
@@ -104,6 +115,16 @@ export function HeaderNavigation() {
           {/* Desktop Navigation */}
           <nav className="hidden sm:block">
             <ul className="flex flex-row flex-wrap items-center gap-4 sm:gap-5 lg:gap-6">
+              <li>
+                <Link
+                  to="/"
+                  className={`text-sm sm:text-base lg:text-[1.0625rem] leading-[1.375rem] transition-all duration-200 ${
+                    isActive('/') ? "font-semibold text-foreground" : "font-normal text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  Home
+                </Link>
+              </li>
               <li>
                 <Link
                   to="/generate"

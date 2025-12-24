@@ -48,13 +48,16 @@ export default function Home() {
     <Layout>
       <SEO title={seoTitle} description={seoDescription} type="website" />
       <div className="flex flex-col items-center gap-8 py-4 sm:py-6">
-        {/* Hero section */}
-        <div className="text-center px-4 max-w-2xl">
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-3">
+        <div className="text-center px-4 max-w-3xl space-y-3">
+          <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">
+            PicPayGo Studio
+          </p>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">
             Transform your photos into professional portraits
           </h2>
-          <p className="text-muted-foreground mb-6 text-sm sm:text-base">
-            Upload any image, choose a style, and let AI create stunning results in seconds.
+          <p className="text-muted-foreground text-sm sm:text-base">
+            Upload a portrait, choose an editorial direction, and receive a clean, professional image that
+            still looks like you.
           </p>
           <Link to="/generate">
             <Button size="lg">
@@ -64,7 +67,6 @@ export default function Home() {
           </Link>
         </div>
         
-        {/* Before/After Example with Style Switcher */}
         <StyleExampleSwitcher />
       </div>
     </Layout>

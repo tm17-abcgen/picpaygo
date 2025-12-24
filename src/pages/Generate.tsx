@@ -1,5 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Sparkles, Loader2, Camera, Sun, User, Circle, ChevronDown, ChevronUp } from 'lucide-react';
+import {
+  Sparkles,
+  Loader2,
+  Camera,
+  Sun,
+  User,
+  Circle,
+  ChevronDown,
+  ChevronUp,
+} from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { SEO } from '@/components/seo/SEO';
 import { Button } from '@/components/ui/button';
@@ -33,6 +42,21 @@ const tips = [
     icon: Circle,
     title: 'Remove accessories',
     description: 'Take off hats or sunglasses for best results.',
+  },
+];
+
+const steps = [
+  {
+    title: 'Upload a portrait',
+    description: 'Choose a clear photo with soft light and a neutral background.',
+  },
+  {
+    title: 'Pick a category',
+    description: 'Select Portrait, Editorial, Fashion, or Vogue Italia styling.',
+  },
+  {
+    title: 'Generate and download',
+    description: 'We deliver a refined result that still looks like you.',
   },
 ];
 
@@ -142,21 +166,41 @@ export default function Generate() {
   return (
     <Layout>
       <SEO
-        title="Generate AI Portrait"
-        description="Upload your photo and create a stunning professional portrait with AI"
+        title="Generate Portraits | PicPayGo"
+        description="PicPayGo turns your photo into professional portraits, editorial looks, and fashion-ready imagery."
       />
       
-      <div className="max-w-xl mx-auto py-4 sm:py-6 px-4">
-        <div className="text-center mb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
-            Generate Your Portrait
+      <div className="max-w-3xl mx-auto py-4 sm:py-6 px-4 space-y-8">
+        <div className="text-center space-y-3">
+          <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">
+            PicPayGo Studio
+          </p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+            Generate your portrait in minutes
           </h1>
-          <p className="text-muted-foreground text-sm sm:text-base">
-            Upload a photo, choose a style, and let AI create magic.
+          <p className="text-muted-foreground text-sm sm:text-base max-w-2xl mx-auto">
+            Upload a photo, choose a category, and receive a refined, professional result.
           </p>
         </div>
 
-        <div className="space-y-5">
+        <div className="rounded-[28px] border border-border bg-card/60 p-6 sm:p-7 space-y-4">
+          <p className="text-[11px] uppercase tracking-[0.35em] text-muted-foreground">
+            How it works
+          </p>
+          <div className="grid gap-4 sm:grid-cols-3">
+            {steps.map((step, index) => (
+              <div key={step.title} className="rounded-2xl border border-border/70 bg-background/80 p-4">
+                <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
+                  {String(index + 1).padStart(2, '0')}
+                </p>
+                <h3 className="mt-2 text-sm font-semibold text-foreground">{step.title}</h3>
+                <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{step.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-5 max-w-2xl mx-auto">
           {/* Result display */}
           {resultUrl && status === 'completed' ? (
             <div className="space-y-5">
