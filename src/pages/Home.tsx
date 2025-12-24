@@ -2,23 +2,16 @@ import { Link } from "react-router-dom";
 import { Sparkles } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { usePortfolio } from "@/context/PortfolioContext";
-import { FilmstripGallery } from "@/components/gallery/FilmstripGallery";
 import { GallerySkeleton } from "@/components/gallery/GallerySkeleton";
 import { SEO } from "@/components/seo/SEO";
 import { Button } from "@/components/ui/button";
-import { useEffect } from "react";
+import { StyleExampleSwitcher } from "@/components/home/StyleExampleSwitcher";
 
 export default function Home() {
-  const { series, photographer, loading, error } = usePortfolio();
-
-  const featuredSeries = series.find((s) => s.featured) || series[0];
+  const { photographer, loading, error } = usePortfolio();
 
   const seoTitle = "AI Portrait Generator - Create Professional Portraits";
   const seoDescription = "Transform your photos into stunning professional portraits with AI. Upload a photo, choose a style, and get magazine-quality results in seconds.";
-
-  useEffect(() => {
-    document.title = seoTitle;
-  }, []);
 
   if (loading) {
     return (
@@ -54,14 +47,14 @@ export default function Home() {
   return (
     <Layout>
       <SEO title={seoTitle} description={seoDescription} type="website" />
-      <div className="h-full flex flex-col">
+      <div className="flex flex-col items-center gap-8 py-4 sm:py-6">
         {/* Hero section */}
-        <div className="text-center py-6 px-4">
-          <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
-            Create professional images from your own photo
+        <div className="text-center px-4 max-w-2xl">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-3">
+            Transform your photos into professional portraits
           </h2>
-          <p className="text-muted-foreground mb-4 max-w-md mx-auto">
-            Upload any portrait and transform it into stunning professional photography with AI.
+          <p className="text-muted-foreground mb-6 text-sm sm:text-base">
+            Upload any image, choose a style, and let AI create stunning results in seconds.
           </p>
           <Link to="/generate">
             <Button size="lg">
@@ -71,12 +64,8 @@ export default function Home() {
           </Link>
         </div>
         
-        {/* Gallery */}
-        {featuredSeries && (
-          <div className="flex-1 flex items-center justify-center">
-            <FilmstripGallery images={featuredSeries.images} />
-          </div>
-        )}
+        {/* Before/After Example with Style Switcher */}
+        <StyleExampleSwitcher />
       </div>
     </Layout>
   );

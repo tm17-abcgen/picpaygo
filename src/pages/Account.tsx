@@ -88,9 +88,9 @@ export default function Account() {
 
   if (authLoading) {
     return (
-      <Layout fullPage>
+      <Layout>
         <SEO title="Account" description="Manage your AI portrait account" />
-        <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="flex items-center justify-center py-20">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
       </Layout>
@@ -98,11 +98,11 @@ export default function Account() {
   }
 
   return (
-    <Layout fullPage>
+    <Layout>
       <SEO title="Account" description="Manage your AI portrait account" />
       
-      <div className="max-w-3xl mx-auto py-8 px-4">
-        <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-8 text-center">
+      <div className="max-w-3xl mx-auto py-4 sm:py-6 px-4">
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-6 text-center">
           Account
         </h1>
 
@@ -157,7 +157,7 @@ export default function Account() {
             </div>
           </div>
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-6">
             {/* Profile section */}
             <div className="p-6 rounded-lg border border-border bg-card">
               <div className="flex items-center justify-between mb-4">
