@@ -35,9 +35,11 @@ export function HeaderNavigation() {
       <div className="flex items-end justify-between mb-2">
         <div className="flex justify-between md:justify-start w-full md:w-fit md:flex-col gap-4">
           <Link to="/" className="flex-shrink-0">
-            <h1 className="font-sans text-2xl sm:text-[2.1rem] lg:text-[2.4rem] leading-tight font-bold tracking-tight text-foreground hover:opacity-80 transition-opacity">
-              {photographer.name}
-            </h1>
+            <img 
+              src="/logo/Logo.svg" 
+              alt={photographer.name}
+              className="h-8 sm:h-10 lg:h-12 w-auto hover:opacity-80 transition-opacity"
+            />
           </Link>
 
           {/* Mobile: Hamburger Menu */}
