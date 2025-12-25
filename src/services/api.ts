@@ -213,3 +213,12 @@ export async function verifyEmail(token: string): Promise<{ success: boolean }> 
   await apiFetch(`/auth/verify?token=${encodeURIComponent(token)}`);
   return { success: true };
 }
+
+export async function loginWithGoogle(idToken: string): Promise<{ success: boolean }> {
+  await delay(300);
+  await apiFetch('/auth/google', {
+    method: 'POST',
+    body: JSON.stringify({ idToken }),
+  });
+  return { success: true };
+}

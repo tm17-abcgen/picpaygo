@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { SEO } from '@/components/seo/SEO';
 import { Button } from '@/components/ui/button';
@@ -9,8 +9,21 @@ import { BuyCreditsModal } from '@/components/credits/BuyCreditsModal';
 import { Loader2, LogOut, Download, Coins, ImageIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize: (config: { client_id: string; callback: (response: { credential: string }) => void }) => void;
+          renderButton: (element: HTMLElement, config: { theme?: string; size?: string; width?: number; text?: string; type?: string }) => void;
+        };
+      };
+    };
+  }
+}
+
 export default function Account() {
-  const { user, isLoggedIn, credits, login, register, logout, loading: authLoading } = useCredits();
+  const { user, isLoggedIn, credits, login, loginWithGoogle, register, logout, loading: authLoading } = useCredits();
   const [generations, setGenerations] = useState<Generation[]>([]);
   const [loadingGenerations, setLoadingGenerations] = useState(false);
   const [showBuyModal, setShowBuyModal] = useState(false);
@@ -21,7 +34,11 @@ export default function Account() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const { toast } = useToast();
+  const googleButtonRef = useRef<HTMLDivElement>(null);
+  
+  const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -31,6 +48,72 @@ export default function Account() {
       setActiveTab('profile');
     }
   }, [isLoggedIn]);
+
+  useEffect(() => {
+    if (!GOOGLE_CLIENT_ID || !googleButtonRef.current || isLoggedIn) return;
+
+    const handleGoogleSignIn = async (credential: string) => {
+      setGoogleLoading(true);
+      try {
+        await loginWithGoogle(credential);
+        toast({
+          title: 'Welcome!',
+          description: 'You are now logged in with Google.',
+        });
+      } catch (error) {
+        const message = error instanceof Error
+          ? error.message
+          : 'Google login failed. Please try again.';
+        toast({
+          title: 'Google login failed',
+          description: message,
+          variant: 'destructive',
+        });
+      } finally {
+        setGoogleLoading(false);
+      }
+    };
+
+    const initializeGoogleSignIn = () => {
+      if (window.google?.accounts?.id && googleButtonRef.current) {
+        googleButtonRef.current.innerHTML = '';
+        
+        window.google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          callback: (response: { credential: string }) => {
+            handleGoogleSignIn(response.credential);
+          },
+        });
+
+        window.google.accounts.id.renderButton(googleButtonRef.current, {
+          theme: 'outline',
+          size: 'large',
+          width: 300,
+          text: 'signin_with',
+          type: 'standard',
+        });
+      }
+    };
+
+    if (window.google?.accounts?.id) {
+      initializeGoogleSignIn();
+    } else {
+      const checkGoogle = setInterval(() => {
+        if (window.google?.accounts?.id && googleButtonRef.current) {
+          clearInterval(checkGoogle);
+          initializeGoogleSignIn();
+        }
+      }, 100);
+
+      setTimeout(() => clearInterval(checkGoogle), 10000);
+    }
+
+    return () => {
+      if (googleButtonRef.current) {
+        googleButtonRef.current.innerHTML = '';
+      }
+    };
+  }, [GOOGLE_CLIENT_ID, isLoggedIn, loginWithGoogle, toast]);
 
   const loadGenerations = async () => {
     setLoadingGenerations(true);
@@ -173,7 +256,7 @@ export default function Account() {
                         placeholder="you@example.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        disabled={loginLoading}
+                        disabled={loginLoading || googleLoading}
                       />
                     </div>
                     <div>
@@ -186,10 +269,10 @@ export default function Account() {
                         placeholder="••••••••"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        disabled={loginLoading}
+                        disabled={loginLoading || googleLoading}
                       />
                     </div>
-                    <Button type="submit" className="w-full" disabled={loginLoading}>
+                    <Button type="submit" className="w-full" disabled={loginLoading || googleLoading}>
                       {loginLoading ? (
                         <>
                           <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -200,6 +283,31 @@ export default function Account() {
                       )}
                     </Button>
                   </form>
+
+                  {GOOGLE_CLIENT_ID && (
+                    <div className="mt-4">
+                      <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                          <span className="w-full border-t border-border/60" />
+                        </div>
+                        <div className="relative flex justify-center text-xs uppercase">
+                          <span className="bg-background/80 px-2 text-muted-foreground">Or continue with</span>
+                        </div>
+                      </div>
+                      <div className="mt-4 flex justify-center">
+                        <div 
+                          ref={googleButtonRef} 
+                          className={googleLoading ? 'opacity-50 pointer-events-none' : ''}
+                        />
+                        {googleLoading && (
+                          <div className="absolute flex items-center justify-center">
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
                   <p className="text-xs text-muted-foreground mt-4 text-left">
                     You will need to verify your email before you can log in.
                   </p>
