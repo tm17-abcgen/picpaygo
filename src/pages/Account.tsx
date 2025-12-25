@@ -4,9 +4,9 @@ import { SEO } from '@/components/seo/SEO';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCredits } from '@/context/CreditsContext';
-import { getGenerations, Generation } from '@/services/api';
+import { getGenerations, clearGuestHistory, Generation } from '@/services/api';
 import { BuyCreditsModal } from '@/components/credits/BuyCreditsModal';
-import { Loader2, LogOut, Download, Coins, ImageIcon } from 'lucide-react';
+import { Loader2, LogOut, Download, Coins, ImageIcon, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Account() {
@@ -16,7 +16,8 @@ export default function Account() {
   const [showBuyModal, setShowBuyModal] = useState(false);
   const [activeTab, setActiveTab] = useState<'profile' | 'credits' | 'history'>('profile');
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
-  
+  const [clearingHistory, setClearingHistory] = useState(false);
+
   // Login form state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,23 +25,49 @@ export default function Account() {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (isLoggedIn) {
-      loadGenerations();
-    }
-    if (!isLoggedIn && activeTab === 'history') {
-      setActiveTab('profile');
-    }
-  }, [isLoggedIn]);
+    // Always load generations - works for both guests and logged in users
+    loadGenerations();
+  }, [isLoggedIn]); // Reload when login state changes
 
   const loadGenerations = async () => {
     setLoadingGenerations(true);
     try {
       const data = await getGenerations();
-      setGenerations(data);
+      setGenerations(data.generations);
     } catch (error) {
       console.error('Failed to load generations:', error);
     } finally {
       setLoadingGenerations(false);
+    }
+  };
+
+  const handleClearHistory = async () => {
+    if (isLoggedIn) {
+      toast({
+        title: 'Not available',
+        description: 'History clearing is only available for guest accounts.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setClearingHistory(true);
+    try {
+      await clearGuestHistory();
+      setGenerations([]);
+      toast({
+        title: 'History cleared',
+        description: 'Your generation history has been cleared.',
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to clear history.';
+      toast({
+        title: 'Failed to clear history',
+        description: message,
+        variant: 'destructive',
+      });
+    } finally {
+      setClearingHistory(false);
     }
   };
 
@@ -124,7 +151,7 @@ export default function Account() {
         </h1>
 
         <div className="flex flex-wrap justify-center gap-6 border-b border-border/60 pb-4 mb-6">
-          {['profile', 'credits', ...(isLoggedIn ? ['history'] : [])].map((tab) => {
+          {['profile', 'credits', 'history'].map((tab) => {
             const label = tab === 'history' ? 'My Generations' : tab.charAt(0).toUpperCase() + tab.slice(1);
             const isActive = activeTab === tab;
             return (
@@ -248,11 +275,33 @@ export default function Account() {
           </div>
         )}
 
-        {activeTab === 'history' && isLoggedIn && (
+        {activeTab === 'history' && (
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-lg font-semibold text-foreground mb-4 text-center">
-              Your Generations
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-foreground text-center flex-1">
+                {isLoggedIn ? 'Your Generations' : 'Your Generations (Guest)'}
+              </h2>
+              {!isLoggedIn && generations.length > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleClearHistory}
+                  disabled={clearingHistory}
+                >
+                  {clearingHistory ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Clearing...
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Clear History
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
             {loadingGenerations ? (
               <div className="flex items-center justify-center py-12">
                 <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -261,12 +310,19 @@ export default function Account() {
               <div className="text-center py-12 border border-dashed border-border/70 rounded-2xl">
                 <ImageIcon className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
                 <p className="text-muted-foreground">No generations yet.</p>
+                {!isLoggedIn && (
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Your generations are saved automatically. Create an account to keep them permanently.
+                  </p>
+                )}
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 {generations
                   .filter((generation) => generation.status === 'completed')
                   .map((generation) => {
+                    // Get detailed generation info for presigned URLs
+                    // For now, use the stored outputUrl if available
                     const outputUrl = generation.outputUrl || '';
                     return (
                       <div

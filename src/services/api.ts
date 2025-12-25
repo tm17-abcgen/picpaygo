@@ -5,9 +5,16 @@ export interface Generation {
   inputUrl?: string;
   outputUrl?: string;
   error?: string;
-  category: 'portraits' | 'editorial' | 'documentary';
+  category: 'studio-portrait' | 'fashion-editorial' | 'editorial-moment' | 'portrait-honest';
   status: 'queued' | 'processing' | 'completed' | 'failed';
   createdAt: string;
+  completedAt?: string;
+}
+
+// List item variant (returned by /api/generations)
+export interface GenerationListItem extends Omit<Generation, 'inputUrl'> {
+  // inputUrl is not included in list responses to save space
+  // outputUrl is included for completed generations (presigned URL)
 }
 
 export interface CreditsInfo {
@@ -31,7 +38,6 @@ export const CREDIT_PACKS: CreditsPack[] = [
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
-const GENERATIONS_PREFIX = 'generations_';
 
 const apiFetch = async (path: string, options: RequestInit = {}) => {
   const response = await fetch(`${API_BASE_URL}${path}`, {
@@ -62,17 +68,6 @@ const apiFetch = async (path: string, options: RequestInit = {}) => {
   return response.json();
 };
 
-const getStoredGenerations = (userEmail: string | null): Generation[] => {
-  if (!userEmail) return [];
-  const key = `${GENERATIONS_PREFIX}${userEmail}`;
-  return JSON.parse(localStorage.getItem(key) || '[]');
-};
-
-const setStoredGenerations = (userEmail: string, generations: Generation[]) => {
-  const key = `${GENERATIONS_PREFIX}${userEmail}`;
-  localStorage.setItem(key, JSON.stringify(generations));
-};
-
 // API Functions
 
 export async function getCredits(): Promise<CreditsInfo> {
@@ -86,14 +81,9 @@ export async function getCredits(): Promise<CreditsInfo> {
 
 export async function generateImage(
   file: File,
-  category: 'portraits' | 'editorial' | 'documentary'
+  category: 'studio-portrait' | 'fashion-editorial' | 'editorial-moment' | 'portrait-honest'
 ): Promise<{ jobId: string }> {
   await delay(200);
-
-  await apiFetch('/credits/consume', {
-    method: 'POST',
-    body: JSON.stringify({ amount: 1 }),
-  });
 
   const formData = new FormData();
   formData.append('type', category);
@@ -120,11 +110,11 @@ export async function generateImage(
   return { jobId: data.jobId };
 }
 
-export async function getGenerationStatus(jobId: string): Promise<Generation | null> {
+export async function getGenerationStatus(jobId: string): Promise<Generation> {
   await delay(200);
 
   const data = await apiFetch(`/generate/${jobId}`);
-  const generation: Generation = {
+  return {
     id: data.id,
     inputUrl: data.inputUrl || '',
     outputUrl: data.outputUrl || '',
@@ -132,37 +122,58 @@ export async function getGenerationStatus(jobId: string): Promise<Generation | n
     category: data.category,
     status: data.status,
     createdAt: data.createdAt,
+    completedAt: data.completedAt || undefined,
   };
-
-  if (generation.status === 'completed') {
-    const user = await getUser();
-    if (user?.email) {
-      const generations = getStoredGenerations(user.email);
-      if (!generations.find(item => item.id === generation.id)) {
-        generations.unshift(generation);
-        setStoredGenerations(user.email, generations);
-      }
-    }
-  }
-
-  return generation;
 }
 
-export async function getGenerations(): Promise<Generation[]> {
-  await delay(300);
+/**
+ * List generations from the backend.
+ * Scope can be 'auto' (user if logged in, else guest), 'user', or 'guest'.
+ */
+export async function getGenerations(
+  scope: 'auto' | 'user' | 'guest' = 'auto',
+  limit = 50,
+  cursor?: string
+): Promise<{ generations: Generation[]; cursor?: string }> {
+  await delay(200);
 
-  const user = await getUser();
-  return getStoredGenerations(user?.email ?? null);
+  const params = new URLSearchParams({ scope: scope, limit: limit.toString() });
+  if (cursor) {
+    params.set('cursor', cursor);
+  }
+
+  const data = await apiFetch(`/generations?${params.toString()}`);
+
+  return {
+    generations: data.generations.map((g: any) => ({
+      id: g.id,
+      category: g.category,
+      status: g.status,
+      error: g.error || undefined,
+      createdAt: g.createdAt,
+      completedAt: g.completedAt || undefined,
+      outputUrl: g.outputUrl || undefined,
+    })),
+    cursor: data.cursor || undefined,
+  };
+}
+
+/**
+ * Clear all generations for the current guest session.
+ * Only works for guest users (not logged in).
+ */
+export async function clearGuestHistory(): Promise<void> {
+  await apiFetch('/history/clear', { method: 'POST' });
 }
 
 export async function createCheckout(packId: string): Promise<{ success: boolean }> {
   await delay(800);
-  
+
   const pack = CREDIT_PACKS.find(p => p.id === packId);
   if (!pack) {
     throw new Error('Invalid pack');
   }
-  
+
   await apiFetch('/credits/checkout', {
     method: 'POST',
     body: JSON.stringify({ packSize: pack.credits }),

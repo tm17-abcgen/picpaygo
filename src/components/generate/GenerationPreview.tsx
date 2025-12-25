@@ -27,9 +27,10 @@ const statusDot: Record<Status, string> = {
 };
 
 const categoryLabel: Record<Category, string> = {
-  portraits: 'Portraits',
-  editorial: 'Editorial',
-  documentary: 'Documentary',
+  'studio-portrait': 'Studio Portrait',
+  'fashion-editorial': 'Fashion Editorial',
+  'editorial-moment': 'Editorial Moment',
+  'portrait-honest': 'Honest Portrait',
 };
 
 export function GenerationPreview({ inputUrl, outputUrl, status, category }: GenerationPreviewProps) {

@@ -1,6 +1,6 @@
 import { Check } from 'lucide-react';
 
-export type Category = 'portraits' | 'editorial' | 'documentary';
+export type Category = 'studio-portrait' | 'fashion-editorial' | 'editorial-moment' | 'portrait-honest';
 
 interface CategoryPickerProps {
   selected: Category;
@@ -9,9 +9,10 @@ interface CategoryPickerProps {
 }
 
 const categories: { id: Category; label: string; description: string }[] = [
-  { id: 'portraits', label: 'Portraits', description: 'Classic headshots and profile photos' },
-  { id: 'editorial', label: 'Editorial', description: 'Magazine-style fashion portraits' },
-  { id: 'documentary', label: 'Documentary', description: 'Natural, candid moments' },
+  { id: 'studio-portrait', label: 'Studio Portrait', description: 'Natural presence with authentic features' },
+  { id: 'fashion-editorial', label: 'Fashion Editorial', description: 'Authentic styling celebrating real beauty' },
+  { id: 'editorial-moment', label: 'Editorial Moment', description: 'Real-life candid street photography style' },
+  { id: 'portrait-honest', label: 'Honest Portrait', description: 'Clinical realism documenting truth' },
 ];
 
 export function CategoryPicker({ selected, onChange, disabled }: CategoryPickerProps) {

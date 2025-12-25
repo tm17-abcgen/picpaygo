@@ -54,7 +54,7 @@ const steps = [
   },
   {
     title: 'Pick a category',
-    description: 'Portrait, Editorial, Fashion, or Vogue Italia.',
+    description: 'Studio Portrait, Fashion Editorial, Editorial Moment, or Honest Portrait.',
   },
   {
     title: 'Generate and download',
@@ -65,7 +65,7 @@ const steps = [
 export default function Generate() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [category, setCategory] = useState<Category>('portraits');
+  const [category, setCategory] = useState<Category>('studio-portrait');
   const [status, setStatus] = useState<Status>('idle');
   const [jobId, setJobId] = useState<string | null>(null);
   const [resultUrl, setResultUrl] = useState<string | null>(null);
@@ -112,7 +112,7 @@ export default function Generate() {
     setError(null);
     
     try {
-      const result = await generateImage(selectedFile, category, isLoggedIn);
+      const result = await generateImage(selectedFile, category);
       setJobId(result.jobId);
       setStatus('queued');
       await refreshCredits();
