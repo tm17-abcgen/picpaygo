@@ -10,10 +10,12 @@ import { Loader2, LogOut, Download, Coins, ImageIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Account() {
-  const { user, isLoggedIn, credits, login, logout, loading: authLoading } = useCredits();
+  const { user, isLoggedIn, credits, login, register, logout, loading: authLoading } = useCredits();
   const [generations, setGenerations] = useState<Generation[]>([]);
   const [loadingGenerations, setLoadingGenerations] = useState(false);
   const [showBuyModal, setShowBuyModal] = useState(false);
+  const [activeTab, setActiveTab] = useState<'profile' | 'credits' | 'history'>('profile');
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   
   // Login form state
   const [email, setEmail] = useState('');
@@ -24,6 +26,9 @@ export default function Account() {
   useEffect(() => {
     if (isLoggedIn) {
       loadGenerations();
+    }
+    if (!isLoggedIn && activeTab === 'history') {
+      setActiveTab('profile');
     }
   }, [isLoggedIn]);
 
@@ -52,15 +57,27 @@ export default function Account() {
     
     setLoginLoading(true);
     try {
-      await login(email, password);
-      toast({
-        title: 'Welcome!',
-        description: 'You are now logged in.',
-      });
+      if (authMode === 'login') {
+        await login(email, password);
+        toast({
+          title: 'Welcome!',
+          description: 'You are now logged in.',
+        });
+      } else {
+        const result = await register(email, password);
+        toast({
+          title: 'Check your email',
+          description: result.verificationRequired
+            ? 'We sent a verification link. Verify your email, then log in.'
+            : 'Account created. Please log in.',
+        });
+        setAuthMode('login');
+      }
     } catch (error) {
+      const message = error instanceof Error ? error.message : 'Please check your credentials.';
       toast({
-        title: 'Login failed',
-        description: 'Please check your credentials.',
+        title: authMode === 'login' ? 'Login failed' : 'Registration failed',
+        description: message,
         variant: 'destructive',
       });
     } finally {
@@ -101,77 +118,113 @@ export default function Account() {
     <Layout>
       <SEO title="Account" description="Manage your AI portrait account" />
       
-      <div className="max-w-3xl mx-auto py-4 sm:py-6 px-4">
+      <div className="max-w-4xl mx-auto py-4 sm:py-6 px-4">
         <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-6 text-center">
           Account
         </h1>
 
-        {!isLoggedIn ? (
-          /* Login form */
-          <div className="max-w-sm mx-auto">
-            <div className="p-6 rounded-lg border border-border bg-card">
-              <h2 className="text-lg font-semibold text-foreground mb-4">
-                Login to Your Account
-              </h2>
-              <form onSubmit={handleLogin} className="space-y-4">
-                <div>
-                  <label htmlFor="email" className="text-sm font-medium text-foreground mb-1 block">
-                    Email
-                  </label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="you@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    disabled={loginLoading}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="password" className="text-sm font-medium text-foreground mb-1 block">
-                    Password
-                  </label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    disabled={loginLoading}
-                  />
-                </div>
-                <Button type="submit" className="w-full" disabled={loginLoading}>
-                  {loginLoading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Logging in...
-                    </>
-                  ) : (
-                    'Login'
-                  )}
-                </Button>
-              </form>
-              <p className="text-xs text-muted-foreground mt-4 text-center">
-                Demo: Enter any email and password to login.
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {/* Profile section */}
-            <div className="p-6 rounded-lg border border-border bg-card">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-foreground">Profile</h2>
-                <Button variant="outline" size="sm" onClick={handleLogout}>
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Logout
-                </Button>
-              </div>
-              <p className="text-muted-foreground">{user?.email}</p>
-            </div>
+        <div className="flex flex-wrap justify-center gap-6 border-b border-border/60 pb-4 mb-6">
+          {['profile', 'credits', ...(isLoggedIn ? ['history'] : [])].map((tab) => {
+            const label = tab === 'history' ? 'My Generations' : tab.charAt(0).toUpperCase() + tab.slice(1);
+            const isActive = activeTab === tab;
+            return (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => setActiveTab(tab as typeof activeTab)}
+                className={`text-[11px] uppercase tracking-[0.35em] pb-2 border-b transition-colors ${
+                  isActive ? 'text-foreground border-foreground/70' : 'text-muted-foreground/70 border-transparent'
+                }`}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
 
-            {/* Credits section */}
-            <div className="p-6 rounded-lg border border-border bg-card">
+        {activeTab === 'profile' && (
+          <>
+            {!isLoggedIn ? (
+              <div className="max-w-md mx-auto">
+                <div className="p-6 rounded-2xl border border-border/60 bg-background/80">
+                  <p className="text-[11px] uppercase tracking-[0.3em] text-muted-foreground mb-3">
+                    {authMode === 'login' ? 'Login' : 'Register'}
+                  </p>
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold text-foreground">
+                      {authMode === 'login' ? 'Login to your account' : 'Create your account'}
+                    </h2>
+                    <button
+                      type="button"
+                      onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')}
+                      className="text-[11px] uppercase tracking-[0.3em] text-muted-foreground/80 hover:text-foreground"
+                    >
+                      {authMode === 'login' ? 'Register' : 'Login'}
+                    </button>
+                  </div>
+                  <form onSubmit={handleLogin} className="space-y-4">
+                    <div>
+                      <label htmlFor="email" className="text-sm font-medium text-foreground mb-1 block">
+                        Email
+                      </label>
+                      <Input
+                        id="email"
+                        type="email"
+                        placeholder="you@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        disabled={loginLoading}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="password" className="text-sm font-medium text-foreground mb-1 block">
+                        Password
+                      </label>
+                      <Input
+                        id="password"
+                        type="password"
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        disabled={loginLoading}
+                      />
+                    </div>
+                    <Button type="submit" className="w-full" disabled={loginLoading}>
+                      {loginLoading ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          {authMode === 'login' ? 'Logging in...' : 'Creating account...'}
+                        </>
+                      ) : (
+                        authMode === 'login' ? 'Login' : 'Create account'
+                      )}
+                    </Button>
+                  </form>
+                  <p className="text-xs text-muted-foreground mt-4 text-left">
+                    You will need to verify your email before you can log in.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="max-w-md mx-auto">
+                <div className="p-6 rounded-2xl border border-border/60 bg-background/80">
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-lg font-semibold text-foreground">Profile</h2>
+                    <Button variant="outline" size="sm" onClick={handleLogout}>
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Logout
+                    </Button>
+                  </div>
+                  <p className="text-muted-foreground">{user?.email}</p>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
+        {activeTab === 'credits' && (
+          <div className="max-w-md mx-auto">
+            <div className="p-6 rounded-2xl border border-border/60 bg-background/80">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-lg font-semibold text-foreground mb-1">Credits</h2>
@@ -181,55 +234,66 @@ export default function Account() {
                     <span className="text-muted-foreground">available</span>
                   </div>
                 </div>
-                <Button onClick={() => setShowBuyModal(true)}>
-                  Buy Credits
-                </Button>
+                {isLoggedIn ? (
+                  <Button onClick={() => setShowBuyModal(true)}>
+                    Buy Credits
+                  </Button>
+                ) : (
+                  <Button variant="outline" onClick={() => setActiveTab('profile')}>
+                    Login to Buy
+                  </Button>
+                )}
               </div>
             </div>
+          </div>
+        )}
 
-            {/* Generations history */}
-            <div>
-              <h2 className="text-lg font-semibold text-foreground mb-4">
-                Your Generations
-              </h2>
-              
-              {loadingGenerations ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                </div>
-              ) : generations.length === 0 ? (
-                <div className="text-center py-12 border border-dashed border-border rounded-lg">
-                  <ImageIcon className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                  <p className="text-muted-foreground">No generations yet.</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  {generations.filter(g => g.status === 'completed').map((generation) => (
-                    <div
-                      key={generation.id}
-                      className="group relative aspect-square rounded-lg overflow-hidden bg-secondary"
-                    >
-                      <img
-                        src={generation.outputUrl}
-                        alt="Generated portrait"
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                      />
-                      <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/40 transition-colors flex items-center justify-center">
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          className="opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={() => handleDownload(generation.outputUrl)}
-                        >
-                          <Download className="h-4 w-4" />
-                        </Button>
+        {activeTab === 'history' && isLoggedIn && (
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-lg font-semibold text-foreground mb-4 text-center">
+              Your Generations
+            </h2>
+            {loadingGenerations ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : generations.length === 0 ? (
+              <div className="text-center py-12 border border-dashed border-border/70 rounded-2xl">
+                <ImageIcon className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                <p className="text-muted-foreground">No generations yet.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                {generations
+                  .filter((generation) => generation.status === 'completed')
+                  .map((generation) => {
+                    const outputUrl = generation.outputUrl || '';
+                    return (
+                      <div
+                        key={generation.id}
+                        className="group relative aspect-square rounded-2xl overflow-hidden bg-secondary"
+                      >
+                        <img
+                          src={outputUrl}
+                          alt="Generated portrait"
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/40 transition-colors flex items-center justify-center">
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            className="opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => handleDownload(outputUrl)}
+                          >
+                            <Download className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                    );
+                  })}
+              </div>
+            )}
           </div>
         )}
       </div>

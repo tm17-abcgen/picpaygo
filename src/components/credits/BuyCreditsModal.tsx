@@ -14,11 +14,20 @@ interface BuyCreditsModalProps {
 export function BuyCreditsModal({ open, onOpenChange }: BuyCreditsModalProps) {
   const [selectedPack, setSelectedPack] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const { refreshCredits } = useCredits();
+  const { refreshCredits, isLoggedIn } = useCredits();
   const { toast } = useToast();
 
   const handlePurchase = async () => {
     if (!selectedPack) return;
+
+    if (!isLoggedIn) {
+      toast({
+        title: 'Login required',
+        description: 'Please sign in to buy credits.',
+        variant: 'destructive',
+      });
+      return;
+    }
     
     setLoading(true);
     try {

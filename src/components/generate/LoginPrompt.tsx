@@ -10,10 +10,11 @@ interface LoginPromptProps {
 }
 
 export function LoginPrompt({ onSuccess }: LoginPromptProps) {
+  const [mode, setMode] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useCredits();
+  const { login, register } = useCredits();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,16 +31,30 @@ export function LoginPrompt({ onSuccess }: LoginPromptProps) {
     
     setLoading(true);
     try {
-      await login(email, password);
-      toast({
-        title: 'Welcome back!',
-        description: 'You are now logged in.',
-      });
-      onSuccess?.();
+      if (mode === 'login') {
+        await login(email, password);
+        toast({
+          title: 'Welcome back!',
+          description: 'You are now logged in.',
+        });
+        onSuccess?.();
+      } else {
+        const result = await register(email, password);
+        toast({
+          title: 'Check your email',
+          description: result.verificationRequired
+            ? 'We sent a verification link. Verify your email, then log in.'
+            : 'Account created. Please log in.',
+        });
+        setMode('login');
+      }
     } catch (error) {
+      const message = error instanceof Error
+        ? error.message
+        : 'Please check your credentials and try again.';
       toast({
-        title: 'Login failed',
-        description: 'Please check your credentials and try again.',
+        title: mode === 'login' ? 'Login failed' : 'Registration failed',
+        description: message,
         variant: 'destructive',
       });
     } finally {
@@ -48,10 +63,21 @@ export function LoginPrompt({ onSuccess }: LoginPromptProps) {
   };
 
   return (
-    <div className="p-4 rounded-lg bg-secondary border border-border">
-      <div className="flex items-center gap-2 mb-3">
+    <div className="rounded-2xl border border-border/60 bg-background/80 p-5">
+      <div className="flex items-center justify-between gap-4 mb-4 text-muted-foreground">
+        <div className="flex items-center gap-2">
         <LogIn className="h-4 w-4 text-accent" />
-        <span className="font-medium text-sm">Login to download</span>
+          <span className="text-[11px] uppercase tracking-[0.3em]">
+            {mode === 'login' ? 'Login to continue' : 'Create an account'}
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
+          className="text-[11px] uppercase tracking-[0.3em] text-muted-foreground/80 hover:text-foreground"
+        >
+          {mode === 'login' ? 'Register' : 'Login'}
+        </button>
       </div>
       
       <form onSubmit={handleSubmit} className="space-y-3">
@@ -75,10 +101,10 @@ export function LoginPrompt({ onSuccess }: LoginPromptProps) {
           {loading ? (
             <>
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Logging in...
+              {mode === 'login' ? 'Logging in...' : 'Creating account...'}
             </>
           ) : (
-            'Login'
+            mode === 'login' ? 'Login' : 'Create account'
           )}
         </Button>
       </form>

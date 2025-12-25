@@ -1,10 +1,10 @@
-// Mock API service for AI portrait generation
-// These are placeholder functions that return mock data
+// API service for AI portrait generation (auth + credits via backend)
 
 export interface Generation {
   id: string;
-  inputUrl: string;
-  outputUrl: string;
+  inputUrl?: string;
+  outputUrl?: string;
+  error?: string;
   category: 'portraits' | 'editorial' | 'documentary';
   status: 'queued' | 'processing' | 'completed' | 'failed';
   createdAt: string;
@@ -30,54 +30,57 @@ export const CREDIT_PACKS: CreditsPack[] = [
 // Simulated delay for mock API calls
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Get visitor ID from localStorage or create one
-const getVisitorId = (): string => {
-  let visitorId = localStorage.getItem('visitor_id');
-  if (!visitorId) {
-    visitorId = `visitor_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    localStorage.setItem('visitor_id', visitorId);
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+const GENERATIONS_PREFIX = 'generations_';
+
+const apiFetch = async (path: string, options: RequestInit = {}) => {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(options.headers || {}),
+    },
+    ...options,
+  });
+
+  if (!response.ok) {
+    let message = 'Request failed';
+    try {
+      const data = await response.json();
+      if (data?.error) message = data.error;
+      if (data?.detail) message = data.detail;
+    } catch {
+      // ignore
+    }
+    throw new Error(message);
   }
-  return visitorId;
-};
 
-// Get credits from localStorage
-const getStoredCredits = (): number => {
-  const stored = localStorage.getItem('credits');
-  if (stored === null) {
-    // First visit: give 3 free credits
-    localStorage.setItem('credits', '3');
-    return 3;
+  if (response.status === 204) {
+    return null;
   }
-  return parseInt(stored, 10);
+
+  return response.json();
 };
 
-// Set credits in localStorage
-const setStoredCredits = (credits: number): void => {
-  localStorage.setItem('credits', credits.toString());
+const getStoredGenerations = (userEmail: string | null): Generation[] => {
+  if (!userEmail) return [];
+  const key = `${GENERATIONS_PREFIX}${userEmail}`;
+  return JSON.parse(localStorage.getItem(key) || '[]');
 };
 
-// Mock user state
-const getMockUser = () => {
-  const userData = localStorage.getItem('mock_user');
-  return userData ? JSON.parse(userData) : null;
-};
-
-export const setMockUser = (user: { email: string } | null) => {
-  if (user) {
-    localStorage.setItem('mock_user', JSON.stringify(user));
-  } else {
-    localStorage.removeItem('mock_user');
-  }
+const setStoredGenerations = (userEmail: string, generations: Generation[]) => {
+  const key = `${GENERATIONS_PREFIX}${userEmail}`;
+  localStorage.setItem(key, JSON.stringify(generations));
 };
 
 // API Functions
 
 export async function getCredits(): Promise<CreditsInfo> {
-  await delay(300);
-  const user = getMockUser();
+  await delay(200);
+  const data = await apiFetch('/credits');
   return {
-    balance: getStoredCredits(),
-    isLoggedIn: !!user,
+    balance: data.balance,
+    isLoggedIn: data.isLoggedIn,
   };
 }
 
@@ -85,81 +88,71 @@ export async function generateImage(
   file: File,
   category: 'portraits' | 'editorial' | 'documentary'
 ): Promise<{ jobId: string }> {
-  await delay(500);
-  
-  const credits = getStoredCredits();
-  if (credits < 1) {
-    throw new Error('Insufficient credits');
-  }
-  
-  // Deduct credit
-  setStoredCredits(credits - 1);
-  
-  // Create job
-  const jobId = `job_${Date.now()}`;
-  const inputUrl = URL.createObjectURL(file);
-  
-  // Store job in localStorage
-  const jobs = JSON.parse(localStorage.getItem('generation_jobs') || '{}');
-  jobs[jobId] = {
-    id: jobId,
-    inputUrl,
-    outputUrl: '',
-    category,
-    status: 'queued',
-    createdAt: new Date().toISOString(),
-  };
-  localStorage.setItem('generation_jobs', JSON.stringify(jobs));
-  
-  // Simulate processing in background
-  setTimeout(() => {
-    const jobs = JSON.parse(localStorage.getItem('generation_jobs') || '{}');
-    if (jobs[jobId]) {
-      jobs[jobId].status = 'processing';
-      localStorage.setItem('generation_jobs', JSON.stringify(jobs));
-    }
-  }, 1000);
-  
-  setTimeout(() => {
-    const jobs = JSON.parse(localStorage.getItem('generation_jobs') || '{}');
-    if (jobs[jobId]) {
-      // Use a mock generated image (using the input as output for demo)
-      jobs[jobId].status = 'completed';
-      jobs[jobId].outputUrl = getMockOutputImage(category);
-      localStorage.setItem('generation_jobs', JSON.stringify(jobs));
-      
-      // Add to generations history
-      const generations = JSON.parse(localStorage.getItem('generations') || '[]');
-      generations.unshift(jobs[jobId]);
-      localStorage.setItem('generations', JSON.stringify(generations));
-    }
-  }, 4000);
-  
-  return { jobId };
-}
+  await delay(200);
 
-function getMockOutputImage(category: string): string {
-  // Return example images based on category
-  const images: Record<string, string> = {
-    portraits: 'https://images.pexels.com/photos/19456424/pexels-photo-19456424.jpeg?auto=compress&cs=tinysrgb&w=800',
-    editorial: 'https://images.pexels.com/photos/2681751/pexels-photo-2681751.jpeg?auto=compress&cs=tinysrgb&w=800',
-    documentary: 'https://images.pexels.com/photos/3785079/pexels-photo-3785079.jpeg?auto=compress&cs=tinysrgb&w=800',
-  };
-  return images[category] || images.portraits;
+  await apiFetch('/credits/consume', {
+    method: 'POST',
+    body: JSON.stringify({ amount: 1 }),
+  });
+
+  const formData = new FormData();
+  formData.append('type', category);
+  formData.append('image', file);
+
+  const response = await fetch(`${API_BASE_URL}/generate`, {
+    method: 'POST',
+    credentials: 'include',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    let message = 'Request failed';
+    try {
+      const data = await response.json();
+      if (data?.detail) message = data.detail;
+    } catch {
+      // ignore
+    }
+    throw new Error(message);
+  }
+
+  const data = await response.json();
+  return { jobId: data.jobId };
 }
 
 export async function getGenerationStatus(jobId: string): Promise<Generation | null> {
   await delay(200);
-  
-  const jobs = JSON.parse(localStorage.getItem('generation_jobs') || '{}');
-  return jobs[jobId] || null;
+
+  const data = await apiFetch(`/generate/${jobId}`);
+  const generation: Generation = {
+    id: data.id,
+    inputUrl: data.inputUrl || '',
+    outputUrl: data.outputUrl || '',
+    error: data.error || undefined,
+    category: data.category,
+    status: data.status,
+    createdAt: data.createdAt,
+  };
+
+  if (generation.status === 'completed') {
+    const user = await getUser();
+    if (user?.email) {
+      const generations = getStoredGenerations(user.email);
+      if (!generations.find(item => item.id === generation.id)) {
+        generations.unshift(generation);
+        setStoredGenerations(user.email, generations);
+      }
+    }
+  }
+
+  return generation;
 }
 
 export async function getGenerations(): Promise<Generation[]> {
   await delay(300);
-  
-  const generations = JSON.parse(localStorage.getItem('generations') || '[]');
-  return generations;
+
+  const user = await getUser();
+  return getStoredGenerations(user?.email ?? null);
 }
 
 export async function createCheckout(packId: string): Promise<{ success: boolean }> {
@@ -170,31 +163,53 @@ export async function createCheckout(packId: string): Promise<{ success: boolean
     throw new Error('Invalid pack');
   }
   
-  // Add credits
-  const currentCredits = getStoredCredits();
-  setStoredCredits(currentCredits + pack.credits);
-  
+  await apiFetch('/credits/checkout', {
+    method: 'POST',
+    body: JSON.stringify({ packSize: pack.credits }),
+  });
+
   return { success: true };
 }
 
 // Auth mock functions
 export async function login(email: string, password: string): Promise<{ success: boolean }> {
-  await delay(500);
-  
-  if (!email || !password) {
-    throw new Error('Email and password required');
-  }
-  
-  setMockUser({ email });
+  await delay(300);
+  await apiFetch('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email, password }),
+  });
   return { success: true };
+}
+
+export async function register(
+  email: string,
+  password: string
+): Promise<{ verificationRequired: boolean }> {
+  await delay(300);
+  const data = await apiFetch('/auth/register', {
+    method: 'POST',
+    body: JSON.stringify({ email, password }),
+  });
+  return { verificationRequired: !!data?.verificationRequired };
 }
 
 export async function logout(): Promise<void> {
   await delay(200);
-  setMockUser(null);
+  await apiFetch('/auth/logout', { method: 'POST' });
 }
 
-export async function getUser(): Promise<{ email: string } | null> {
+export async function getUser(): Promise<{ email: string; isVerified?: boolean } | null> {
   await delay(100);
-  return getMockUser();
+  const data = await apiFetch('/auth/me');
+  if (!data?.user) return null;
+  return {
+    email: data.user.email,
+    isVerified: data.user.is_verified ?? data.user.isVerified,
+  };
+}
+
+export async function verifyEmail(token: string): Promise<{ success: boolean }> {
+  await delay(200);
+  await apiFetch(`/auth/verify?token=${encodeURIComponent(token)}`);
+  return { success: true };
 }

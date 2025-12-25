@@ -1,8 +1,9 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { getCredits, getUser, login as apiLogin, logout as apiLogout, CreditsInfo } from '@/services/api';
+import { getCredits, getUser, login as apiLogin, logout as apiLogout, register as apiRegister } from '@/services/api';
 
 interface User {
   email: string;
+  isVerified?: boolean;
 }
 
 interface CreditsContextType {
@@ -12,6 +13,7 @@ interface CreditsContextType {
   loading: boolean;
   refreshCredits: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string) => Promise<{ verificationRequired: boolean }>;
   logout: () => Promise<void>;
 }
 
@@ -56,9 +58,15 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
     await loadUserAndCredits();
   };
 
+  const register = async (email: string, password: string) => {
+    const result = await apiRegister(email, password);
+    await loadUserAndCredits();
+    return result;
+  };
+
   const logout = async () => {
     await apiLogout();
-    setUser(null);
+    await loadUserAndCredits();
   };
 
   return (
@@ -70,6 +78,7 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
         loading,
         refreshCredits,
         login,
+        register,
         logout,
       }}
     >

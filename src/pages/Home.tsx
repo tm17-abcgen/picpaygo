@@ -47,8 +47,8 @@ export default function Home() {
   return (
     <Layout>
       <SEO title={seoTitle} description={seoDescription} type="website" />
-      <div className="flex flex-col items-center gap-8 py-4 sm:py-6">
-        <div className="text-center px-4 max-w-3xl space-y-3">
+      <div className="flex flex-col items-center gap-10 py-4 sm:py-6">
+        <div className="px-4 max-w-3xl space-y-4 text-center">
           <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">
             PicPayGo Studio
           </p>
@@ -59,12 +59,14 @@ export default function Home() {
             Upload a portrait, choose an editorial direction, and receive a clean, professional image that
             still looks like you.
           </p>
-          <Link to="/generate">
-            <Button size="lg">
-              <Sparkles className="h-4 w-4 mr-2" />
-              Generate Now
-            </Button>
-          </Link>
+          <div className="flex justify-center">
+            <Link to="/generate">
+              <Button size="lg">
+                <Sparkles className="h-4 w-4 mr-2" />
+                Generate Now
+              </Button>
+            </Link>
+          </div>
         </div>
         
         <StyleExampleSwitcher />

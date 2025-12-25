@@ -143,6 +143,49 @@ All colors MUST be HSL.
   }
 }
 
+@keyframes photolab-scan {
+  0% {
+    transform: translateY(-60%);
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(120%);
+    opacity: 0;
+  }
+}
+
+@keyframes photolab-shimmer {
+  0% {
+    transform: translateX(-55%);
+    opacity: 0;
+  }
+  35% {
+    opacity: 0.45;
+  }
+  100% {
+    transform: translateX(55%);
+    opacity: 0;
+  }
+}
+
+@keyframes photolab-develop {
+  0% {
+    filter: blur(16px) saturate(1.05);
+    transform: scale(1.03);
+  }
+  50% {
+    filter: blur(6px) saturate(1.12);
+    transform: scale(1);
+  }
+  100% {
+    filter: blur(16px) saturate(1.05);
+    transform: scale(1.03);
+  }
+}
+
 @layer base {
   * {
     @apply border-border;
@@ -184,6 +227,68 @@ All colors MUST be HSL.
   .grain-panel > * {
     position: relative;
     z-index: 1;
+  }
+
+  .grain-panel > .absolute,
+  .grain-panel > .fixed,
+  .grain-panel > .sticky {
+    position: absolute;
+  }
+
+  .photolab-scan {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .photolab-scan::after {
+    content: "";
+    position: absolute;
+    inset: -40% 0;
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.05) 40%,
+      rgba(255, 255, 255, 0.35) 50%,
+      rgba(255, 255, 255, 0.08) 60%,
+      transparent 100%
+    );
+    animation: photolab-scan 3.4s ease-in-out infinite;
+    mix-blend-mode: screen;
+  }
+
+  .photolab-shimmer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      120deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.08) 40%,
+      rgba(255, 255, 255, 0.25) 50%,
+      rgba(255, 255, 255, 0.08) 60%,
+      transparent 100%
+    );
+    animation: photolab-shimmer 2.8s ease-in-out infinite;
+    mix-blend-mode: screen;
+    pointer-events: none;
+  }
+
+  .photolab-develop {
+    animation: photolab-develop 3.6s ease-in-out infinite;
+  }
+
+  .editorial-grid::after {
+    content: "";
+    position: absolute;
+    top: 1.5rem;
+    bottom: 1.5rem;
+    left: 50%;
+    width: 1px;
+    background: hsl(var(--border) / 0.35);
+    opacity: 0.35;
+    pointer-events: none;
+    z-index: 0;
   }
 
   /* Screen reader only utility */

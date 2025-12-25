@@ -6,6 +6,8 @@ import {
   Sun,
   User,
   Circle,
+  Download,
+  RefreshCw,
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
@@ -15,7 +17,7 @@ import { Button } from '@/components/ui/button';
 import { UploadPanel } from '@/components/generate/UploadPanel';
 import { CategoryPicker, Category } from '@/components/generate/CategoryPicker';
 import { GenerationStatus, Status } from '@/components/generate/GenerationStatus';
-import { ResultCard } from '@/components/generate/ResultCard';
+import { GenerationPreview } from '@/components/generate/GenerationPreview';
 import { LoginPrompt } from '@/components/generate/LoginPrompt';
 import { BuyCreditsModal } from '@/components/credits/BuyCreditsModal';
 import { useCredits } from '@/context/CreditsContext';
@@ -48,15 +50,15 @@ const tips = [
 const steps = [
   {
     title: 'Upload a portrait',
-    description: 'Choose a clear photo with soft light and a neutral background.',
+    description: 'Soft light, neutral background.',
   },
   {
     title: 'Pick a category',
-    description: 'Select Portrait, Editorial, Fashion, or Vogue Italia styling.',
+    description: 'Portrait, Editorial, Fashion, or Vogue Italia.',
   },
   {
     title: 'Generate and download',
-    description: 'We deliver a refined result that still looks like you.',
+    description: 'A refined result that still looks like you.',
   },
 ];
 
@@ -98,7 +100,11 @@ export default function Generate() {
     if (!selectedFile) return;
     
     if (credits < 1) {
-      setShowBuyModal(true);
+      if (isLoggedIn) {
+        setShowBuyModal(true);
+      } else {
+        setShowLoginPrompt(true);
+      }
       return;
     }
     
@@ -106,7 +112,7 @@ export default function Generate() {
     setError(null);
     
     try {
-      const result = await generateImage(selectedFile, category);
+      const result = await generateImage(selectedFile, category, isLoggedIn);
       setJobId(result.jobId);
       setStatus('queued');
       await refreshCredits();
@@ -130,10 +136,11 @@ export default function Generate() {
       if (generation) {
         if (generation.status === 'completed') {
           setStatus('completed');
-          setResultUrl(generation.outputUrl);
+          setResultUrl(generation.outputUrl || null);
         } else if (generation.status === 'failed') {
           setStatus('failed');
-          setError('Generation failed. Please try again.');
+          setResultUrl(null);
+          setError(generation.error || 'Generation failed. Please try again.');
         } else {
           setStatus(generation.status as Status);
         }
@@ -156,12 +163,18 @@ export default function Generate() {
   };
 
   const handleDownload = () => {
-    if (!isLoggedIn) {
-      setShowLoginPrompt(true);
-    }
+    if (!resultUrl) return;
+    const link = document.createElement('a');
+    link.href = resultUrl;
+    link.download = `ai-portrait-${Date.now()}.jpg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const isGenerating = status === 'uploading' || status === 'queued' || status === 'processing';
+  const showTransformation = !!selectedFile && !!previewUrl && (isGenerating || status === 'completed');
+  const previewSource = previewUrl ?? '';
 
   return (
     <Layout>
@@ -170,7 +183,7 @@ export default function Generate() {
         description="PicPayGo turns your photo into professional portraits, editorial looks, and fashion-ready imagery."
       />
       
-      <div className="max-w-3xl mx-auto py-4 sm:py-6 px-4 space-y-8">
+      <div className="max-w-3xl mx-auto py-4 sm:py-6 px-4 space-y-6">
         <div className="text-center space-y-3">
           <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">
             PicPayGo Studio
@@ -183,35 +196,46 @@ export default function Generate() {
           </p>
         </div>
 
-        <div className="rounded-[28px] border border-border bg-card/60 p-6 sm:p-7 space-y-4">
-          <p className="text-[11px] uppercase tracking-[0.35em] text-muted-foreground">
+        <div className="border-y border-border/60 py-5">
+          <p className="text-[11px] uppercase tracking-[0.35em] text-muted-foreground text-center mb-5">
             How it works
           </p>
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-5 sm:grid-cols-3">
             {steps.map((step, index) => (
-              <div key={step.title} className="rounded-2xl border border-border/70 bg-background/80 p-4">
+              <div key={step.title} className="space-y-2">
                 <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
                   {String(index + 1).padStart(2, '0')}
                 </p>
-                <h3 className="mt-2 text-sm font-semibold text-foreground">{step.title}</h3>
-                <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{step.description}</p>
+                <h3 className="text-sm font-semibold text-foreground">{step.title}</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">{step.description}</p>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="space-y-5 max-w-2xl mx-auto">
+        <div className="space-y-4 max-w-2xl mx-auto">
           {/* Result display */}
-          {resultUrl && status === 'completed' ? (
-            <div className="space-y-5">
-              <ResultCard
-                imageUrl={resultUrl}
-                onGenerateAnother={handleGenerateAnother}
-                onDownload={handleDownload}
+          {showTransformation ? (
+            <div className="space-y-6">
+              <GenerationPreview
+                inputUrl={previewSource}
+                outputUrl={resultUrl}
+                status={status}
+                category={category}
               />
-              
-              {showLoginPrompt && !isLoggedIn && (
-                <LoginPrompt onSuccess={() => setShowLoginPrompt(false)} />
+
+              {status === 'completed' && resultUrl && (
+                <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+                  <Button onClick={handleDownload} className="flex-1">
+                    <Download className="h-4 w-4 mr-2" />
+                    Download
+                  </Button>
+
+                  <Button onClick={handleGenerateAnother} variant="outline" className="flex-1">
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    New
+                  </Button>
+                </div>
               )}
             </div>
           ) : (
@@ -262,10 +286,10 @@ export default function Generate() {
                   {credits < 1 && (
                     <Button
                       variant="outline"
-                      onClick={() => setShowBuyModal(true)}
+                      onClick={() => (isLoggedIn ? setShowBuyModal(true) : setShowLoginPrompt(true))}
                       className="w-full"
                     >
-                      Buy Credits to Continue
+                      {isLoggedIn ? 'Buy Credits to Continue' : 'Login to Buy Credits'}
                     </Button>
                   )}
                 </div>
@@ -304,6 +328,10 @@ export default function Generate() {
               </div>
             )}
           </div>
+
+          {showLoginPrompt && !isLoggedIn && (
+            <LoginPrompt onSuccess={() => setShowLoginPrompt(false)} />
+          )}
         </div>
       </div>
       

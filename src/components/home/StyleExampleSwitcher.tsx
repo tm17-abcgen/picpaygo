@@ -83,15 +83,16 @@ export function StyleExampleSwitcher() {
   const activeStyle = exampleStyles.find((style) => style.id === activeId) ?? exampleStyles[0];
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      <div className="grain-panel rounded-[32px] border border-border bg-card/60 p-6 sm:p-8 space-y-6">
-        <div className="flex flex-col gap-2 text-sm text-muted-foreground leading-relaxed max-w-2xl">
-          <p>
-            PicPayGo preserves identity while enhancing lighting, styling, and composition. Use it for
-            CV headshots, personal branding, or editorial looks without a full shoot.
-          </p>
-        </div>
-        <div className="grid gap-6 lg:grid-cols-[1fr_auto_1fr] lg:items-center">
+    <div className="w-full max-w-4xl mx-auto space-y-6">
+      <div className="text-center max-w-2xl mx-auto text-sm text-muted-foreground leading-relaxed">
+        <p>
+          PicPayGo preserves identity while enhancing lighting, styling, and composition. Use it for
+          CV headshots, personal branding, or editorial looks without a full shoot.
+        </p>
+      </div>
+
+      <div className="grain-panel editorial-grid rounded-[36px] border border-border/50 bg-card/40 p-6 sm:p-8">
+        <div className="grid gap-8 lg:grid-cols-[1.05fr_0.9fr_1.05fr] lg:items-center">
           <div>
             <div className="relative aspect-[3/4] w-full rounded-[28px] overflow-hidden border border-border/70 bg-background">
               <AnimatePresence mode="sync" initial={false}>
@@ -107,20 +108,21 @@ export function StyleExampleSwitcher() {
                 />
               </AnimatePresence>
               <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/55 to-transparent p-4">
-                <p className="text-[11px] uppercase tracking-[0.3em] text-white">{activeStyle.before.caption}</p>
+                <p className="text-[10px] uppercase tracking-[0.35em] text-white">{activeStyle.before.caption}</p>
               </div>
             </div>
           </div>
 
-          <div className="flex flex-col items-center gap-4 text-center">
+          <div className="flex flex-col items-center gap-3 text-center">
             <div className="flex items-center justify-center gap-3 text-muted-foreground">
-              <div className="h-px w-16 bg-border/70" />
+              <div className="h-px w-10 bg-border/60" />
               <ArrowRight className="h-4 w-4" />
+              <div className="h-px w-10 bg-border/60" />
             </div>
-            <div className="text-[11px] uppercase tracking-[0.35em] text-muted-foreground">
-              Choose a category to preview
+            <div className="text-[10px] uppercase tracking-[0.4em] text-muted-foreground">
+              Choose a category
             </div>
-            <div className="flex flex-wrap justify-center gap-2">
+            <div className="flex flex-wrap justify-center gap-x-4 gap-y-2">
               {exampleStyles.map((style) => {
                 const isActive = style.id === activeId;
                 return (
@@ -129,10 +131,10 @@ export function StyleExampleSwitcher() {
                     type="button"
                     onClick={() => setActiveId(style.id)}
                     className={cn(
-                      'px-2.5 py-1 rounded-full border text-[10px] uppercase tracking-[0.32em] transition-colors',
+                      'px-1 pb-1 text-[10px] uppercase tracking-[0.34em] transition-colors border-b',
                       isActive
-                        ? 'border-foreground/70 text-foreground'
-                        : 'border-border/50 text-muted-foreground/80 hover:text-foreground hover:border-foreground/40'
+                        ? 'border-foreground/80 text-foreground'
+                        : 'border-transparent text-muted-foreground/70 hover:text-foreground hover:border-foreground/40'
                     )}
                     aria-pressed={isActive}
                   >
@@ -141,27 +143,28 @@ export function StyleExampleSwitcher() {
                 );
               })}
             </div>
+            <div className="h-px w-20 bg-border/50" />
           </div>
 
-          <div>
-            <div className="relative aspect-[3/4] w-full rounded-[28px] overflow-hidden border border-border/70 bg-background">
-              <AnimatePresence mode="sync" initial={false}>
-                <motion.img
-                  key={`${activeStyle.id}-after`}
-                  src={activeStyle.after.src}
-                  alt={activeStyle.after.alt}
-                  className="absolute inset-0 h-full w-full object-cover"
-                  initial={exampleImageMotion.initial}
-                  animate={exampleImageMotion.animate}
-                  exit={exampleImageMotion.exit}
-                  transition={exampleImageMotion.transition}
-                />
-              </AnimatePresence>
-              <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/55 to-transparent p-4">
-                <p className="text-[11px] uppercase tracking-[0.3em] text-white">{activeStyle.after.caption}</p>
+            <div>
+              <div className="relative aspect-[3/4] w-full rounded-[28px] overflow-hidden border border-border/70 bg-background">
+                <AnimatePresence mode="sync" initial={false}>
+                  <motion.img
+                    key={`${activeStyle.id}-after`}
+                    src={activeStyle.after.src}
+                    alt={activeStyle.after.alt}
+                    className="absolute inset-0 h-full w-full object-cover"
+                    initial={exampleImageMotion.initial}
+                    animate={exampleImageMotion.animate}
+                    exit={exampleImageMotion.exit}
+                    transition={exampleImageMotion.transition}
+                  />
+                </AnimatePresence>
+                <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/55 to-transparent p-4">
+                  <p className="text-[10px] uppercase tracking-[0.35em] text-white">{activeStyle.after.caption}</p>
+                </div>
               </div>
             </div>
-          </div>
         </div>
       </div>
     </div>
