@@ -3,7 +3,7 @@ from typing import Optional
 import uuid
 from datetime import datetime
 
-from ...database.connection import db_pool
+from services.database.connection import db_pool
 from .utils import get_now
 
 # Legacy in-memory storage (fallback)

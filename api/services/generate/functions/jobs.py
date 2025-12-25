@@ -5,7 +5,7 @@ from typing import Any, Dict
 from datetime import datetime, timezone
 from fastapi import HTTPException
 
-from ...services.auth.functions.utils import get_now
+from services.auth.functions.utils import get_now
 
 jobs: Dict[str, Dict[str, Any]] = {}
 jobs_lock = asyncio.Lock()

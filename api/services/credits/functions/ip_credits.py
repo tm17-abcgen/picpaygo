@@ -1,7 +1,7 @@
 """IP-based free credits management"""
 from datetime import datetime, timezone
-from ...config import DEFAULT_FREE_CREDITS
-from ...services.auth.functions.utils import get_now
+from config import DEFAULT_FREE_CREDITS
+from services.auth.functions.utils import get_now
 
 # Legacy in-memory storage
 ip_credits: dict = {}

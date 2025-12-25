@@ -2,9 +2,9 @@
 from typing import Dict, Any
 from fastapi import APIRouter, HTTPException, Request, Response
 
-from ...models import CreditsResponse
-from ...services.auth.functions.session import get_session_user
-from ...services.auth.functions.utils import get_client_ip
+from models import CreditsResponse
+from services.auth.functions.session import get_session_user
+from services.auth.functions.utils import get_client_ip
 from .functions.credits import get_user_credits, add_user_credits, deduct_user_credits
 from .functions.ip_credits import get_ip_credits, set_ip_credits
 

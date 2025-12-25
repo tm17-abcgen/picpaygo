@@ -3,7 +3,7 @@ from typing import Dict, Any
 from google.auth.transport import requests
 from google.oauth2 import id_token
 
-from ...config import GOOGLE_CLIENT_ID
+from config import GOOGLE_CLIENT_ID
 
 
 def verify_google_token(id_token_str: str) -> Dict[str, Any]:

@@ -3,9 +3,9 @@ import asyncio
 from typing import Dict
 from fastapi import APIRouter, HTTPException, Request, Response
 
-from ...models import AuthResponse
-from ...config import SESSION_COOKIE, GOOGLE_CLIENT_ID
-from ...database.connection import db_pool
+from models import AuthResponse
+from config import SESSION_COOKIE, GOOGLE_CLIENT_ID
+from services.database.connection import db_pool
 from .functions.session import get_session_user, create_session, delete_session, get_session_expiry
 from .functions.user import get_user_by_email, create_user, update_user_login, user_exists
 from .functions.password import hash_password, generate_salt, encode_salt, decode_salt
@@ -64,6 +64,7 @@ async def register(request: Request, response: Response) -> AuthResponse:
         httponly=True,
         samesite="lax",
         secure=False,
+        path="/",
         expires=expires_at,
     )
     return AuthResponse(user={"email": email})
@@ -144,6 +145,7 @@ async def login(request: Request, response: Response) -> AuthResponse:
         httponly=True,
         samesite="lax",
         secure=False,
+        path="/",
         expires=expires_at,
     )
     return AuthResponse(user={"email": email})
@@ -222,6 +224,7 @@ async def google_login(request: Request, response: Response) -> AuthResponse:
                             httponly=True,
                             samesite="lax",
                             secure=False,
+                            path="/",
                             expires=expires_at,
                         )
                         return AuthResponse(user={"email": email})
@@ -274,7 +277,7 @@ async def logout(request: Request, response: Response) -> Dict[str, bool]:
     token = request.cookies.get(SESSION_COOKIE)
     if token:
         await delete_session(token)
-    response.delete_cookie(SESSION_COOKIE)
+    response.delete_cookie(SESSION_COOKIE, path="/")
     return {"ok": True}
 
 

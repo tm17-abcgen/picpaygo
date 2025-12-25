@@ -3,7 +3,7 @@ import os
 from typing import Optional
 import asyncpg
 
-from ...config import DATABASE_URL
+from config import DATABASE_URL
 
 db_pool: Optional[asyncpg.Pool] = None
 
@@ -24,16 +24,58 @@ async def init_database() -> None:
             # Create extension
             await conn.execute("CREATE EXTENSION IF NOT EXISTS pgcrypto")
             
-            # Update users table to include Google OAuth fields
+            # Create users table if it doesn't exist
             await conn.execute("""
-                ALTER TABLE users 
-                ADD COLUMN IF NOT EXISTS name text,
-                ADD COLUMN IF NOT EXISTS surname text,
-                ADD COLUMN IF NOT EXISTS google_id text,
-                ADD COLUMN IF NOT EXISTS is_google_account boolean NOT NULL DEFAULT false,
-                ADD COLUMN IF NOT EXISTS last_login_location text,
-                ADD COLUMN IF NOT EXISTS stripe_id text,
-                ALTER COLUMN password_hash DROP NOT NULL
+                CREATE TABLE IF NOT EXISTS users (
+                    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                    email text NOT NULL UNIQUE,
+                    password_hash text,
+                    is_verified boolean NOT NULL DEFAULT false,
+                    created_at timestamptz NOT NULL DEFAULT now(),
+                    last_login_at timestamptz,
+                    name text,
+                    surname text,
+                    google_id text,
+                    is_google_account boolean NOT NULL DEFAULT false,
+                    last_login_location text,
+                    stripe_id text
+                )
+            """)
+            
+            # Add columns that might not exist (for existing databases)
+            # Only run if table already existed (not just created)
+            await conn.execute("""
+                DO $$
+                BEGIN
+                    -- Only alter if table existed before (check if any of the new columns are missing)
+                    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name='users') THEN
+                        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='name') THEN
+                            ALTER TABLE users ADD COLUMN name text;
+                        END IF;
+                        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='surname') THEN
+                            ALTER TABLE users ADD COLUMN surname text;
+                        END IF;
+                        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='google_id') THEN
+                            ALTER TABLE users ADD COLUMN google_id text;
+                        END IF;
+                        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='is_google_account') THEN
+                            ALTER TABLE users ADD COLUMN is_google_account boolean NOT NULL DEFAULT false;
+                        END IF;
+                        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='last_login_location') THEN
+                            ALTER TABLE users ADD COLUMN last_login_location text;
+                        END IF;
+                        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='stripe_id') THEN
+                            ALTER TABLE users ADD COLUMN stripe_id text;
+                        END IF;
+                        -- Make password_hash nullable if it's not already
+                        IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='password_hash' AND is_nullable='NO') THEN
+                            ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL;
+                        END IF;
+                    END IF;
+                EXCEPTION WHEN OTHERS THEN
+                    -- Ignore errors in column additions
+                    NULL;
+                END $$;
             """)
             
             # Ensure credits table exists

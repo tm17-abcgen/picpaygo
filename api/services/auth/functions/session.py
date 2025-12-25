@@ -4,8 +4,8 @@ from datetime import datetime, timedelta
 from typing import Optional, Dict
 from fastapi import Request
 
-from ...database.connection import db_pool
-from ...config import SESSION_COOKIE, SESSION_TTL_HOURS
+from services.database.connection import db_pool
+from config import SESSION_COOKIE, SESSION_TTL_HOURS
 from .utils import get_now
 
 # Legacy in-memory storage (fallback)

@@ -3,7 +3,7 @@ import base64
 from typing import Any, Optional
 import httpx
 
-from ...config import OPENROUTER_API_URL, OPENROUTER_API_KEY, OPENROUTER_MODEL, JOB_TIMEOUT_SECONDS
+from config import OPENROUTER_API_URL, OPENROUTER_API_KEY, OPENROUTER_MODEL, JOB_TIMEOUT_SECONDS
 
 
 def _coerce_image_url(value: Any) -> Optional[str]:

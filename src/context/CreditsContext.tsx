@@ -38,13 +38,16 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     try {
       const [userData, creditsInfo] = await Promise.all([
-        getUser(),
+        getUser().catch(() => null), // Return null instead of throwing
         getCredits(),
       ]);
       setUser(userData);
       setCredits(creditsInfo.balance);
     } catch (error) {
       console.error('Failed to load user data:', error);
+      // Clear user state on auth error
+      setUser(null);
+      setCredits(0);
     } finally {
       setLoading(false);
     }

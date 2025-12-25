@@ -1,6 +1,6 @@
 """Credit management functions"""
 from typing import Optional
-from ...database.connection import db_pool
+from services.database.connection import db_pool
 
 # Legacy in-memory storage (fallback)
 users: dict = {}

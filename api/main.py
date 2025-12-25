@@ -3,11 +3,11 @@ import httpx
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .config import CORS_ORIGINS
-from .services.database.connection import init_database, close_database
-from .services.auth.endpoints import router as auth_router
-from .services.credits.endpoints import router as credits_router
-from .services.generate.endpoints import router as generate_router, init_workers, shutdown_workers
+from config import CORS_ORIGINS
+from services.database.connection import init_database, close_database
+from services.auth.endpoints import router as auth_router
+from services.credits.endpoints import router as credits_router
+from services.generate.endpoints import router as generate_router, init_workers, shutdown_workers
 
 app = FastAPI()
 

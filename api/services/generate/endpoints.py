@@ -4,10 +4,10 @@ from typing import Any, Dict
 from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
 import httpx
 
-from ...models import JobCreateResponse, JobStatusResponse
-from ...config import JOB_WORKERS
+from models import JobCreateResponse, JobStatusResponse
+from config import JOB_WORKERS
 from .functions.prompts import PROMPT_BY_TYPE, build_prompt
-from ...services.auth.functions.utils import get_client_ip
+from services.auth.functions.utils import get_client_ip
 from .functions.jobs import create_job, update_job, get_job
 from .functions.openrouter import send_openrouter_request
 
