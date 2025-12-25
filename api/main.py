@@ -42,7 +42,7 @@ PROMPT_BY_TYPE: Dict[str, str] = {
 
 app = FastAPI()
 
-cors_origins = [origin.strip() for origin in os.getenv("CORS_ORIGINS", "http://localhost:8082").split(",")]
+cors_origins = [origin.strip() for origin in os.getenv("CORS_ORIGINS", "http://localhost:8082,https://picpaygo.com,https://www.picpaygo.com").split(",")]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[origin for origin in cors_origins if origin],
