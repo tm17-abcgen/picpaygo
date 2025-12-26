@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import base64
 import json
+import logging
 import secrets
 from datetime import timedelta
 from typing import Any, Dict
@@ -31,6 +32,7 @@ from services.auth.functions.user import (
 from services.auth.functions.utils import generate_guest_token, hash_token, now_utc
 from services.database.connection import get_connection
 
+logger = logging.getLogger("picpaygo.auth")
 router = APIRouter(prefix=config.API_PREFIX)
 
 
@@ -39,29 +41,47 @@ async def register(request: Request, response: Response) -> AuthResponse:
     payload = await request.json()
     email = (payload.get("email") or "").lower().strip()
     password = payload.get("password") or ""
+
+    logger.info("Registration attempt for email=%s", email)
+
     if not email or not password:
         raise HTTPException(status_code=400, detail="Email and password required")
+
+    guest_session_id = getattr(request.state, "guest_session_id", None)
+    logger.info("Guest session present: %s", bool(guest_session_id))
 
     async with get_connection() as conn:
         existing_user = await conn.fetchval("SELECT id FROM users WHERE email = $1", email)
         if existing_user:
+            logger.info("Email already registered: %s", email)
             raise HTTPException(status_code=409, detail="Email already registered")
 
         user_id, _, _ = await create_user(conn, email, password)
+        logger.info("User created user_id=%s email=%s", user_id, email)
+
+        # Verification step (diagnostic)
+        verify_user = await conn.fetchval("SELECT 1 FROM users WHERE id = $1", user_id)
+        if not verify_user:
+            logger.error("User creation verification failed for user_id=%s", user_id)
+            raise HTTPException(status_code=500, detail="User creation failed")
+
         await ensure_credits_row(conn, user_id)
+        logger.info("Credits row created for user_id=%s", user_id)
 
         verification_token = await create_email_verification(conn, user_id)
+        logger.info("Verification token created for user_id=%s", user_id)
         print(f"Verification token for {email}: {verification_token}")
 
-        guest_session_id = getattr(request.state, "guest_session_id", None)
         if guest_session_id:
             await claim_guest_history(conn, user_id, guest_session_id)
+            logger.info("Guest history claimed for user_id=%s", user_id)
 
     token = secrets.token_hex(32)
     expires_at = now_utc() + timedelta(hours=config.SESSION_TTL_HOURS)
 
     async with get_connection() as conn:
         await create_session(conn, user_id, token, expires_at)
+        logger.info("Session created for user_id=%s", user_id)
 
     response.set_cookie(
         config.SESSION_COOKIE,
@@ -71,6 +91,7 @@ async def register(request: Request, response: Response) -> AuthResponse:
         secure=config.COOKIE_SECURE,
         expires=expires_at,
     )
+    logger.info("Registration successful for email=%s", email)
     return AuthResponse(user={"email": email, "verificationRequired": "true"})
 
 

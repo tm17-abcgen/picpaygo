@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Any, Dict
+from uuid import UUID
 
-from asyncpg.exceptions import UniqueViolationError
+from asyncpg.exceptions import ForeignKeyViolationError, UniqueViolationError
 from fastapi import APIRouter, HTTPException, Request
 
 import config
@@ -12,6 +14,7 @@ import stripe
 from services.database.connection import get_connection
 
 router = APIRouter(prefix=f"{config.API_PREFIX}")
+logger = logging.getLogger("picpaygo.webhooks")
 
 
 @router.post("/webhook")
@@ -80,10 +83,63 @@ async def _fulfill_checkout_session(session: Dict[str, Any]) -> None:
                 user_id = payment["user_id"]
                 credits = int(payment["credits"])
             else:
+                # Validate metadata fields exist
                 if not metadata_user_id or not metadata_pack_id or not metadata_credits:
+                    logger.warning(
+                        "Webhook: missing metadata, skipping fulfillment session=%s",
+                        stripe_session_id
+                    )
                     return
-                user_id = metadata_user_id
-                credits = int(metadata_credits)
+
+                # Validate UUID format
+                try:
+                    user_id_uuid = UUID(str(metadata_user_id))
+                except ValueError:
+                    logger.error(
+                        "Webhook: invalid metadata user_id=%r session=%s",
+                        metadata_user_id,
+                        stripe_session_id
+                    )
+                    return
+
+                # Validate credits
+                try:
+                    credits_val = int(metadata_credits)
+                    if credits_val <= 0:
+                        raise ValueError("credits must be positive")
+                except (ValueError, TypeError):
+                    logger.error(
+                        "Webhook: invalid credits=%r session=%s",
+                        metadata_credits,
+                        stripe_session_id
+                    )
+                    return
+
+                # Validate pack_id
+                if not isinstance(metadata_pack_id, str) or not metadata_pack_id.strip():
+                    logger.error(
+                        "Webhook: invalid pack_id=%r session=%s",
+                        metadata_pack_id,
+                        stripe_session_id
+                    )
+                    return
+
+                user_id = user_id_uuid
+                credits = credits_val
+
+                # Validate user exists before creating payment
+                user_exists = await conn.fetchval(
+                    "SELECT 1 FROM users WHERE id = $1",
+                    user_id
+                )
+                if not user_exists:
+                    logger.error(
+                        "Webhook: user_id=%s from metadata does not exist, cannot fulfill session=%s",
+                        user_id,
+                        stripe_session_id
+                    )
+                    return
+
                 try:
                     payment_id = await conn.fetchval(
                         """
@@ -117,6 +173,13 @@ async def _fulfill_checkout_session(session: Dict[str, Any]) -> None:
                     payment_id = payment["id"]
                     user_id = payment["user_id"]
                     credits = int(payment["credits"])
+                except ForeignKeyViolationError:
+                    logger.error(
+                        "Webhook: FK violation creating payment user_id=%s session=%s",
+                        user_id,
+                        stripe_session_id
+                    )
+                    return
 
             await conn.execute(
                 """
@@ -133,6 +196,9 @@ async def _fulfill_checkout_session(session: Dict[str, Any]) -> None:
                 payment_id,
             )
 
+            # Track if we need to add credits (only if ledger entry is new)
+            ledger_inserted = False
+
             try:
                 await conn.execute(
                     """
@@ -143,20 +209,29 @@ async def _fulfill_checkout_session(session: Dict[str, Any]) -> None:
                     credits,
                     stripe_session_id,
                 )
+                ledger_inserted = True
             except UniqueViolationError:
-                return
+                # Ledger entry already exists, credits already applied
+                logger.info(
+                    "Webhook: ledger entry already exists for session=%s",
+                    stripe_session_id
+                )
+                # Don't return - continue to mark payment as fulfilled
 
-            await conn.execute(
-                """
-                INSERT INTO credits (user_id, balance)
-                VALUES ($1, $2)
-                ON CONFLICT (user_id)
-                DO UPDATE SET balance = credits.balance + EXCLUDED.balance, updated_at = NOW()
-                """,
-                user_id,
-                credits,
-            )
+            # Only add credits if we inserted a new ledger entry
+            if ledger_inserted:
+                await conn.execute(
+                    """
+                    INSERT INTO credits (user_id, balance)
+                    VALUES ($1, $2)
+                    ON CONFLICT (user_id)
+                    DO UPDATE SET balance = credits.balance + EXCLUDED.balance, updated_at = NOW()
+                    """,
+                    user_id,
+                    credits,
+                )
 
+            # Always mark payment as fulfilled
             await conn.execute(
                 """
                 UPDATE payments
