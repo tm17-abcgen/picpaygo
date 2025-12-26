@@ -109,6 +109,7 @@ export default function Account() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('[Account:handleLogin] Form submitted', { authMode, email });
     if (!email || !password) {
       toast({
         title: 'Missing fields',
@@ -252,7 +253,12 @@ export default function Account() {
                         disabled={loginLoading}
                       />
                     </div>
-                    <Button type="submit" className="w-full" disabled={loginLoading}>
+                    <Button
+                      type="submit"
+                      className="w-full"
+                      disabled={loginLoading}
+                      onClick={() => console.log('[Account:Button] Button clicked', { authMode, email, password, loginLoading })}
+                    >
                       {loginLoading ? (
                         <>
                           <Loader2 className="h-4 w-4 mr-2 animate-spin" />

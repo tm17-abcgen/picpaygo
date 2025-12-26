@@ -209,12 +209,20 @@ export async function register(
   email: string,
   password: string
 ): Promise<{ verificationRequired: boolean }> {
+  console.log('[api:register] Starting registration', { email });
   await delay(300);
-  const data = await apiFetch('/auth/register', {
-    method: 'POST',
-    body: JSON.stringify({ email, password }),
-  });
-  return { verificationRequired: !!data?.verificationRequired };
+  try {
+    console.log('[api:register] Calling apiFetch with path:', '/auth/register');
+    const data = await apiFetch('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    });
+    console.log('[api:register] Success:', data);
+    return { verificationRequired: !!data?.verificationRequired };
+  } catch (error) {
+    console.error('[api:register] Error:', error);
+    throw error;
+  }
 }
 
 export async function logout(): Promise<void> {

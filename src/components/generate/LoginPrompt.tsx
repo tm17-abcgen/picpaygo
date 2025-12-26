@@ -19,7 +19,8 @@ export function LoginPrompt({ onSuccess }: LoginPromptProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    console.log('[LoginPrompt:handleSubmit] Form submitted', { mode, email });
+
     if (!email || !password) {
       toast({
         title: 'Missing fields',
@@ -30,6 +31,7 @@ export function LoginPrompt({ onSuccess }: LoginPromptProps) {
     }
     
     setLoading(true);
+    console.log('[LoginPrompt:handleSubmit] Loading set to true, calling register...');
     try {
       if (mode === 'login') {
         await login(email, password);
@@ -97,7 +99,12 @@ export function LoginPrompt({ onSuccess }: LoginPromptProps) {
           disabled={loading}
           aria-label="Password"
         />
-        <Button type="submit" className="w-full" disabled={loading}>
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={loading}
+          onClick={() => console.log('[LoginPrompt:Button] Button clicked', { mode, email, password, loading })}
+        >
           {loading ? (
             <>
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />

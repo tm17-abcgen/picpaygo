@@ -59,7 +59,9 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
   };
 
   const register = async (email: string, password: string) => {
+    console.log('[CreditsContext:register] Called with', { email });
     const result = await apiRegister(email, password);
+    console.log('[CreditsContext:register] API returned', result);
     await loadUserAndCredits();
     return result;
   };
