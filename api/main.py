@@ -5,6 +5,7 @@ PicPayGo API - FastAPI application with guest history support.
 from __future__ import annotations
 
 import logging
+import sys
 import uuid
 
 from fastapi import FastAPI
@@ -24,6 +25,14 @@ from services.webhooks.endpoints import router as webhooks_router
 
 app = FastAPI(title=config.APP_TITLE)
 logger = logging.getLogger("picpaygo")
+
+# Configure logging to output to stdout
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s.%(msecs)03d %(name)s %(levelname)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+    stream=sys.stdout,
+)
 
 # CORS middleware
 app.add_middleware(
