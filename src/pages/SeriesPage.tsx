@@ -121,6 +121,8 @@ export default function SeriesPage() {
   const showParentNav = !!series.parentSlug && !!parentSeries;
   const parentTitle = parentSeries?.title || "Portraits";
   const siblings = parentSeries?.children || [];
+  const gallerySpacing =
+    showParentNav && siblings.length > 0 ? "mt-6 sm:mt-8" : "mt-10 sm:mt-12";
 
   return (
     <Layout>
@@ -131,7 +133,7 @@ export default function SeriesPage() {
         type="article"
         structuredData={structuredData}
       />
-      <div className="w-full px-4 sm:px-8 lg:px-12 py-8 sm:py-10">
+      <div className="w-full px-4 sm:px-8 lg:px-12 py-10 sm:py-12">
         <div className="mx-auto w-full max-w-[1200px]">
           {showParentNav ? (
             <Link
@@ -142,7 +144,7 @@ export default function SeriesPage() {
             </Link>
           ) : null}
 
-          <header className="mt-6 sm:mt-8">
+          <header className={showParentNav ? "mt-6 sm:mt-8" : ""}>
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-foreground">
               {series.title}
             </h1>
@@ -175,7 +177,7 @@ export default function SeriesPage() {
             ) : null}
           </header>
 
-          <div className="mt-10 sm:mt-12 flex justify-center">
+          <div className={`${gallerySpacing} flex justify-center`}>
             <FilmstripGallery images={series.images} />
           </div>
         </div>
