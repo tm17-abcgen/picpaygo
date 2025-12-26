@@ -9,29 +9,24 @@ Architecture:
   signature issues and requires no special DNS configuration.
 """
 
+from __future__ import annotations
+
 import io
-import os
-from datetime import timedelta
 from typing import Optional
 from urllib.parse import quote
 
 import urllib3
-
 from minio import Minio
 from minio.error import S3Error
+
+import config
 
 # Suppress SSL warnings for local development
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-# MinIO configuration
-MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT", "minio:9000")
-MINIO_ACCESS_KEY = os.getenv("MINIO_ROOT_USER", "minioadmin")
-MINIO_SECRET_KEY = os.getenv("MINIO_ROOT_PASSWORD", "minioadmin")
-MINIO_USE_HTTPS = os.getenv("MINIO_USE_HTTPS", "false").lower() == "true"
-
 # Bucket names
-BUCKET_RAW = "raw-uploads"
-BUCKET_GENERATED = "generated"
+BUCKET_RAW = config.BUCKET_RAW
+BUCKET_GENERATED = config.BUCKET_GENERATED
 
 # Global MinIO client
 _client: Optional[Minio] = None
@@ -42,10 +37,10 @@ def get_client() -> Minio:
     global _client
     if _client is None:
         _client = Minio(
-            MINIO_ENDPOINT,
-            access_key=MINIO_ACCESS_KEY,
-            secret_key=MINIO_SECRET_KEY,
-            secure=MINIO_USE_HTTPS,
+            config.MINIO_ENDPOINT,
+            access_key=config.MINIO_ACCESS_KEY,
+            secret_key=config.MINIO_SECRET_KEY,
+            secure=config.MINIO_USE_HTTPS,
         )
     return _client
 
@@ -58,8 +53,8 @@ async def init_buckets() -> None:
             if not client.bucket_exists(bucket):
                 client.make_bucket(bucket)
                 print(f"Created bucket: {bucket}")
-        except S3Error as e:
-            print(f"Error checking/creating bucket {bucket}: {e}")
+        except S3Error as exc:
+            print(f"Error checking/creating bucket {bucket}: {exc}")
 
 
 def get_input_key(generation_id: str, filename: str = "input.jpg") -> str:
@@ -141,9 +136,8 @@ def get_proxy_url(bucket: str, key: str) -> str:
     Generate a proxy URL for accessing an object through the API.
     The API will fetch from MinIO and stream to the client.
     """
-    # URL-encode the key to handle slashes and special characters
-    encoded_key = quote(key, safe='')
-    return f"/api/images/{bucket}/{encoded_key}"
+    encoded_key = quote(key, safe="")
+    return f"{config.API_PREFIX}/images/{bucket}/{encoded_key}"
 
 
 def get_input_proxy_url(generation_id: str, filename: str = "input.jpg") -> str:
@@ -163,7 +157,6 @@ def delete_generation_files(generation_id: str) -> None:
     """
     client = get_client()
 
-    # Delete input files
     try:
         objects = client.list_objects(BUCKET_RAW, prefix=f"raw/{generation_id}/")
         for obj in objects:
@@ -171,10 +164,10 @@ def delete_generation_files(generation_id: str) -> None:
     except S3Error:
         pass
 
-    # Delete output files
     try:
         objects = client.list_objects(BUCKET_GENERATED, prefix=f"generated/{generation_id}/")
         for obj in objects:
             client.remove_object(BUCKET_GENERATED, obj.object_name)
     except S3Error:
         pass
+

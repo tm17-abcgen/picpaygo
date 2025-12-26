@@ -19,13 +19,14 @@ from pathlib import Path
 api_dir = Path(__file__).parent.parent
 sys.path.insert(0, str(api_dir))
 
-import database
-import storage
+from services import storage
 from datetime import datetime, timedelta, timezone
+import config
+from services.database.connection import close_pool, get_connection, init_pool
 
 
 # Configuration
-GUEST_RETENTION_DAYS = int(os.getenv("GUEST_RETENTION_DAYS", "30"))
+GUEST_RETENTION_DAYS = config.GUEST_RETENTION_DAYS
 
 
 async def cleanup_old_guest_sessions(days: int = GUEST_RETENTION_DAYS) -> dict:
@@ -37,7 +38,7 @@ async def cleanup_old_guest_sessions(days: int = GUEST_RETENTION_DAYS) -> dict:
     """
     print(f"Starting cleanup of guest sessions older than {days} days...")
 
-    async with database.get_connection() as conn:
+    async with get_connection() as conn:
         # Find old guest sessions with their generations
         rows = await conn.fetch(
             """
@@ -119,7 +120,7 @@ async def main():
 
     try:
         # Initialize database pool
-        await database.init_pool()
+        await init_pool()
 
         # Run cleanup
         stats = await cleanup_old_guest_sessions()
@@ -134,7 +135,7 @@ async def main():
         print(f"Error during cleanup: {e}")
         raise
     finally:
-        await database.close_pool()
+        await close_pool()
 
 
 if __name__ == "__main__":

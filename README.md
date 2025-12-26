@@ -84,6 +84,16 @@ npm run build
 npm run preview
 ```
 
+### Backend (auth, credits, generations)
+
+The UI calls the FastAPI backend under `/api/*`. In Docker Compose the API is only reachable internally (not published to your host); Nginx exposes a single entrypoint on `http://localhost:8080` and proxies `/api/*` to the API service.
+
+- Docker (full stack): `docker compose up --build`
+- API only: see `api/README.md` (runs on port `8081`)
+- Optional: override the proxy target with `VITE_API_PROXY_TARGET` (e.g. `http://127.0.0.1:8081`)
+
+If you run via Docker Compose, use `http://localhost:8080` (reverse-proxy).
+
 ### Technologies Used
 - **React 18** with TypeScript
 - **Vite** for fast builds

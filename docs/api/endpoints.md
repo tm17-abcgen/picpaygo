@@ -3,26 +3,33 @@
 Base URL: `/api`  
 Auth: session cookie (HttpOnly, SameSite=Lax)
 
+## Health
+### GET /health
+Simple health check for the API container.
+```
+Response: { "ok": true }
+```
+
 ## Auth
 ### POST /auth/register
 Create an account and trigger email verification.
 ```
 Request: { "email": "user@example.com", "password": "..." }
-Response: { "user": { "id": "...", "email": "user@example.com" }, "verificationRequired": true }
+Response: { "user": { "email": "user@example.com", "verificationRequired": "true" } }
 ```
 
 ### POST /auth/login
-Create a session cookie (requires verified email).
+Create a session cookie.
 ```
 Request: { "email": "user@example.com", "password": "..." }
-Response: { "user": { "id": "...", "email": "user@example.com" } }
-Errors: 401 invalid credentials, 403 email not verified
+Response: { "user": { "email": "user@example.com" } }
+Errors: 401 invalid credentials
 ```
 
 ### GET /auth/verify?token=...
 Verify email confirmation token.
 ```
-Response: { "ok": true }
+Response: { "ok": true, "verified": true }
 ```
 
 ### POST /auth/logout
@@ -35,7 +42,14 @@ Response: { "ok": true }
 ### GET /auth/me
 Return current user.
 ```
-Response: { "user": { "id": "...", "email": "...", "is_verified": true } }
+Response: { "user": { "email": "..." } }
+```
+
+## Guest History
+### POST /history/clear
+Clear all generations owned by the current guest session and rotate the guest cookie.
+```
+Response: { "cleared": true }
 ```
 
 ## Credits
@@ -60,24 +74,40 @@ Response: { "ok": true, "added": 5 }
 ```
 
 ## Generations
-### POST /generations
-Create a generation record (logged-in only).
+### POST /generate
+Create a generation job. Requires an image upload and a `type` field (style key).
 ```
-Request: { "category": "portraits", "inputUrl": "https://..." }
-Response: { "generation": { "id": "...", "status": "queued", "category": "...", "created_at": "..." } }
+Request (multipart/form-data):
+- `type`: one of `studio-portrait`, `fashion-editorial`, `editorial-moment`, `portrait-honest`
+- `image`: uploaded file
+
+Response: { "jobId": "..." }
 ```
 
-### POST /generations/:id/complete
-Mark a generation as complete (logged-in only).
+### GET /generate/:jobId
+Get the status of a generation job.
 ```
-Request: { "outputUrl": "https://...", "status": "completed" }
-Response: { "ok": true }
+Response: {
+  "id": "...",
+  "status": "queued|processing|completed|failed",
+  "category": "...",
+  "createdAt": "...",
+  "inputUrl": "...",
+  "outputUrl": "...",
+  "error": "..."?
+}
 ```
 
 ### GET /generations
-List recent generations for the logged-in user.
+List recent generations for the current user/guest.
+Query params:
+- `scope`: `auto` (default), `user`, `guest`, `all`
+- `limit`: max 100
+- `cursor`: ISO timestamp cursor
 ```
-Response: [
-  { "id": "...", "status": "completed", "category": "portraits", "outputUrl": "https://...", "createdAt": "..." }
-]
+Response: { "generations": [...], "cursor": "..."? }
 ```
+
+## Images
+### GET /images/:bucket/:key
+Proxy images from MinIO, with an ownership check (user session or guest session).
