@@ -34,9 +34,10 @@ export function BuyCreditsModal({ open, onOpenChange }: BuyCreditsModalProps) {
       const { url } = await createCheckout(selectedPack);
       window.location.assign(url);
     } catch (error) {
+      const message = error instanceof Error ? error.message : 'Something went wrong. Please try again.';
       toast({
         title: 'Purchase failed',
-        description: 'Something went wrong. Please try again.',
+        description: message,
         variant: 'destructive',
       });
     } finally {

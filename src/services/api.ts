@@ -52,8 +52,10 @@ const apiFetch = async (path: string, options: RequestInit = {}) => {
     let message = 'Request failed';
     try {
       const data = await response.json();
-      if (data?.error) message = data.error;
-      if (data?.detail) message = data.detail;
+      if (typeof data?.error === 'string' && data.error) message = data.error;
+      if (typeof data?.detail === 'string' && data.detail) message = data.detail;
+      if (message === 'Request failed' && data?.detail) message = JSON.stringify(data.detail);
+      if (typeof data?.errorId === 'string' && data.errorId) message += ` (errorId: ${data.errorId})`;
     } catch {
       // ignore
     }

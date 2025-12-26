@@ -33,8 +33,6 @@ def get_pack(pack_id: str) -> CreditPack | None:
     pack = CREDIT_PACKS.get(pack_id)
     if not pack:
         return None
-    if not pack["price_id"]:
-        return None
     return pack
 
 
@@ -44,4 +42,3 @@ def success_url() -> str:
 
 def cancel_url() -> str:
     return f"{config.FRONTEND_URL}/account?checkout=cancel"
-

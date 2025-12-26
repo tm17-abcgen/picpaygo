@@ -4,8 +4,13 @@ PicPayGo API - FastAPI application with guest history support.
 
 from __future__ import annotations
 
+import logging
+import uuid
+
 from fastapi import FastAPI
+from fastapi import Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 import config
 from services import storage
@@ -18,6 +23,7 @@ from services.generate.functions.jobs import start_workers, stop_workers
 from services.webhooks.endpoints import router as webhooks_router
 
 app = FastAPI(title=config.APP_TITLE)
+logger = logging.getLogger("picpaygo")
 
 # CORS middleware
 app.add_middleware(
@@ -36,6 +42,21 @@ app.include_router(auth_router)
 app.include_router(credits_router)
 app.include_router(generate_router)
 app.include_router(webhooks_router)
+
+
+@app.exception_handler(Exception)
+async def _unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    error_id = uuid.uuid4().hex
+    logger.exception(
+        "Unhandled exception errorId=%s method=%s path=%s",
+        error_id,
+        request.method,
+        request.url.path,
+    )
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal Server Error", "errorId": error_id},
+    )
 
 
 @app.on_event("startup")

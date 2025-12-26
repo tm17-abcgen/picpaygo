@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import logging
+import uuid
 from typing import Any, Dict
 
 from fastapi import APIRouter, HTTPException, Request
@@ -18,6 +20,7 @@ from services.database.connection import get_connection
 from services.payments.stripe_checkout import cancel_url, get_pack, success_url
 
 router = APIRouter(prefix=f"{config.API_PREFIX}/credits")
+logger = logging.getLogger("picpaygo.credits")
 
 
 @router.get("", response_model=CreditsResponse)
@@ -78,13 +81,15 @@ async def checkout(request: Request) -> Dict[str, Any]:
     pack = get_pack(pack_id)
     if not pack:
         raise HTTPException(status_code=400, detail=f"Invalid pack: {pack_id}")
+    if not pack.get("price_id"):
+        raise HTTPException(status_code=500, detail=f"Stripe price not configured for pack: {pack_id}")
 
     user = await get_session_user(request)
     if not user:
         raise HTTPException(status_code=401, detail="Login required")
 
     if not config.STRIPE_SECRET_KEY:
-        raise HTTPException(status_code=500, detail="STRIPE_SECRET_KEY not configured")
+        raise HTTPException(status_code=500, detail="Stripe is not configured (missing STRIPE_SECRET_KEY)")
 
     stripe.api_key = config.STRIPE_SECRET_KEY
 
@@ -112,17 +117,36 @@ async def checkout(request: Request) -> Dict[str, Any]:
                 },
             )
         except stripe.error.StripeError as exc:
-            raise HTTPException(status_code=500, detail=f"Stripe error: {str(exc)}")
+            error_id = uuid.uuid4().hex
+            logger.exception(
+                "Stripe checkout failed errorId=%s user=%s pack=%s ip=%s",
+                error_id,
+                user.get("email"),
+                pack_id,
+                get_client_ip(request),
+            )
+            raise HTTPException(status_code=502, detail=f"Stripe checkout failed (errorId: {error_id})")
 
-        await conn.execute(
-            """
-            INSERT INTO payments (user_id, pack_id, credits, stripe_session_id, status)
-            VALUES ($1, $2, $3, $4, 'created')
-            """,
-            user_id,
-            pack_id,
-            pack["credits"],
-            session.id,
-        )
+        try:
+            await conn.execute(
+                """
+                INSERT INTO payments (user_id, pack_id, credits, stripe_session_id, status)
+                VALUES ($1, $2, $3, $4, 'created')
+                """,
+                user_id,
+                pack_id,
+                pack["credits"],
+                session.id,
+            )
+        except Exception:
+            error_id = uuid.uuid4().hex
+            logger.exception(
+                "Failed to record payment errorId=%s user_id=%s pack=%s stripe_session_id=%s",
+                error_id,
+                user_id,
+                pack_id,
+                session.id,
+            )
+            raise HTTPException(status_code=500, detail=f"Checkout created but payment record failed (errorId: {error_id})")
 
     return {"url": session.url}
