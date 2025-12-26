@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { PhotographerProfile } from '@/types/photographer';
-import { PortfolioSeries } from '@/types/gallery';
+import { PortfolioSeries, SeriesChild } from '@/types/gallery';
 
 interface PortfolioState {
   photographer: PhotographerProfile | null;
@@ -14,6 +14,22 @@ interface PortfolioContextType extends PortfolioState {
 }
 
 const PortfolioContext = createContext<PortfolioContextType | undefined>(undefined);
+
+// Helper function to create child series from a parent
+function createChildSeries(parent: PortfolioSeries): PortfolioSeries[] {
+  if (!parent.children?.length) return [];
+
+  return parent.children.map((child: SeriesChild) => ({
+    id: `${parent.id}-${child.slug}`,
+    title: child.title,
+    slug: child.slug,
+    description: child.description || parent.description,
+    featured: false,
+    parentSlug: parent.slug,
+    isTools: parent.isTools,
+    images: child.images,
+  }));
+}
 
 export function PortfolioProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<PortfolioState>({
@@ -31,31 +47,22 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
         const photographerData = await photographerResponse.json();
 
         // Load all series
-        const seriesSlugs = ['portraits', 'documentary', 'editorial'];
+        const seriesSlugs = ['portraits', 'selfies', 'fashion-editorial', 'film-mood', 'enhancements'];
         const seriesPromises = seriesSlugs.map(async (slug) => {
           const response = await fetch(`/data/series/${slug}.json`);
           return response.json();
         });
 
         const seriesData = await Promise.all(seriesPromises);
-        const portraitsSeries = seriesData.find((s) => s.slug === 'portraits');
-        const derivedSubseries = portraitsSeries?.children?.length
-          ? portraitsSeries.children.map((child: { slug: string; title: string; description?: string }) => ({
-              ...portraitsSeries,
-              id: `${portraitsSeries.id}-${child.slug}`,
-              title: child.title,
-              slug: child.slug,
-              description: child.description || portraitsSeries.description,
-              featured: false,
-              parentSlug: portraitsSeries.slug,
-              children: undefined,
-              images: portraitsSeries.images,
-            }))
-          : [];
+
+        // Create derived subseries from all parents with children
+        const allDerivedSubseries = seriesData.flatMap((parent: PortfolioSeries) =>
+          createChildSeries(parent)
+        );
 
         setState({
           photographer: photographerData,
-          series: [...seriesData, ...derivedSubseries],
+          series: [...seriesData, ...allDerivedSubseries],
           loading: false,
           error: null,
         });

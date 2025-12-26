@@ -109,3 +109,16 @@ BUCKET_GENERATED = os.getenv("MINIO_BUCKET_GENERATED", "generated")
 
 GUEST_RETENTION_DAYS = _get_int("GUEST_RETENTION_DAYS", 30, min_value=1)
 
+
+# =============================================================================
+# Stripe (Credits Checkout)
+# =============================================================================
+
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
+
+STRIPE_PRICE_ID_2_5 = os.getenv("STRIPE_PRICE_ID_2_5", "")
+STRIPE_PRICE_ID_3_10 = os.getenv("STRIPE_PRICE_ID_3_10", "")
+STRIPE_PRICE_ID_5_20 = os.getenv("STRIPE_PRICE_ID_5_20", "")
+
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:8080").rstrip("/")

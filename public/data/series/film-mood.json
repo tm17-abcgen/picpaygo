@@ -1,0 +1,25 @@
+{
+  "id": "film-mood-01",
+  "title": "Film / Mood",
+  "slug": "film-mood",
+  "description": "Emotional, cinematic treatments focused on atmosphere, grain, and color character.",
+  "featured": true,
+  "images": [
+    {
+      "id": "emotional-film-001",
+      "src": "https://images.pexels.com/photos/1866149/pexels-photo-1866149.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+      "alt": "Emotional film photography mood",
+      "aspectRatio": 0.667,
+      "caption": {
+        "subject": "Cinematic",
+        "profession": "Film Mood"
+      },
+      "metadata": {
+        "title": "Emotional Film Photography",
+        "year": "2024",
+        "description": "Filmic mood with grain, softer highlights, and emotional color treatment.",
+        "series": "emotional-film"
+      }
+    }
+  ]
+}

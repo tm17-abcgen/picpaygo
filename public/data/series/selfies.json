@@ -1,0 +1,151 @@
+{
+  "id": "selfies-01",
+  "title": "Selfies",
+  "slug": "selfies",
+  "description": "Casual, self-shot portrait styles with an authentic, personal feel (often mirror-based).",
+  "featured": true,
+  "children": [
+    {
+      "slug": "mirror-selfie-2000s",
+      "title": "Mirror Selfie (2000s Aesthetic)",
+      "description": "Y2K-era mirror selfie feel—flashy, casual framing, and playful early-2000s energy.",
+      "images": [
+        {
+          "id": "mirror-2000s-001",
+          "src": "https://images.pexels.com/photos/1892968/pexels-photo-1892968.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+          "alt": "Y2K era mirror selfie aesthetic",
+          "aspectRatio": 0.75,
+          "caption": {
+            "subject": "Y2K",
+            "profession": "Mirror Selfie"
+          },
+          "metadata": {
+            "title": "Mirror Selfie 2000s Aesthetic",
+            "year": "2024",
+            "description": "Y2K-era mirror selfie with flashy, playful energy.",
+            "series": "mirror-selfie-2000s"
+          }
+        },
+        {
+          "id": "mirror-2000s-002",
+          "src": "https://images.pexels.com/photos/1892968/pexels-photo-1892968.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+          "alt": "Y2K era mirror selfie aesthetic",
+          "aspectRatio": 0.75,
+          "caption": {
+            "subject": "Y2K",
+            "profession": "Mirror Selfie"
+          },
+          "metadata": {
+            "title": "Mirror Selfie 2000s Aesthetic",
+            "year": "2024",
+            "description": "Y2K-era mirror selfie with flashy, playful energy.",
+            "series": "mirror-selfie-2000s"
+          }
+        },
+        {
+          "id": "mirror-2000s-003",
+          "src": "https://images.pexels.com/photos/1892968/pexels-photo-1892968.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+          "alt": "Y2K era mirror selfie aesthetic",
+          "aspectRatio": 0.75,
+          "caption": {
+            "subject": "Y2K",
+            "profession": "Mirror Selfie"
+          },
+          "metadata": {
+            "title": "Mirror Selfie 2000s Aesthetic",
+            "year": "2024",
+            "description": "Y2K-era mirror selfie with flashy, playful energy.",
+            "series": "mirror-selfie-2000s"
+          }
+        },
+        {
+          "id": "mirror-2000s-004",
+          "src": "https://images.pexels.com/photos/1892968/pexels-photo-1892968.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+          "alt": "Y2K era mirror selfie aesthetic",
+          "aspectRatio": 0.75,
+          "caption": {
+            "subject": "Y2K",
+            "profession": "Mirror Selfie"
+          },
+          "metadata": {
+            "title": "Mirror Selfie 2000s Aesthetic",
+            "year": "2024",
+            "description": "Y2K-era mirror selfie with flashy, playful energy.",
+            "series": "mirror-selfie-2000s"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "bathroom-mirror-selfie",
+      "title": "Bathroom Mirror Selfie",
+      "description": "Informal bathroom mirror selfie—realistic lighting, tight spaces, candid styling.",
+      "images": [
+        {
+          "id": "bath-mirror-001",
+          "src": "https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+          "alt": "Bathroom mirror selfie example",
+          "aspectRatio": 0.667,
+          "caption": {
+            "subject": "Casual",
+            "profession": "Bathroom Mirror"
+          },
+          "metadata": {
+            "title": "Bathroom Mirror Selfie",
+            "year": "2024",
+            "description": "Informal bathroom mirror selfie with realistic lighting.",
+            "series": "bathroom-mirror-selfie"
+          }
+        },
+        {
+          "id": "bath-mirror-002",
+          "src": "https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+          "alt": "Bathroom mirror selfie example",
+          "aspectRatio": 0.667,
+          "caption": {
+            "subject": "Casual",
+            "profession": "Bathroom Mirror"
+          },
+          "metadata": {
+            "title": "Bathroom Mirror Selfie",
+            "year": "2024",
+            "description": "Informal bathroom mirror selfie with realistic lighting.",
+            "series": "bathroom-mirror-selfie"
+          }
+        },
+        {
+          "id": "bath-mirror-003",
+          "src": "https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+          "alt": "Bathroom mirror selfie example",
+          "aspectRatio": 0.667,
+          "caption": {
+            "subject": "Casual",
+            "profession": "Bathroom Mirror"
+          },
+          "metadata": {
+            "title": "Bathroom Mirror Selfie",
+            "year": "2024",
+            "description": "Informal bathroom mirror selfie with realistic lighting.",
+            "series": "bathroom-mirror-selfie"
+          }
+        },
+        {
+          "id": "bath-mirror-004",
+          "src": "https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+          "alt": "Bathroom mirror selfie example",
+          "aspectRatio": 0.667,
+          "caption": {
+            "subject": "Casual",
+            "profession": "Bathroom Mirror"
+          },
+          "metadata": {
+            "title": "Bathroom Mirror Selfie",
+            "year": "2024",
+            "description": "Informal bathroom mirror selfie with realistic lighting.",
+            "series": "bathroom-mirror-selfie"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -15,7 +15,7 @@ import { Layout } from '@/components/layout/Layout';
 import { SEO } from '@/components/seo/SEO';
 import { Button } from '@/components/ui/button';
 import { UploadPanel } from '@/components/generate/UploadPanel';
-import { CategoryPicker, Category } from '@/components/generate/CategoryPicker';
+import { CategoryPicker } from '@/components/generate/CategoryPicker';
 import { GenerationStatus, Status } from '@/components/generate/GenerationStatus';
 import { GenerationPreview } from '@/components/generate/GenerationPreview';
 import { LoginPrompt } from '@/components/generate/LoginPrompt';
@@ -23,6 +23,7 @@ import { BuyCreditsModal } from '@/components/credits/BuyCreditsModal';
 import { useCredits } from '@/context/CreditsContext';
 import { generateImage, getGenerationStatus } from '@/services/api';
 import { useToast } from '@/hooks/use-toast';
+import type { GenerationCategory } from '@/types/generation';
 
 const tips = [
   {
@@ -53,8 +54,8 @@ const steps = [
     description: 'Soft light, neutral background.',
   },
   {
-    title: 'Pick a category',
-    description: 'Studio Portrait, Fashion Editorial, Editorial Moment, or Honest Portrait.',
+    title: 'Pick a style',
+    description: 'Choose from Portraits, Selfies, Fashion, Film, and Enhancements.',
   },
   {
     title: 'Generate and download',
@@ -65,7 +66,7 @@ const steps = [
 export default function Generate() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [category, setCategory] = useState<Category>('studio-portrait');
+  const [category, setCategory] = useState<GenerationCategory | null>(null);
   const [status, setStatus] = useState<Status>('idle');
   const [jobId, setJobId] = useState<string | null>(null);
   const [resultUrl, setResultUrl] = useState<string | null>(null);
@@ -97,8 +98,8 @@ export default function Generate() {
   };
 
   const handleGenerate = async () => {
-    if (!selectedFile) return;
-    
+    if (!selectedFile || !category) return;
+
     if (credits < 1) {
       if (isLoggedIn) {
         setShowBuyModal(true);

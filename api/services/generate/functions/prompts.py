@@ -8,108 +8,197 @@ from fastapi import HTTPException
 
 
 PROMPT_BY_TYPE: Dict[str, str] = {
-    "editorial-moment": """Use the uploaded photo as the reference. Create a photorealistic editorial photograph capturing an authentic human moment. The subject appears exactly as they are—no beautification, no idealization, no transformation. This is documentary-style portraiture that celebrates real human presence.
+    # Portraits
+    "professional-headshot": """Use the uploaded photo as the reference. Create a clean, modern professional headshot with flattering natural light, natural skin tone, and a confident, approachable expression.
 
-Subject: [SPECIFY: age, ethnicity, body type (average/athletic/curvy/slim/plus-size), gender expression, hair texture and color, natural skin tone, visible characteristics]. The subject's actual appearance is central to the image. Do not alter, enhance, or perfect the person's natural features.
+Subject: [SPECIFY: age, ethnicity, body type, gender expression, hair texture and color, natural skin tone]. The subject's actual appearance is preserved—no beautification or idealization.
 
-Setting & Context: A natural environment or interior space that gives the image narrative context. This is not a blank studio—the background tells part of the story. [SPECIFY: location, time of day, activity]. The setting feels like real life, not a constructed backdrop.
+Lighting & Camera: Shot on a Canon EOS R5 with an 85mm f/1.4 lens at aperture f/2.0. Soft, professional studio lighting with a key light and subtle fill. Natural skin texture preserved.
 
-Clothing & Appearance: The person wears realistic, everyday clothing (or specified garments) that fits their natural body and personal style. Styling appears authentic to how they actually dress, not aspirational.
+Expression & Pose: Confident, approachable expression. Direct eye contact with camera. Natural head position—slightly tilted is fine. Professional but authentic posture.
 
-Lighting: Available light or soft natural light that shows texture and authenticity. Golden hour, diffused daylight, or soft interior light. The lighting reveals true skin tone and texture, not beautified. Shadows contain color; highlights show detail. This is how light actually behaves in the world, not studio-controlled perfection.
+Background: Neutral or simple professional background (white, gray, or muted solid color). Clean, uncluttered.
 
-Expression & Moment: Candid expression captured in an authentic moment. The subject appears unaware of the camera or naturally engaged. Expression shows genuine emotion: thoughtful, peaceful, engaged, amused—whatever is real in the moment. No posed smile, no artificial performance.
+Quality: High-resolution, photorealistic, suitable for LinkedIn and professional use.
 
-Pose & Body Language: Natural body language reflecting authentic human behavior. The person is standing, sitting, moving, or engaged in an actual activity. Posture shows how the body naturally holds itself, including any asymmetries or natural postural habits. This is how the person actually exists in their body.
+Aspect Ratio: 2:3 (portrait-oriented).""",
+    "business-portrait": """Use the uploaded photo as the reference. Create a corporate business portrait with formal wardrobe styling, crisp contrast, and a composed, leadership-leaning vibe.
 
-Appearance Treatment: Unretouched, photojournalistic rendering. Skin shows natural texture, pores, variations in tone. Age is visible as texture and character, not hidden. Hair shows its natural state: texture, volume, the way it actually sits. The body shows its true shape and form—no sucking in, no posturing, no disguising. Wrinkles, freckles, marks, asymmetries are rendered as natural human features.
+Subject: [SPECIFY: age, ethnicity, body type, gender, professional appearance]. Render the person with photographic honesty while conveying authority and competence.
 
-Camera & Technical: Shot on a professional mirrorless camera (Canon EOS R5, Nikon Z9, or Sony α9) with a 50mm f/1.4 lens at aperture f/2.0. This creates a natural field of view that feels human-scaled, with gentle background separation. The framing is intuitive rather than rigid—subject might be off-center, showing their relationship to their environment.
+Styling: Business formal attire—dark suit (black or navy), crisp white shirt, tie optional. Clothing fits naturally. Professional appearance without being stiff or overly formal.
 
-Film Aesthetic: Rendered as if shot on Kodak Portra 400—warm, generous tonality. Colors are true to life, not manipulated. Slight warmth in shadows and coolness in highlights, suggesting real film rendering. No excessive saturation, no digital look.
+Lighting & Camera: Shot on a Sony α7R IV with a 90mm f/2.8 lens. Classic corporate lighting—soft key light with subtle rim light for separation. Clean, professional contrast.
 
-Mood & Narrative: The image has quiet dignity and authenticity. It celebrates the person as they actually are, in their actual life. There is no "story of transformation" or "glamour"—just the beauty of genuine human presence.
+Expression & Pose: Confident, composed expression. Direct engagement with camera. Posture suggests leadership and capability.
 
-Quality: High-resolution, photorealistic, suitable for editorial publication. The image should feel like it came from a documentary or lifestyle photographer known for capturing authentic human moments.
+Background: Professional environment or neutral backdrop. Subtle context suggesting office or studio.
 
-Aspect Ratio: 9:16 (vertical, editorial/digital format).
+Quality: Corporate headshot quality, suitable for website, LinkedIn, and press materials.
 
-Exclusions: No styling transformation, no makeup enhancement, no skin smoothing, no beautification, no filters, no "perfect," "flawless," or "ideal" language. This is unretouched documentary-style portraiture.""",
-    "fashion-editorial": """Use the uploaded photo as the reference. Create a fashion editorial photograph that showcases authentic human presence in stylish clothing. The subject's natural appearance—age, body type, ethnicity, gender expression—is the foundation. Do not transform, idealize, or beautify the person.
+Aspect Ratio: 2:3 (portrait-oriented).""",
+    "90s-point-and-shoot": """Use the uploaded photo as the reference. Create a 90s-inspired point-and-shoot photograph with direct flash aesthetic, softer detail, and nostalgic color/contrast.
 
-Subject: [SPECIFY: age (exact number), ethnicity, body type (slim/athletic/average/curvy/plus-size), gender identity, hair type and natural color, skin tone, any distinctive features]. This person appears as they naturally are. Render their authentic features with photographic honesty.
+Subject: [SPECIFY: age, ethnicity, style, gender]. Casual, authentic 90s appearance.
 
-Styling: Fashion-forward outfit that suits the person's natural build and style—not aspirational or transformative. Include [SPECIFY: garment type, color, material]. The clothing fits naturally and shows the wearer's true silhouette. Styling honors the person's authentic aesthetic, not a "makeover."
+Lighting: Direct on-camera flash look—harsh but nostalgic. Slight overexposure highlights, warm color cast typical of 90s compact cameras.
 
-Hair & Makeup: Natural, minimal makeup that enhances without transforming. Makeup sits on natural skin, showing texture beneath. Hair is styled with intention but rendered as it naturally grows: if curly, show curl pattern; if fine, show fineness; if thick, show texture. Makeup appears like someone who prepared for a photo, not someone transformed by professionals.
+Camera: Simulated point-and-shoot look—slightly soft focus, film grain, muted saturation with warm shift.
 
-Lighting & Camera: Shot on a Sony α7R IV with an 85mm f/1.4 lens at aperture f/2.0. Natural or soft-window lighting that reveals true skin tone without flattery. If outdoors, use golden hour or overcast light that shows detail in both highlights and shadows. The lighting should feel like available light enhanced subtly, not studio-controlled.
+Styling: Casual 90s fashion—denim, t-shirts, flannel, or casual dresses. Authentic to the era.
 
-Pose & Expression: Natural pose with authentic body language. The subject is engaged but not performing. Expression is genuine—not smiling unless natural to the moment, but present and real. Include subtle movement cues if posed (turned slightly, weight shifted), not rigidly symmetrical.
+Background: Everyday 90s environment—indoor, casual spaces, or outdoor with that snapshot aesthetic.
 
-Appearance Treatment: Unretouched photographic appearance. Skin shows natural texture, pores, variations in tone. If there are age lines, they are rendered truthfully. Body shows its natural form—no sucking in, no artificial posturing. The person's actual proportions and shape are clearly visible and authentic.
+Quality: Snapshot quality—feels like a real 90s point-and-shoot photo, not polished.
 
-Background: Appropriate environment that gives context: interior space, outdoor location, or studio background that suits the editorial aesthetic. The background should complement, not distract.
+Aspect Ratio: 3:4 (classic point-and-shoot format).""",
+    "canon-ixus-aesthetic": """Use the uploaded photo as the reference. Create an early 2000s compact digital photograph with bright flash aesthetic, punchy color, and that distinctive "digital snapshot" character.
 
-Color & Tone: Rendered as if shot on Fujifilm Portra 400—warm, generous color palette. Skin tones are accurate to the person's actual complexion. Colors feel true to life, not oversaturated. Slight warmth in shadows, natural color balance throughout.
+Subject: [SPECIFY: age, ethnicity, casual style, gender]. Authentic early-2000s appearance.
 
-Mood: The image celebrates the person as they are—confident, authentic, present. The overall feeling is "editorial feature celebrating this individual" not "transformation or glamorization."
+Lighting: Bright compact camera flash—slightly blown out highlights, characteristic digital flash look.
 
-Quality: Editorial magazine-quality photography, high resolution, suitable for professional publication. The image should feel authentic and documentary, not overly polished.
+Camera: Simulated Canon IXUS/PowerShot look—slight digital noise, punchy oversaturated colors, that early 2000s digital character.
 
-Aspect Ratio: 2:3 (portrait-oriented).
+Styling: Casual Y2K-era fashion—authentic to the time period.
 
-Exclusions: No "makeover," no "glamorous," no "perfect features," no "smooth skin," no "flawless," no "airbrushed," no enhancement of physical appearance beyond authentic styling.""",
-    "portrait-honest": """Use the uploaded photo as the reference. Create a portrait photograph that documents human presence with clinical honesty. The subject appears exactly as they are—age, body type, ethnicity, distinctive features all preserved with photographic accuracy. This is portraiture that values truth over flattery.
+Background: Everyday casual spaces, mirrors, or snapshot environments.
 
-Subject Demographics: [SPECIFY: age (exact number), ethnicity, body type (slim/average/athletic/curvy/plus-size), gender, hair texture/color, skin tone, notable features]. Render the person with complete authenticity. Do not beautify, smooth, or perfect any aspect of their appearance.
+Quality: Early digital snapshot aesthetic—not polished, authentic to the technology.
 
-Lighting & Mood: Clinical studio lighting—bright, even, revealing. Key light positioned to illuminate the face fully, creating definition without shadow manipulation. The goal is clear visibility and accuracy, not artistic flattery. Hard light or diffused light, but always revealing texture and truth.
+Aspect Ratio: 3:4 (compact digital format).""",
+    "left-profile": """Use the uploaded photo as the reference. Create a left profile portrait showing the subject's left side—useful for consistent angle studies and side-view composition.
 
-Camera & Technical: Shot on a Hasselblad X1D-50c (or equivalent medium-format quality) with a 110mm f/2 lens. Aperture f/2.8 to keep face sharp. ISO set for fine grain and tonal precision. The image is exceptionally detailed: skin texture, individual hairs, subtle color variations are all visible.
+Subject: [SPECIFY: age, ethnicity, distinctive profile features, gender]. Render the profile with anatomical accuracy.
 
-Subject Treatment: The person appears in simple, minimal clothing (white shirt, neutral tones, or no shirt if appropriate to context). The focus is entirely on the human form and face, not styling. Hair is shown in its natural state—color, texture, volume, the way it naturally sits. No styling enhancement.
+Lighting & Camera: Shot on a Canon EOS R5 with a 100mm f/2.8 lens. Classic profile lighting—soft, directional light that defines the profile features. Gentle shadow on the camera-left side.
 
-Appearance & Texture: Uncompromising texture rendering. Skin shows: pores, fine lines, freckles, skin texture variations, natural color, any marks or features. This is not idealized skin—this is real human skin rendered with honesty. Hair shows its actual texture: if curly, show the curl pattern; if thin, show the fineness; if coarse, show the texture.
+Pose: Subject turned to show full left profile. Natural head angle—slightly up or down is fine for character.
 
-Age Representation: If the person is older, age is visible and rendered with respect. Wrinkles are documented as character. Age spots, gray hair, lines are rendered authentically. If the person is young, youthful features are shown truthfully, including any imperfections. Age is never hidden; it is documented with photographic precision.
+Background: Clean, neutral background that doesn't distract from the profile silhouette.
 
-Expression & Presence: Neutral to contemplative expression. The person faces the camera directly. Expression is calm and present, not smiling or performing. Eyes are engaged and aware. The overall impression is one of honest human presence.
+Quality: High-resolution profile photography suitable for consistent portfolio or study use.
 
-Body & Form: If full-body or half-body, the person's natural body is visible. Body type is shown truthfully: proportions, size, shape are documented as they are. No posturing, no hidden angles, no artificial shaping. This is the person's actual form.
+Aspect Ratio: 2:3 (portrait-oriented).""",
+    "right-profile": """Use the uploaded photo as the reference. Create a right profile portrait showing the subject's right side—paired with left profile for symmetry and comparison.
 
-Background: Completely plain—white or neutral gray. The background is utterly simple, providing zero context or distraction. The image is entirely about the human being.
+Subject: [SPECIFY: age, ethnicity, distinctive profile features, gender]. Render the profile with anatomical accuracy.
 
-Color & Tone: Rendered as if shot on technical film known for accuracy: Kodak Portra 400 or black-and-white Tri-X (or equivalent digital rendering). Colors (if color) are true to life—skin tone is accurate, no artificial warming or cooling. If black-and-white, tonal range is full and detailed.
+Lighting & Camera: Shot on a Canon EOS R5 with a 100mm f/2.8 lens. Classic profile lighting—soft, directional light that defines the profile features. Gentle shadow on the camera-right side.
 
-Post-Processing: Minimal, clinical rendering. No filters, no smoothing, no enhancement. The image is clean and clear, but utterly unretouched. What is rendered is what is actual. Shadows contain detail. Highlights show true exposure. There is no manipulation in service of "beauty."
+Pose: Subject turned to show full right profile. Natural head angle—slightly up or down is fine for character.
 
-Quality: Museum-quality photographic print. 8K resolution. The image should feel like a portrait that could be displayed in a photography museum or fine-art collection, valued for its honesty and clarity rather than flattery.
+Background: Clean, neutral background that doesn't distract from the profile silhouette.
 
-Mood: The image is respectful and dignified. It documents a human being with clinical precision and quiet respect. There is beauty in authenticity and truth.
+Quality: High-resolution profile photography suitable for consistent portfolio or study use.
 
-Aspect Ratio: 1:1 (square).
+Aspect Ratio: 2:3 (portrait-oriented).""",
+    # Selfies
+    "mirror-selfie-2000s": """Use the uploaded photo as the reference. Create a Y2K-era mirror selfie with playful early-2000s energy—flashy, casual framing, and authentic mirror reflection.
 
-Exclusions: ABSOLUTELY NO: "beautiful," "perfect," "flawless," "smooth," "idealized," "glamorous," "filtered," "enhanced," "beautification," or any language suggesting improvement or idealization. This is documentary truth, not flattery.""",
-    "studio-portrait": """Use the uploaded photo as the reference. Create a studio portrait photograph with 100% preservation of the subject's natural facial features, body type, age, and ethnicity. Do not idealize, stylize, or alter appearance—render the person exactly as they are in real life.
+Subject: [SPECIFY: age, ethnicity, gender, Y2K style]. Authentic early-2000s appearance and styling.
 
-Subject Characteristics: [SPECIFY: exact age, ethnicity, body type (slim/athletic/average/curvy/plus-size), hair texture and color, distinctive features to preserve]. The subject's natural features are the focus, not a transformation. Include age-appropriate details: fine lines, texture variations, natural asymmetries of the face.
+Setting: Bathroom mirror or dressing mirror reflection—visible mirror edge, camera/phone visible or implied.
 
-Lighting & Camera: Shot on a Canon EOS R5 with a 110mm f/2 portrait lens. Studio setup with soft, directional Rembrandt-style lighting (key light 45 degrees left, creating definition without flattery). The lighting reveals texture: skin shows natural pores and texture, hair shows its actual condition, facial features are rendered with anatomical accuracy. Aperture f/2.5 for selective focus on eyes.
+Lighting: Bright bathroom lighting or flash—slightly blown out, characteristic of the era.
 
-Expression & Pose: Natural, contemplative expression—not smiling, not performing. The person appears present and calm, looking directly at camera. Body language is relaxed and authentic. No artificial tension or posed elegance.
+Styling: Y2K fashion—low-rise jeans, baby tees, butterfly clips, frosted lip gloss. Authentic to the time.
 
-Appearance Treatment: Natural skin texture with visible pores and subtle variations in tone. No airbrushing, no smoothing, no skin perfection. If there are wrinkles, age spots, or freckles, they are rendered with photographic accuracy as natural features. Hair shows its natural state: texture, flyaway strands, the way it actually sits.
+Pose: Casual selfie pose—arm slightly extended holding camera, candid feeling, not overly posed.
 
-Background: Neutral gray-white, completely plain. The background provides no distraction—the focus is entirely on authentic human presence.
+Quality: Mirror selfie aesthetic—feels like a real photo from the early 2000s.
 
-Post-Processing: Minimal, clean digital rendering. Color graded to match natural daylight film stock (Kodak Portra 400 aesthetic). Natural shadows contain color and transparency, not pure black. No excessive contrast, no filters, no digital artifact.
+Aspect Ratio: 3:4 (vertical phone camera format).""",
+    "bathroom-mirror-selfie": """Use the uploaded photo as the reference. Create an informal bathroom mirror selfie with realistic lighting, tight spaces, and candid authentic styling.
 
-Quality: 8K photorealistic, archive-quality portrait photography. The image should feel like a professional photograph from a skilled portrait photographer who values human authenticity over idealization.
+Subject: [SPECIFY: age, ethnicity, gender, casual style]. Authentic, unstyled appearance.
 
-Aspect Ratio: 1:1 (square).
+Setting: Bathroom mirror—visible mirror edges, bathroom context (sink, towels, etc).
 
-Exclusions: No "beautification," no "filter," no "smooth skin," no "perfect," no "flawless," no "airbrushed," no "model-like," no artificial enhancement of any kind.""",
+Lighting: Realistic bathroom lighting—overhead or side mirror lighting, natural or artificial.
+
+Styling: Completely casual—everyday clothing, no styling, authentic to real life.
+
+Pose: Casual selfie pose—arm extended with camera/phone, candid expression, authentic to the moment.
+
+Quality: Informal snapshot quality—feels like a real mirror selfie, not polished.
+
+Aspect Ratio: 3:4 (vertical phone format).""",
+    # Fashion / Editorial
+    "victorias-secret-shoot": """Use the uploaded photo as the reference. Create a lingerie/glam studio photograph with soft yet polished lighting, confident posing, and a glossy finish. The subject's natural appearance is the foundation—no transformation or idealization.
+
+Subject: [SPECIFY: age, ethnicity, body type, gender]. Render authentic features with glossy magazine styling.
+
+Styling: Lingerie or glam styling—authentic to the person's natural build. Clothing fits naturally, not forced.
+
+Lighting & Camera: Shot on a Sony α7R IV with an 85mm f/1.4 lens at f/2.0. Soft polished studio lighting—glamour setup with flattering but honest light.
+
+Pose & Expression: Confident, empowered posing. Expression is strong and self-assured.
+
+Background: Studio environment—seamless or simple set that complements without distraction.
+
+Color & Tone: Glossy magazine aesthetic—slightly polished but authentic skin texture.
+
+Quality: High-fashion studio quality, suitable for commercial use.
+
+Aspect Ratio: 2:3 (portrait-oriented).""",
+    "studio-vogue-editorial": """Use the uploaded photo as the reference. Create an editorial studio photograph with high-fashion posing, strong styling direction, and magazine-ready lighting. The subject's natural appearance is celebrated.
+
+Subject: [SPECIFY: age, ethnicity, body type, gender]. Authentic appearance serves as the foundation.
+
+Styling: High-fashion editorial styling—bold, directional, authentic to the person.
+
+Lighting & Camera: Shot on a Canon EOS R5 with a 50mm f/1.2 lens. Editorial studio lighting—dramatic, directional, magazine-quality.
+
+Pose & Expression: High-fashion posing—strong, intentional, editorial. Expression conveys mood and narrative.
+
+Background: Studio set or simple backdrop that serves the editorial concept.
+
+Color & Tone: Magazine-ready color—rich but authentic, editorial aesthetic.
+
+Quality: Studio Vogue editorial quality—suitable for high-fashion publication.
+
+Aspect Ratio: 2:3 (portrait-oriented).""",
+    # Film / Mood
+    "emotional-film": """Use the uploaded photo as the reference. Create an emotional film photograph with grain, softer highlights, and color treatment aimed at storytelling and feeling.
+
+Subject: [SPECIFY: age, ethnicity, mood, gender]. Authentic appearance serves emotional narrative.
+
+Lighting & Mood: Cinematic lighting—soft, moody, emotional. Golden hour or overcast natural light.
+
+Camera & Film: Shot on a Canon AE-1 with Kodak Portra 400 or similar. Film grain visible, softer highlight transitions, color character that tells a story.
+
+Expression & Pose: Emotional, storytelling expression. Natural body language that conveys mood.
+
+Background: Environment that supports the emotional narrative—meaningful context.
+
+Color & Tone: Filmic color—warm shadows, soft highlights, emotional color grading.
+
+Quality: Cinematic film photography quality—feels like a still from a film.
+
+Aspect Ratio: 2:3 (portrait format) or 16:9 (cinematic).""",
+    # Enhancements (AI Tools)
+    "crowd-removal": """Use the uploaded photo as the reference. Remove unwanted people and background clutter while keeping the scene looking natural.
+
+Process: Carefully identify and remove unwanted people/objects from the background. Maintain natural lighting, shadows, and scene continuity.
+
+Output: The main subject remains unchanged. Background is cleaned up naturally—no artifacts, no obvious editing痕迹.
+
+Quality: Seamless result that looks unedited—natural scene maintenance.""",
+    "upscaling": """Use the uploaded photo as the reference. Increase resolution while preserving natural textures and image quality.
+
+Process: Upscale the image to higher resolution (2x or 4x). Maintain natural textures, avoid artificial sharpening, preserve the original look and feel.
+
+Output: Higher resolution version with the same aesthetic—no texture loss, no artificial enhancement.
+
+Quality: Professional upscaling that preserves the original image character.""",
+    "restoration": """Use the uploaded photo as the reference. Repair older or damaged images (scratches, noise, fading) while keeping a believable result.
+
+Process: Remove scratches, dust, and noise. Restore faded colors and contrast. Maintain the original character and period-appropriate aesthetic.
+
+Output: Cleaned, restored version that looks authentic to the original—no over-restoration, no artificial modernization.
+
+Quality: Professional restoration that respects the original photograph.""",
 }
 
 

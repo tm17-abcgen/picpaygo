@@ -1,11 +1,13 @@
 // API service for AI portrait generation (auth + credits via backend)
 
+import type { GenerationCategory } from '@/types/generation';
+
 export interface Generation {
   id: string;
   inputUrl?: string;
   outputUrl?: string;
   error?: string;
-  category: 'studio-portrait' | 'fashion-editorial' | 'editorial-moment' | 'portrait-honest';
+  category: GenerationCategory;
   status: 'queued' | 'processing' | 'completed' | 'failed';
   createdAt: string;
   completedAt?: string;
@@ -26,9 +28,9 @@ export interface CreditsPack {
 }
 
 export const CREDIT_PACKS: CreditsPack[] = [
-  { id: 'pack-5', credits: 5, price: 4.99 },
-  { id: 'pack-10', credits: 10, price: 8.99 },
-  { id: 'pack-20', credits: 20, price: 14.99 },
+  { id: 'pack_2_5', credits: 5, price: 2.0 },
+  { id: 'pack_3_10', credits: 10, price: 3.0 },
+  { id: 'pack_5_20', credits: 20, price: 5.0 },
 ];
 
 // Simulated delay for mock API calls
@@ -78,7 +80,7 @@ export async function getCredits(): Promise<CreditsInfo> {
 
 export async function generateImage(
   file: File,
-  category: 'studio-portrait' | 'fashion-editorial' | 'editorial-moment' | 'portrait-honest'
+  category: GenerationCategory
 ): Promise<{ jobId: string }> {
   await delay(200);
 
@@ -175,7 +177,7 @@ export async function clearGuestHistory(): Promise<void> {
   await apiFetch('/history/clear', { method: 'POST' });
 }
 
-export async function createCheckout(packId: string): Promise<{ success: boolean }> {
+export async function createCheckout(packId: string): Promise<{ url: string }> {
   await delay(800);
 
   const pack = CREDIT_PACKS.find(p => p.id === packId);
@@ -183,12 +185,12 @@ export async function createCheckout(packId: string): Promise<{ success: boolean
     throw new Error('Invalid pack');
   }
 
-  await apiFetch('/credits/checkout', {
+  const data = await apiFetch('/credits/checkout', {
     method: 'POST',
-    body: JSON.stringify({ packSize: pack.credits }),
+    body: JSON.stringify({ packId: pack.id }),
   });
 
-  return { success: true };
+  return { url: data.url };
 }
 
 // Auth mock functions

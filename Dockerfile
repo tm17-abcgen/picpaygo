@@ -5,6 +5,9 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
+# Ensure static public assets are world-readable inside the image.
+# This avoids 403s when host checkout permissions are restrictive (e.g. umask 077).
+RUN chmod -R a+rX public/data
 ARG VITE_API_BASE_URL=/api
 ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
 RUN npm run build

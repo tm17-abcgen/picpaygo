@@ -80,9 +80,39 @@ CREATE TABLE IF NOT EXISTS ip_credits (
   last_seen_at timestamptz NOT NULL DEFAULT now()
 );
 
+-- Payments: Track Stripe Checkout Sessions
+CREATE TABLE IF NOT EXISTS payments (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  pack_id text NOT NULL, -- 'pack_2_5', 'pack_3_10', 'pack_5_20'
+  credits integer NOT NULL, -- 5, 10, or 20
+  stripe_session_id text NOT NULL UNIQUE,
+  stripe_payment_intent_id text UNIQUE,
+  status text NOT NULL DEFAULT 'created', -- created, paid, fulfilled, canceled, failed
+  amount_total integer, -- in cents
+  currency text, -- e.g. 'usd'
+  created_at timestamptz NOT NULL DEFAULT now(),
+  fulfilled_at timestamptz
+);
+
+-- Credit Ledger: Append-only transaction history
+CREATE TABLE IF NOT EXISTS credit_ledger (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  delta integer NOT NULL, -- positive for additions, negative for consumption
+  reason text NOT NULL, -- purchase, generation, refund, bonus, admin_adjustment
+  stripe_session_id text UNIQUE, -- null for non-purchase entries
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
 CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
 CREATE INDEX IF NOT EXISTS idx_generations_user_id ON generations(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_generations_guest_session_id ON generations(guest_session_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_generation_assets_generation_id ON generation_assets(generation_id);
 CREATE INDEX IF NOT EXISTS idx_guest_sessions_last_seen ON guest_sessions(last_seen_at);
 CREATE INDEX IF NOT EXISTS idx_ip_credits_last_seen ON ip_credits(last_seen_at);
+
+CREATE INDEX IF NOT EXISTS idx_payments_user_id ON payments(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_payments_stripe_session_id ON payments(stripe_session_id);
+CREATE INDEX IF NOT EXISTS idx_credit_ledger_user_id ON credit_ledger(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_credit_ledger_stripe_session_id ON credit_ledger(stripe_session_id);

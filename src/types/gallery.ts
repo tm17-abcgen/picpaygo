@@ -18,19 +18,45 @@ export interface GalleryImage {
   };
 }
 
+export interface SeriesChild {
+  slug: string;
+  title: string;
+  description?: string;
+  images: GalleryImage[];
+}
+
 export interface PortfolioSeries {
   id: string;
   title: string;
   slug: string;
   description: string;
-  images: GalleryImage[];
+  images?: GalleryImage[];
   featured: boolean;
+  isTools?: boolean;
   parentSlug?: string;
-  children?: {
-    slug: string;
-    title: string;
-    description?: string;
-  }[];
+  children?: SeriesChild[];
+}
+
+// Taxonomy types
+export interface TaxonomySubcategory {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+}
+
+export interface TaxonomyCategory {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  featured: boolean;
+  isTools?: boolean;
+  subcategories: TaxonomySubcategory[];
+}
+
+export interface TaxonomyData {
+  categories: TaxonomyCategory[];
 }
 
 export interface FilmstripGalleryProps {

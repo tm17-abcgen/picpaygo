@@ -1,11 +1,12 @@
 import type { Status } from '@/components/generate/GenerationStatus';
-import type { Category } from '@/components/generate/CategoryPicker';
+import type { GenerationCategory } from '@/types/generation';
+import { CATEGORY_LABELS } from '@/types/generation';
 
 interface GenerationPreviewProps {
   inputUrl: string;
   outputUrl: string | null;
   status: Status;
-  category: Category;
+  category: GenerationCategory;
 }
 
 const statusCopy: Record<Status, { label: string; detail: string }> = {
@@ -26,17 +27,11 @@ const statusDot: Record<Status, string> = {
   failed: 'bg-destructive',
 };
 
-const categoryLabel: Record<Category, string> = {
-  'studio-portrait': 'Studio Portrait',
-  'fashion-editorial': 'Fashion Editorial',
-  'editorial-moment': 'Editorial Moment',
-  'portrait-honest': 'Honest Portrait',
-};
-
 export function GenerationPreview({ inputUrl, outputUrl, status, category }: GenerationPreviewProps) {
   const isGenerating = status === 'uploading' || status === 'queued' || status === 'processing';
   const showOutput = status === 'completed' && !!outputUrl;
   const meta = statusCopy[status];
+  const categoryLabel = CATEGORY_LABELS[category] ?? category;
 
   return (
     <div className="space-y-4">
@@ -46,7 +41,7 @@ export function GenerationPreview({ inputUrl, outputUrl, status, category }: Gen
           <span>{meta.label}</span>
         </div>
         <span className="text-[11px] uppercase tracking-[0.3em] text-muted-foreground">
-          {categoryLabel[category]}
+          {categoryLabel}
         </span>
       </div>
       <p className="text-sm text-muted-foreground">{meta.detail}</p>

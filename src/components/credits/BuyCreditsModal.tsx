@@ -14,7 +14,7 @@ interface BuyCreditsModalProps {
 export function BuyCreditsModal({ open, onOpenChange }: BuyCreditsModalProps) {
   const [selectedPack, setSelectedPack] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const { refreshCredits, isLoggedIn } = useCredits();
+  const { isLoggedIn } = useCredits();
   const { toast } = useToast();
 
   const handlePurchase = async () => {
@@ -31,13 +31,8 @@ export function BuyCreditsModal({ open, onOpenChange }: BuyCreditsModalProps) {
     
     setLoading(true);
     try {
-      await createCheckout(selectedPack);
-      await refreshCredits();
-      toast({
-        title: 'Credits added!',
-        description: 'Your credits have been added to your account.',
-      });
-      onOpenChange(false);
+      const { url } = await createCheckout(selectedPack);
+      window.location.assign(url);
     } catch (error) {
       toast({
         title: 'Purchase failed',

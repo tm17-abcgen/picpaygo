@@ -1,0 +1,79 @@
+{
+  "id": "enhancements-01",
+  "title": "Enhancements (AI Tools)",
+  "slug": "enhancements",
+  "description": "Editing-focused utilities that improve or repair an image (not a 'style' category).",
+  "featured": true,
+  "isTools": true,
+  "children": [
+    {
+      "slug": "crowd-removal",
+      "title": "Smart Crowd Removal",
+      "description": "Removes unwanted people/background clutter while keeping the scene looking natural.",
+      "images": [
+        {
+          "id": "crowd-removal-001",
+          "src": "https://images.pexels.com/photos/1704488/pexels-photo-1704488.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+          "alt": "Smart crowd removal tool example",
+          "aspectRatio": 0.667,
+          "caption": {
+            "subject": "AI Tool",
+            "profession": "Crowd Removal"
+          },
+          "metadata": {
+            "title": "Smart Crowd Removal Tool",
+            "year": "2024",
+            "description": "Removes unwanted people from background while keeping scene natural.",
+            "series": "crowd-removal"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "upscaling",
+      "title": "Upscaling",
+      "description": "Increases resolution and detail for sharper large-format exports while preserving natural textures.",
+      "images": [
+        {
+          "id": "upscaling-001",
+          "src": "https://images.pexels.com/photos/1598409/pexels-photo-1598409.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+          "alt": "AI upscaling tool example",
+          "aspectRatio": 0.667,
+          "caption": {
+            "subject": "AI Tool",
+            "profession": "Upscaling"
+          },
+          "metadata": {
+            "title": "AI Upscaling Tool",
+            "year": "2024",
+            "description": "Increases resolution while preserving natural textures.",
+            "series": "upscaling"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "restoration",
+      "title": "Restoration",
+      "description": "Repairs older or damaged images (scratches, noise, fading) while keeping a believable result.",
+      "images": [
+        {
+          "id": "restoration-001",
+          "src": "https://images.pexels.com/photos/159711/pexels-photo-159711.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+          "alt": "AI restoration tool example",
+          "aspectRatio": 0.667,
+          "caption": {
+            "subject": "AI Tool",
+            "profession": "Restoration"
+          },
+          "metadata": {
+            "title": "AI Restoration Tool",
+            "year": "2024",
+            "description": "Repairs damaged images while keeping believable results.",
+            "series": "restoration"
+          }
+        }
+      ]
+    }
+  ]
+}

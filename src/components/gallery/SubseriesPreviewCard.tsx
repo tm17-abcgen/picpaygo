@@ -37,7 +37,7 @@ export function SubseriesPreviewCard({ title, to, images, className }: Subseries
                   <motion.img
                     src={hero.src}
                     alt={hero.alt}
-                    className={cn('h-full w-full object-cover', previewObjectPosition)}
+                    className={cn('absolute inset-0 h-full w-full object-cover', previewObjectPosition)}
                     loading="lazy"
                     whileHover={reduceMotion ? undefined : { scale: 1.02 }}
                     transition={reduceMotion ? undefined : { duration: 0.35, ease: 'easeOut' }}
@@ -49,12 +49,12 @@ export function SubseriesPreviewCard({ title, to, images, className }: Subseries
                 </div>
               </div>
 
-              <div className="flex flex-col gap-2">
+              <div className="grid h-full grid-rows-3 gap-2">
                 {[stripA, stripB, stripC].map((img, idx) => (
                   <div
                     key={idx}
                     className={cn(
-                      'relative flex-1 overflow-hidden rounded-2xl bg-secondary/40',
+                      'relative overflow-hidden rounded-2xl bg-secondary/40',
                       'transition-transform duration-300 ease-out',
                       idx === 0 && 'group-hover:translate-x-[2px]',
                       idx === 1 && 'group-hover:translate-x-[4px]',
@@ -65,7 +65,7 @@ export function SubseriesPreviewCard({ title, to, images, className }: Subseries
                       <img
                         src={img.src}
                         alt={img.alt}
-                        className={cn('h-full w-full object-cover', previewObjectPosition)}
+                        className={cn('absolute inset-0 h-full w-full object-cover', previewObjectPosition)}
                         loading="lazy"
                       />
                     )}

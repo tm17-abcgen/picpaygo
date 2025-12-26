@@ -1,0 +1,134 @@
+{
+  "categories": [
+    {
+      "id": "portraits",
+      "title": "Portraits",
+      "slug": "portraits",
+      "description": "Classic portrait-focused looks—from professional headshots to stylized camera aesthetics and profile angles.",
+      "featured": true,
+      "subcategories": [
+        {
+          "id": "professional-headshot",
+          "title": "Professional Headshot",
+          "slug": "professional-headshot",
+          "description": "Clean, modern headshot with flattering light, natural skin tone, and a confident, approachable expression."
+        },
+        {
+          "id": "business-portrait",
+          "title": "Business Portrait (Black Suit)",
+          "slug": "business-portrait",
+          "description": "Corporate portrait styling—formal wardrobe, crisp contrast, and a composed, leadership-leaning vibe."
+        },
+        {
+          "id": "90s-point-and-shoot",
+          "title": "1990s Camera Style Portrait",
+          "slug": "90s-point-and-shoot",
+          "description": "90s-inspired point-and-shoot look—direct flash, softer detail, and nostalgic color/contrast."
+        },
+        {
+          "id": "canon-ixus-aesthetic",
+          "title": "Canon IXUS Aesthetic Portrait",
+          "slug": "canon-ixus-aesthetic",
+          "description": "Compact-digital vibe—bright flash, punchy color, and that early-digital 'snapshot' character."
+        },
+        {
+          "id": "left-profile",
+          "title": "Left Profile View",
+          "slug": "left-profile",
+          "description": "Subject turned to show the left profile—useful for consistent angle studies and side-view composition."
+        },
+        {
+          "id": "right-profile",
+          "title": "Right Profile View",
+          "slug": "right-profile",
+          "description": "Subject turned to show the right profile—paired with left profile for symmetry and comparison."
+        }
+      ]
+    },
+    {
+      "id": "selfies",
+      "title": "Selfies",
+      "slug": "selfies",
+      "description": "Casual, self-shot portrait styles with an authentic, personal feel (often mirror-based).",
+      "featured": true,
+      "subcategories": [
+        {
+          "id": "mirror-selfie-2000s",
+          "title": "Mirror Selfie (2000s Aesthetic)",
+          "slug": "mirror-selfie-2000s",
+          "description": "Y2K-era mirror selfie feel—flashy, casual framing, and playful early-2000s energy."
+        },
+        {
+          "id": "bathroom-mirror-selfie",
+          "title": "Bathroom Mirror Selfie",
+          "slug": "bathroom-mirror-selfie",
+          "description": "Informal bathroom mirror selfie—realistic lighting, tight spaces, candid styling."
+        }
+      ]
+    },
+    {
+      "id": "fashion-editorial",
+      "title": "Fashion / Editorial",
+      "slug": "fashion-editorial",
+      "description": "High-fashion, magazine-inspired styling with polished lighting, posing, and set direction.",
+      "featured": true,
+      "subcategories": [
+        {
+          "id": "victorias-secret-shoot",
+          "title": "Victoria's Secret–Style Shoot",
+          "slug": "victorias-secret-shoot",
+          "description": "Lingerie/glam studio vibe—soft yet polished lighting, confident posing, glossy finish."
+        },
+        {
+          "id": "studio-vogue-editorial",
+          "title": "Studio Vogue Editorial",
+          "slug": "studio-vogue-editorial",
+          "description": "Editorial studio look—high-fashion posing, strong styling direction, and magazine-ready lighting."
+        }
+      ]
+    },
+    {
+      "id": "film-mood",
+      "title": "Film / Mood",
+      "slug": "film-mood",
+      "description": "Emotional, cinematic treatments focused on atmosphere, grain, and color character.",
+      "featured": true,
+      "subcategories": [
+        {
+          "id": "emotional-film",
+          "title": "Emotional Film Photography",
+          "slug": "emotional-film",
+          "description": "Filmic mood—grain, softer highlights, and color treatment aimed at storytelling and feeling."
+        }
+      ]
+    },
+    {
+      "id": "enhancements",
+      "title": "Enhancements (AI Tools)",
+      "slug": "enhancements",
+      "description": "Editing-focused utilities that improve or repair an image (not a 'style' category).",
+      "featured": true,
+      "isTools": true,
+      "subcategories": [
+        {
+          "id": "crowd-removal",
+          "title": "Smart Crowd Removal",
+          "slug": "crowd-removal",
+          "description": "Removes unwanted people/background clutter while keeping the scene looking natural."
+        },
+        {
+          "id": "upscaling",
+          "title": "Upscaling",
+          "slug": "upscaling",
+          "description": "Increases resolution and detail for sharper large-format exports while preserving natural textures."
+        },
+        {
+          "id": "restoration",
+          "title": "Restoration",
+          "slug": "restoration",
+          "description": "Repairs older or damaged images (scratches, noise, fading) while keeping a believable result."
+        }
+      ]
+    }
+  ]
+}

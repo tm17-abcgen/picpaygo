@@ -67,11 +67,22 @@ Response: { "balance": 1, "freeCredits": 0, "userCredits": 1 }
 ```
 
 ### POST /credits/checkout
-Add credits to the logged-in user (stub checkout).
+Create a Stripe Checkout Session for purchasing credits.
 ```
-Request: { "packSize": 5 }  // or 10/20
-Response: { "ok": true, "added": 5 }
+Request: { "packId": "pack_2_5" | "pack_3_10" | "pack_5_20" }
+Response: { "url": "https://checkout.stripe.com/..." }
 ```
+Note: Credits are granted via Stripe webhook after successful payment.
+
+## Webhooks
+### POST /webhook
+Stripe webhook endpoint. Handles payment completion and fulfills credits.
+```
+Auth: none (Stripe calls this)
+Verification: Stripe-Signature header
+Response: { "ok": true }
+```
+Events handled: `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, `checkout.session.expired`
 
 ## Generations
 ### POST /generate

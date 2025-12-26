@@ -15,6 +15,7 @@ from services.credits.endpoints import router as credits_router
 from services.database.connection import close_pool, init_pool, init_schema
 from services.generate.endpoints import router as generate_router
 from services.generate.functions.jobs import start_workers, stop_workers
+from services.webhooks.endpoints import router as webhooks_router
 
 app = FastAPI(title=config.APP_TITLE)
 
@@ -34,6 +35,7 @@ app.add_middleware(GuestSessionMiddleware)
 app.include_router(auth_router)
 app.include_router(credits_router)
 app.include_router(generate_router)
+app.include_router(webhooks_router)
 
 
 @app.on_event("startup")

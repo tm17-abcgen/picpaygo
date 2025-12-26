@@ -8,9 +8,10 @@ import { getGenerations, clearGuestHistory, Generation } from '@/services/api';
 import { BuyCreditsModal } from '@/components/credits/BuyCreditsModal';
 import { Loader2, LogOut, Download, Coins, ImageIcon, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 export default function Account() {
-  const { user, isLoggedIn, credits, login, register, logout, loading: authLoading } = useCredits();
+  const { user, isLoggedIn, credits, refreshCredits, login, register, logout, loading: authLoading } = useCredits();
   const [generations, setGenerations] = useState<Generation[]>([]);
   const [loadingGenerations, setLoadingGenerations] = useState(false);
   const [showBuyModal, setShowBuyModal] = useState(false);
@@ -23,6 +24,41 @@ export default function Account() {
   const [password, setPassword] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const checkoutStatus = searchParams.get('checkout');
+
+  useEffect(() => {
+    if (checkoutStatus !== 'success' && checkoutStatus !== 'cancel') return;
+
+    if (checkoutStatus === 'cancel') {
+      toast({
+        title: 'Payment canceled',
+        description: 'No charges were made.',
+      });
+      navigate('/account', { replace: true });
+      return;
+    }
+
+    toast({
+      title: 'Payment successful',
+      description: 'Credits may take a moment to appear.',
+    });
+
+    void refreshCredits();
+
+    let retries = 0;
+    const interval = window.setInterval(() => {
+      void refreshCredits();
+      retries += 1;
+      if (retries >= 3) {
+        window.clearInterval(interval);
+        navigate('/account', { replace: true });
+      }
+    }, 2000);
+
+    return () => window.clearInterval(interval);
+  }, [checkoutStatus, navigate, refreshCredits, toast]);
 
   useEffect(() => {
     // Always load generations - works for both guests and logged in users

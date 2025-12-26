@@ -3,7 +3,7 @@ import { ArrowRight } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
-type ExampleCategory = 'portrait' | 'editorial' | 'fashion' | 'vogue';
+type ExampleCategory = 'portraits' | 'selfies' | 'fashion' | 'film';
 
 interface ExampleStyle {
   id: ExampleCategory;
@@ -14,8 +14,8 @@ interface ExampleStyle {
 
 const exampleStyles: ExampleStyle[] = [
   {
-    id: 'portrait',
-    label: 'Portrait',
+    id: 'portraits',
+    label: 'Portraits',
     before: {
       src: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=75',
       alt: 'Portrait before transformation',
@@ -28,22 +28,22 @@ const exampleStyles: ExampleStyle[] = [
     },
   },
   {
-    id: 'editorial',
-    label: 'Editorial',
+    id: 'selfies',
+    label: 'Selfies',
     before: {
       src: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=900&q=75',
-      alt: 'Editorial before transformation',
+      alt: 'Selfie before transformation',
       caption: 'Original',
     },
     after: {
       src: 'https://images.unsplash.com/photo-1516733968668-dbdce39c4651?auto=format&fit=crop&w=900&q=75',
-      alt: 'Editorial after transformation',
+      alt: 'Selfie after transformation',
       caption: 'PicPayGo result',
     },
   },
   {
     id: 'fashion',
-    label: 'Fashion',
+    label: 'Fashion / Editorial',
     before: {
       src: 'https://images.unsplash.com/photo-1525134479668-1bee5c7c6845?auto=format&fit=crop&w=900&q=75',
       alt: 'Fashion before transformation',
@@ -56,16 +56,16 @@ const exampleStyles: ExampleStyle[] = [
     },
   },
   {
-    id: 'vogue',
-    label: 'Vogue Italia',
+    id: 'film',
+    label: 'Film / Mood',
     before: {
       src: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=900&q=75',
-      alt: 'Vogue Italia before transformation',
+      alt: 'Film before transformation',
       caption: 'Original',
     },
     after: {
       src: 'https://images.unsplash.com/photo-1524502397800-2eeaad7c3fe5?auto=format&fit=crop&w=900&q=75',
-      alt: 'Vogue Italia after transformation',
+      alt: 'Film after transformation',
       caption: 'PicPayGo result',
     },
   },
@@ -79,7 +79,7 @@ const exampleImageMotion = {
 };
 
 export function StyleExampleSwitcher() {
-  const [activeId, setActiveId] = useState<ExampleCategory>('portrait');
+  const [activeId, setActiveId] = useState<ExampleCategory>('portraits');
   const activeStyle = exampleStyles.find((style) => style.id === activeId) ?? exampleStyles[0];
 
   return (
