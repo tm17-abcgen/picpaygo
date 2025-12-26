@@ -25,6 +25,12 @@ export interface PortfolioSeries {
   description: string;
   images: GalleryImage[];
   featured: boolean;
+  parentSlug?: string;
+  children?: {
+    slug: string;
+    title: string;
+    description?: string;
+  }[];
 }
 
 export interface FilmstripGalleryProps {

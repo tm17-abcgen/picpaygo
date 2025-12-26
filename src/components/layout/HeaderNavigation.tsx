@@ -26,9 +26,9 @@ export function HeaderNavigation() {
   };
 
   // Filter out demo from series for Examples dropdown
-  const exampleSeries = series.filter((s) => s.slug !== 'demo');
+  const exampleSeries = series.filter((s) => s.slug !== 'demo' && !s.parentSlug);
 
-  const isExamplesActive = exampleSeries.some((s) => isActive(`/series/${s.slug}`));
+  const isExamplesActive = location.pathname.startsWith('/series/');
 
   return (
     <div className="relative w-full">

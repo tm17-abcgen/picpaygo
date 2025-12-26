@@ -38,10 +38,24 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
         });
 
         const seriesData = await Promise.all(seriesPromises);
+        const portraitsSeries = seriesData.find((s) => s.slug === 'portraits');
+        const derivedSubseries = portraitsSeries?.children?.length
+          ? portraitsSeries.children.map((child: { slug: string; title: string; description?: string }) => ({
+              ...portraitsSeries,
+              id: `${portraitsSeries.id}-${child.slug}`,
+              title: child.title,
+              slug: child.slug,
+              description: child.description || portraitsSeries.description,
+              featured: false,
+              parentSlug: portraitsSeries.slug,
+              children: undefined,
+              images: portraitsSeries.images,
+            }))
+          : [];
 
         setState({
           photographer: photographerData,
-          series: seriesData,
+          series: [...seriesData, ...derivedSubseries],
           loading: false,
           error: null,
         });

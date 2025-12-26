@@ -12,10 +12,7 @@ export interface Generation {
 }
 
 // List item variant (returned by /api/generations)
-export interface GenerationListItem extends Omit<Generation, 'inputUrl'> {
-  // inputUrl is not included in list responses to save space
-  // outputUrl is included for completed generations (presigned URL)
-}
+export type GenerationListItem = Omit<Generation, 'inputUrl'>;
 
 export interface CreditsInfo {
   balance: number;
@@ -144,8 +141,20 @@ export async function getGenerations(
 
   const data = await apiFetch(`/generations?${params.toString()}`);
 
+  type GenerationApiItem = {
+    id: string;
+    category: Generation['category'];
+    status: Generation['status'];
+    error?: string | null;
+    createdAt: string;
+    completedAt?: string | null;
+    outputUrl?: string | null;
+  };
+
+  const generations = Array.isArray(data?.generations) ? (data.generations as GenerationApiItem[]) : [];
+
   return {
-    generations: data.generations.map((g: any) => ({
+    generations: generations.map((g) => ({
       id: g.id,
       category: g.category,
       status: g.status,

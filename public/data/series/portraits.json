@@ -3,6 +3,23 @@
   "title": "Portraits",
   "slug": "portraits",
   "description": "Warm portraits of creative people doing what they love",
+  "children": [
+    {
+      "slug": "business-portraits",
+      "title": "Business Portraits",
+      "description": "Confident, clean, brand-ready portraits for teams and founders"
+    },
+    {
+      "slug": "cv-portraits",
+      "title": "CV Portraits",
+      "description": "Approachable headshots that read well on LinkedIn and resumes"
+    },
+    {
+      "slug": "passport-portraits",
+      "title": "Passport Portraits",
+      "description": "Centered framing with neutral backgrounds and compliant crops"
+    }
+  ],
   "featured": true,
   "images": [
     {
