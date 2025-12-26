@@ -52,6 +52,21 @@ const HoverExpand_001 = ({
   const [activeImage, setActiveImage] = useState<number | null>(1);
   const breakpoint = useBreakpoint();
 
+  const generateSrcSet = (baseUrl: string) => {
+    const urlParts = baseUrl.split("?");
+    const base = urlParts[0];
+    const params = urlParts[1] ? `?${urlParts[1]}` : "";
+
+    if (base.includes("unsplash.com")) {
+      return `${base}?w=400${params ? "&" + params.substring(1) : ""} 400w,
+              ${base}?w=800${params ? "&" + params.substring(1) : ""} 800w,
+              ${base}?w=1200${params ? "&" + params.substring(1) : ""} 1200w,
+              ${base}?w=1600${params ? "&" + params.substring(1) : ""} 1600w`;
+    }
+
+    return undefined;
+  };
+
   // Responsive configuration based on breakpoint
   const config = {
     mobile: {
@@ -96,7 +111,7 @@ const HoverExpand_001 = ({
       <motion.div
         initial={{ opacity: 0, translateY: 20 }}
         animate={{ opacity: 1, translateY: 0 }}
-        transition={{ duration: 0.3, delay: 0.5 }}
+        transition={{ duration: 0.3 }}
         className={cn("relative w-full", config.padding, className)}
       >
         <div className="flex flex-col gap-4 w-full">
@@ -110,7 +125,15 @@ const HoverExpand_001 = ({
               style={{ height: config.height }}
               onClick={() => setActiveImage(index)}
             >
-              <img src={image.src} className="size-full object-cover" alt={image.alt} />
+              <img
+                src={image.src}
+                srcSet={generateSrcSet(image.src)}
+                sizes="100vw"
+                className="size-full object-cover"
+                alt={image.alt}
+                decoding="async"
+                fetchPriority={index === 0 ? "high" : "auto"}
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
               <div className="absolute bottom-4 left-4 right-4">
                 <p className="text-sm text-white/90 font-medium">{image.code}</p>
@@ -127,7 +150,7 @@ const HoverExpand_001 = ({
     <motion.div
       initial={{ opacity: 0, translateY: 20 }}
       animate={{ opacity: 1, translateY: 0 }}
-      transition={{ duration: 0.3, delay: 0.5 }}
+      transition={{ duration: 0.3 }}
       className={cn("relative w-full", config.padding, className)}
     >
       <motion.div
@@ -184,7 +207,23 @@ const HoverExpand_001 = ({
                     </motion.div>
                   )}
                 </AnimatePresence>
-                <img src={image.src} className="size-full object-cover" alt={image.alt} />
+                <img
+                  src={image.src}
+                  srcSet={generateSrcSet(image.src)}
+                  sizes={
+                    "expandedWidth" in config
+                      ? isActive
+                        ? "442px"
+                        : "147px"
+                      : isActive
+                        ? `${config.expandedPercent}vw`
+                        : `${config.collapsedPercent}vw`
+                  }
+                  className="size-full object-cover"
+                  alt={image.alt}
+                  decoding="async"
+                  fetchPriority={isActive ? "high" : "auto"}
+                />
               </motion.div>
             );
           })}
