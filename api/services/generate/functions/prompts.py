@@ -9,196 +9,219 @@ from fastapi import HTTPException
 
 PROMPT_BY_TYPE: Dict[str, str] = {
     # Portraits
-    "professional-headshot": """Use the uploaded photo as the reference. Create a clean, modern professional headshot with flattering natural light, natural skin tone, and a confident, approachable expression.
-
-Subject: [SPECIFY: age, ethnicity, body type, gender expression, hair texture and color, natural skin tone]. The subject's actual appearance is preserved—no beautification or idealization.
-
-Lighting & Camera: Shot on a Canon EOS R5 with an 85mm f/1.4 lens at aperture f/2.0. Soft, professional studio lighting with a key light and subtle fill. Natural skin texture preserved.
-
-Expression & Pose: Confident, approachable expression. Direct eye contact with camera. Natural head position—slightly tilted is fine. Professional but authentic posture.
-
-Background: Neutral or simple professional background (white, gray, or muted solid color). Clean, uncluttered.
-
-Quality: High-resolution, photorealistic, suitable for LinkedIn and professional use.
-
-Aspect Ratio: 2:3 (portrait-oriented).""",
-    "business-portrait": """Use the uploaded photo as the reference. Create a corporate business portrait with formal wardrobe styling, crisp contrast, and a composed, leadership-leaning vibe.
-
-Subject: [SPECIFY: age, ethnicity, body type, gender, professional appearance]. Render the person with photographic honesty while conveying authority and competence.
-
-Styling: Business formal attire—dark suit (black or navy), crisp white shirt, tie optional. Clothing fits naturally. Professional appearance without being stiff or overly formal.
-
-Lighting & Camera: Shot on a Sony α7R IV with a 90mm f/2.8 lens. Classic corporate lighting—soft key light with subtle rim light for separation. Clean, professional contrast.
-
-Expression & Pose: Confident, composed expression. Direct engagement with camera. Posture suggests leadership and capability.
-
-Background: Professional environment or neutral backdrop. Subtle context suggesting office or studio.
-
-Quality: Corporate headshot quality, suitable for website, LinkedIn, and press materials.
-
-Aspect Ratio: 2:3 (portrait-oriented).""",
-    "90s-point-and-shoot": """Use the uploaded photo as the reference. Create a 90s-inspired point-and-shoot photograph with direct flash aesthetic, softer detail, and nostalgic color/contrast.
-
-Subject: [SPECIFY: age, ethnicity, style, gender]. Casual, authentic 90s appearance.
-
-Lighting: Direct on-camera flash look—harsh but nostalgic. Slight overexposure highlights, warm color cast typical of 90s compact cameras.
-
-Camera: Simulated point-and-shoot look—slightly soft focus, film grain, muted saturation with warm shift.
-
-Styling: Casual 90s fashion—denim, t-shirts, flannel, or casual dresses. Authentic to the era.
-
-Background: Everyday 90s environment—indoor, casual spaces, or outdoor with that snapshot aesthetic.
-
-Quality: Snapshot quality—feels like a real 90s point-and-shoot photo, not polished.
-
-Aspect Ratio: 3:4 (classic point-and-shoot format).""",
-    "canon-ixus-aesthetic": """Use the uploaded photo as the reference. Create an early 2000s compact digital photograph with bright flash aesthetic, punchy color, and that distinctive "digital snapshot" character.
-
-Subject: [SPECIFY: age, ethnicity, casual style, gender]. Authentic early-2000s appearance.
-
-Lighting: Bright compact camera flash—slightly blown out highlights, characteristic digital flash look.
-
-Camera: Simulated Canon IXUS/PowerShot look—slight digital noise, punchy oversaturated colors, that early 2000s digital character.
-
-Styling: Casual Y2K-era fashion—authentic to the time period.
-
-Background: Everyday casual spaces, mirrors, or snapshot environments.
-
-Quality: Early digital snapshot aesthetic—not polished, authentic to the technology.
-
-Aspect Ratio: 3:4 (compact digital format).""",
-    "left-profile": """Use the uploaded photo as the reference. Create a left profile portrait showing the subject's left side—useful for consistent angle studies and side-view composition.
-
-Subject: [SPECIFY: age, ethnicity, distinctive profile features, gender]. Render the profile with anatomical accuracy.
-
-Lighting & Camera: Shot on a Canon EOS R5 with a 100mm f/2.8 lens. Classic profile lighting—soft, directional light that defines the profile features. Gentle shadow on the camera-left side.
-
-Pose: Subject turned to show full left profile. Natural head angle—slightly up or down is fine for character.
-
-Background: Clean, neutral background that doesn't distract from the profile silhouette.
-
-Quality: High-resolution profile photography suitable for consistent portfolio or study use.
-
-Aspect Ratio: 2:3 (portrait-oriented).""",
-    "right-profile": """Use the uploaded photo as the reference. Create a right profile portrait showing the subject's right side—paired with left profile for symmetry and comparison.
-
-Subject: [SPECIFY: age, ethnicity, distinctive profile features, gender]. Render the profile with anatomical accuracy.
-
-Lighting & Camera: Shot on a Canon EOS R5 with a 100mm f/2.8 lens. Classic profile lighting—soft, directional light that defines the profile features. Gentle shadow on the camera-right side.
-
-Pose: Subject turned to show full right profile. Natural head angle—slightly up or down is fine for character.
-
-Background: Clean, neutral background that doesn't distract from the profile silhouette.
-
-Quality: High-resolution profile photography suitable for consistent portfolio or study use.
-
-Aspect Ratio: 2:3 (portrait-oriented).""",
+    "professional-headshot": """A professional, high-resolution profile photo, maintaining the exact facial structure, identity, and key features of the person in the input image. The subject is framed from the chest up, with ample headroom. The person looks directly at the camera. They are styled for a professional photo studio shoot. The background is a solid neutral studio color. Shot from a high angle with bright and airy soft, diffused studio lighting, gently illuminating the face and creating a subtle catchlight in the eyes, conveying a sense of clarity. Captured on an 85mm f/1.8 lens with a shallow depth of field, exquisite focus on the eyes, and beautiful, soft bokeh. Observe crisp detail on the fabric texture of the blazer, individual strands of hair, and natural, realistic skin texture. The atmosphere exudes confidence, professionalism, and approachability. Clean and bright cinematic color grading with subtle warmth and balanced tones, ensuring a polished and contemporary feel.""",
+    "business-portrait": """A cinematic close-up editorial portrait maintaining the exact facial structure, identity, and key features of the person in the input image. The subject is framed from the lower chest up, with ample headroom. They are styled for a professional photo studio shoot, wearing a sleek black suit, dark blazer, and black turtleneck, direct gaze with subtle smirk. The background deep midnight blue with subtle gradient and moody. Bright and airy soft, dramatic cinematic lighting, gently illuminating the face and creating a subtle catchlight in the eyes, conveying a sense of clarity. Captured on an 85mm lens, f/4, ISO 100, shutter 1/200s  with a shallow depth of field, exquisite focus on the eyes, and beautiful, soft bokeh. Observe crisp detail on individual strands of hair, and natural softened skin texture. The atmosphere exudes confidence, professionalism, and approachability. Photography inspired by Annie Leibovitz and Peter Lindbergh.""",
+    "90s-point-and-shoot": """Without changing the original face, create a portrait of the subject captured with a 1990s-style camera using a direct front flash. The subject has messy hair tied up and poses with a relaxed demeanor, wearing a modern oversized cream sweater. The background is a dark white wall covered with aesthetic magazine posters and stickers, evoking a cozy bedroom or personal room atmosphere under dim lighting. The 35mm lens flash creates a nostalgic glow.""",
+    "canon-ixus-aesthetic": """{
+  "image_parameters": {
+    "style": "Canon IXUS aesthetic",
+    "type": "Point-and-shoot photography",
+    "quality": "Hyper-realistic",
+    "tone": "Sharp, direct",
+    "lighting_and_atmosphere": "Realistic, flash-style/direct lighting"
+  },
+    "subject": {
+    "constraints": {
+      "facial_identity": "Strictly preserve facial features",
+      "face_edits": "None allowed"
+    },
+    "hair": {
+      "style": "Natural, effortless styling",
+      "movement": "Subtle dynamic movement",
+      "details": "Textured strands framing the face"
+    },
+    "makeup": {
+      "cheeks_and_nose": "Natural healthy glow",
+      "lips": "Softly defined natural tone"
+    },
+    "expression": [
+      "Captivating",
+      "Relaxed confidence",
+      "Authentic mood",
+      "Photogenic charm"
+    ],
+    "pose": {
+      "body_position": "Casual, comfortable stance",
+      "action": "Spontaneous interaction with environment"
+    },
+    "clothing": {
+      "top": "Stylish contemporary top",
+      "bottom": "Modern fitted bottoms",
+      "neck": "Minimalist neck accessory"
+    },
+    "accessories": [
+      "Subtle personal jewelry",
+      "Classic wristwear"
+    ]
+  },
+  "environment": {
+    "setting": "Modern pub",
+    "foreground_props": [
+      "Round table",
+      "Bottle of liquor",
+      "Glass of liquor"
+    ]
+  }
+}""",
+    "left-profile": """A closeup photo of the person in the picture looking left in profile view""",
+    "right-profile": """A closeup photo of the person in the picture looking right in profile view""",
     # Selfies
-    "mirror-selfie-2000s": """Use the uploaded photo as the reference. Create a Y2K-era mirror selfie with playful early-2000s energy—flashy, casual framing, and authentic mirror reflection.
+    "mirror-selfie-2000s": """{
+  "subject": {
+    "description": "The specific person from the provided input image taking a mirror selfie with styled hair and a trendy outfit",
+    "age": "Consistent with the subject in the input image",
+    "expression": "Confident and engaging",
+    "hair": {
+      "color": "Natural tone",
+      "style": "Voluminous, textured, and well-groomed"
+    },
+    "clothing": {
+      "top": {
+        "type": "Fitted casual top",
+        "color": "Neutral light tone",
+        "details": "Features a central graphic print or distinct design element"
+      }
+    },
+    "face": {
+      "preserve_original": true,
+      "makeup": "Polished, photogenic look with defined features and healthy skin texture"
+    }
+  },
+  "accessories": {
+    "earrings": {
+      "type": "Statement metallic earrings"
+    },
+    "jewelry": {
+      "waistchain": "Subtle metallic body jewelry"
+    },
+    "device": {
+      "type": "Smartphone",
+      "details": "Decorative case"
+    }
+  },
+  "photography": {
+    "camera_style": "early-2000s digital camera aesthetic",
+    "lighting": "harsh super-flash with bright blown-out highlights but subject still visible",
+    "angle": "mirror selfie",
+    "shot_type": "tight selfie composition",
+    "texture": "subtle grain, retro highlights, V6 realism, crisp details, soft shadows"
+  },
+  "background": {
+    "setting": "nostalgic early-2000s bedroom",
+    "wall_color": "pastel tones",
+    "elements": [
+      "chunky wooden dresser",
+      "CD player",
+      "posters of 2000s pop icons",
+      "hanging beaded door curtain",
+      "cluttered vanity with lip glosses"
+    ],
+    "atmosphere": "authentic 2000s nostalgic vibe",
+    "lighting": "retro"
+  }
+}""",
+    "bathroom-mirror-selfie": """{
+  "subject": {
+    "description": "The person from the input image taking a bathroom mirror selfie, maintaining the contrast between a soft expression and a confident pose",
+    "mirror_rules": "Facing mirror, hips slightly angled, close to mirror filling frame",
+    "age": "Consistent with the subject in the input image",
 
-Subject: [SPECIFY: age, ethnicity, gender, Y2K style]. Authentic early-2000s appearance and styling.
+    "expression": {
+      "eyes": "Engaging contact with the mirror/camera, consistent with input features",
+      "mouth": "Relaxed, photogenic expression (pout or smile) based on input",
+      "brows": "Natural expression",
+      "overall": "A mix of innocent charm and confident allure"
+    },
 
-Setting: Bathroom mirror or dressing mirror reflection—visible mirror edge, camera/phone visible or implied.
+    "hair": {
+      "color": "The subject's original hair color",
+      "style": "The subject's original hairstyle (e.g., messy bun, loose strands, or natural texture)"
+    },
 
-Lighting: Bright bathroom lighting or flash—slightly blown out, characteristic of the era.
+    "body": {
+      "waist": "The subject's natural waistline",
+      "silhouette": "Posed to highlight the subject's natural physique and curves",
+      "posture": "Confident, slightly angled to accentuate the outfit's fit"
+    },
 
-Styling: Y2K fashion—low-rise jeans, baby tees, butterfly clips, frosted lip gloss. Authentic to the time.
+    "clothing": {
+      "top": {
+        "type": "The subject's original top",
+        "color": "Original color",
+        "graphic": "Original graphics or patterns (if any)",
+        "fit": "Fitted style that complements the subject's physique"
+      },
+      "bottom": {
+        "type": "The subject's original bottoms (skirt, shorts, or pants)",
+        "color": "Original color",
+        "material": "Original fabric texture",
+        "fit": "Form-fitting or styled exactly as worn in the input image"
+      }
+    },
 
-Pose: Casual selfie pose—arm slightly extended holding camera, candid feeling, not overly posed.
+    "face": {
+      "features": "Strictly preserve the subject's original facial features",
+      "makeup": "The subject's original makeup look (natural, glam, or bare)"
+    }
+  },
 
-Quality: Mirror selfie aesthetic—feels like a real photo from the early 2000s.
+  "accessories": {
+    "headwear": {
+      "type": "Any headwear present in the input image",
+      "details": "Preserve original details (backward cap, beanie, etc.)"
+    },
+    "headphones": {
+      "type": "Headphones (only if present in input)",
+      "position": "Original position"
+    },
+    "device": {
+      "type": "Smartphone",
+      "details": "Visible in mirror, held at chest level"
+    }
+  },
 
-Aspect Ratio: 3:4 (vertical phone camera format).""",
-    "bathroom-mirror-selfie": """Use the uploaded photo as the reference. Create an informal bathroom mirror selfie with realistic lighting, tight spaces, and candid authentic styling.
+  "photography": {
+    "camera_style": "Casual smartphone mirror selfie",
+    "quality": "Authentic social media quality, realistic lighting",
+    "angle": "Eye-level, straight on mirror",
+    "shot_type": "Three-quarter body, close crop",
+    "aspect_ratio": "9:16 vertical",
+    "texture": "Natural, slightly grainy phone camera aesthetic"
+  },
 
-Subject: [SPECIFY: age, ethnicity, gender, casual style]. Authentic, unstyled appearance.
+  "background": {
+    "setting": "Standard apartment bathroom",
+    "style": "Lived-in, relatable bathroom setting (not a luxury studio)",
+    "elements": [
+      "Tile walls",
+      "Bathroom mirror",
+      "Sink vanity",
+      "Everyday toiletries (skincare, toothbrush)",
+      "Towel on hook",
+      "Shower curtain edge",
+      "Houseplant or small decor items"
+    ],
+    "atmosphere": "Authentic, cozy, personal space",
+    "lighting": "Bright vanity lighting above mirror - flattering but realistic"
+  },
 
-Setting: Bathroom mirror—visible mirror edges, bathroom context (sink, towels, etc).
-
-Lighting: Realistic bathroom lighting—overhead or side mirror lighting, natural or artificial.
-
-Styling: Completely casual—everyday clothing, no styling, authentic to real life.
-
-Pose: Casual selfie pose—arm extended with camera/phone, candid expression, authentic to the moment.
-
-Quality: Informal snapshot quality—feels like a real mirror selfie, not polished.
-
-Aspect Ratio: 3:4 (vertical phone format).""",
+  "vibe": {
+    "energy": "Playful and confident",
+    "mood": "Getting ready, casual content creation",
+    "contrast": "Soft facial expression paired with a confident body language",
+    "caption_energy": "Casual, flirty, or 'mid-routine' social media update"
+  }
+}""",
     # Fashion / Editorial
-    "victorias-secret-shoot": """Use the uploaded photo as the reference. Create a lingerie/glam studio photograph with soft yet polished lighting, confident posing, and a glossy finish. The subject's natural appearance is the foundation—no transformation or idealization.
-
-Subject: [SPECIFY: age, ethnicity, body type, gender]. Render authentic features with glossy magazine styling.
-
-Styling: Lingerie or glam styling—authentic to the person's natural build. Clothing fits naturally, not forced.
-
-Lighting & Camera: Shot on a Sony α7R IV with an 85mm f/1.4 lens at f/2.0. Soft polished studio lighting—glamour setup with flattering but honest light.
-
-Pose & Expression: Confident, empowered posing. Expression is strong and self-assured.
-
-Background: Studio environment—seamless or simple set that complements without distraction.
-
-Color & Tone: Glossy magazine aesthetic—slightly polished but authentic skin texture.
-
-Quality: High-fashion studio quality, suitable for commercial use.
-
-Aspect Ratio: 2:3 (portrait-oriented).""",
-    "studio-vogue-editorial": """Use the uploaded photo as the reference. Create an editorial studio photograph with high-fashion posing, strong styling direction, and magazine-ready lighting. The subject's natural appearance is celebrated.
-
-Subject: [SPECIFY: age, ethnicity, body type, gender]. Authentic appearance serves as the foundation.
-
-Styling: High-fashion editorial styling—bold, directional, authentic to the person.
-
-Lighting & Camera: Shot on a Canon EOS R5 with a 50mm f/1.2 lens. Editorial studio lighting—dramatic, directional, magazine-quality.
-
-Pose & Expression: High-fashion posing—strong, intentional, editorial. Expression conveys mood and narrative.
-
-Background: Studio set or simple backdrop that serves the editorial concept.
-
-Color & Tone: Magazine-ready color—rich but authentic, editorial aesthetic.
-
-Quality: Studio Vogue editorial quality—suitable for high-fashion publication.
-
-Aspect Ratio: 2:3 (portrait-oriented).""",
+    "victorias-secret-shoot": """Create a glamorous photoshoot in the style of Victoria's Secret. A young woman attached in the uploaded reference image ( Keep the face of the person 100% accurate from the reference image ) stands almost sideways, slightly bent forward, during the final preparation for the show. Makeup artists apply lipstick to her (only her hands are visible in the frame). She is wearing a luxurious, high-fashion lingerie ensemble featuring intricate embellishments and sparkling details, accompanied by dramatic runway statement accessories. The image has a "backstage" effect.
+The background is a darkly lit room, probably under the podium. The main emphasis is on the girl's face and the details of her costume. Emphasize the expressiveness of the gaze and the luxurious look of the outfit. The photo is lit by a flash from the camera, which emphasizes the shine of the beads and crystals on the corset, as well as the girl's shiny skin. Victoria's Secret style: sensuality, luxury, glamour. Very detailed. Important: do not change the face.""",
+    "studio-vogue-editorial": """Iconic Peter Lindbergh for Vogue Italia photography of the person in the reference image. Neutral gray backdrop. Soft diffused key light. High-end editorial styling. Clear skin detail, elegant expression, subtle shadows. Minimal color tones, refined and tasteful.""",
     # Film / Mood
-    "emotional-film": """Use the uploaded photo as the reference. Create an emotional film photograph with grain, softer highlights, and color treatment aimed at storytelling and feeling.
-
-Subject: [SPECIFY: age, ethnicity, mood, gender]. Authentic appearance serves emotional narrative.
-
-Lighting & Mood: Cinematic lighting—soft, moody, emotional. Golden hour or overcast natural light.
-
-Camera & Film: Shot on a Canon AE-1 with Kodak Portra 400 or similar. Film grain visible, softer highlight transitions, color character that tells a story.
-
-Expression & Pose: Emotional, storytelling expression. Natural body language that conveys mood.
-
-Background: Environment that supports the emotional narrative—meaningful context.
-
-Color & Tone: Filmic color—warm shadows, soft highlights, emotional color grading.
-
-Quality: Cinematic film photography quality—feels like a still from a film.
-
-Aspect Ratio: 2:3 (portrait format) or 16:9 (cinematic).""",
+    "emotional-film": """Keep the facial features of the person in the uploaded image exactly consistent. Style : A cinematic, emotional portrait shot on Kodak Portra 400 film . Setting : An atmospheric, cinematic environment with warm, nostalgic lighting hitting the side of the face. Atmosphere : Apply a subtle film grain and soft focus to create a dreamy, storytelling vibe. Action : The subject is caught in a natural, candid moment, looking slightly away from the camera with a relaxed expression. Details : High quality, depth of field, bokeh background of ambient lights.""",
     # Enhancements (AI Tools)
-    "crowd-removal": """Use the uploaded photo as the reference. Remove unwanted people and background clutter while keeping the scene looking natural.
-
-Process: Carefully identify and remove unwanted people/objects from the background. Maintain natural lighting, shadows, and scene continuity.
-
-Output: The main subject remains unchanged. Background is cleaned up naturally—no artifacts, no obvious editing痕迹.
-
-Quality: Seamless result that looks unedited—natural scene maintenance.""",
-    "upscaling": """Use the uploaded photo as the reference. Increase resolution while preserving natural textures and image quality.
-
-Process: Upscale the image to higher resolution (2x or 4x). Maintain natural textures, avoid artificial sharpening, preserve the original look and feel.
-
-Output: Higher resolution version with the same aesthetic—no texture loss, no artificial enhancement.
-
-Quality: Professional upscaling that preserves the original image character.""",
-    "restoration": """Use the uploaded photo as the reference. Repair older or damaged images (scratches, noise, fading) while keeping a believable result.
-
-Process: Remove scratches, dust, and noise. Restore faded colors and contrast. Maintain the original character and period-appropriate aesthetic.
-
-Output: Cleaned, restored version that looks authentic to the original—no over-restoration, no artificial modernization.
-
-Quality: Professional restoration that respects the original photograph.""",
+    "crowd-removal": """Remove all the tourists/people in the background behind the main subject. Intelligent Fill : Replace them with realistic background elements that logically fit the scene (e.g., extend the cobblestone pavement, empty park benches, or grass textures). Consistency : Ensure no blurry artifacts or 'smudges' remain. The filled area must have the same grain, focus depth, and lighting as the rest of the photo.""",
+    "upscaling": """Upscale to 4K""",
+    "restoration": """Fully restore this vintage photograph to pristine high-definition quality. Remove all scratches, dust, creases, and fold lines seamlessly. Intelligently sharpen facial features, eyes, and hair with realistic texture, avoiding plastic smoothing. Correct color cast, fix fading, and reduce noise while maintaining the original photo's authenticity and lighting. Output a clean, sharp, professional 4K image.""",
 }
 
 
