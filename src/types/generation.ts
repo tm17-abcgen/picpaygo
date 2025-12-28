@@ -11,7 +11,6 @@ export type GenerationCategory =
   | 'mirror-selfie-2000s'
   | 'bathroom-mirror-selfie'
   // Fashion / Editorial
-  | 'victorias-secret-shoot'
   | 'studio-vogue-editorial'
   // Film / Mood
   | 'emotional-film'
@@ -41,7 +40,6 @@ export const CATEGORY_LABELS: Record<GenerationCategory, string> = {
   'mirror-selfie-2000s': 'Mirror Selfie (2000s)',
   'bathroom-mirror-selfie': 'Bathroom Mirror',
   // Fashion / Editorial
-  'victorias-secret-shoot': "Victoria's Secret",
   'studio-vogue-editorial': 'Studio Vogue',
   // Film / Mood
   'emotional-film': 'Emotional Film',
