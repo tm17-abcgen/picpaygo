@@ -24,7 +24,7 @@ from services.auth.functions.session import (
     rotate_guest_token,
 )
 from services.auth.functions.user import (
-    consume_password_reset_token,
+    consume_and_verify_password_reset_token,
     create_email_verification,
     create_password_reset,
     create_user,
@@ -34,7 +34,6 @@ from services.auth.functions.user import (
     get_user_auth_row,
     update_user_password,
     verify_email_token,
-    verify_password_reset_token,
 )
 from services.auth.functions.utils import generate_guest_token, hash_token, now_utc
 from services.database.connection import get_connection
@@ -245,7 +244,6 @@ async def forgot_password(request: Request) -> Dict[str, bool]:
             token = await create_password_reset(conn, user_row["id"])
             logger.info("Password reset token created for email=%s", email)
             # TODO: Send email when email service is configured
-            print(f"Password reset token for {email}: {token}")
 
     return {"ok": True}
 
@@ -262,7 +260,7 @@ async def reset_password(request: Request) -> Dict[str, bool]:
 
     async with get_connection() as conn:
         try:
-            user_id = await verify_password_reset_token(conn, token)
+            user_id = await consume_and_verify_password_reset_token(conn, token)
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc))
 
@@ -270,7 +268,6 @@ async def reset_password(request: Request) -> Dict[str, bool]:
             raise HTTPException(status_code=400, detail="Invalid reset token")
 
         await update_user_password(conn, user_id, password)
-        await consume_password_reset_token(conn, token)
         # Invalidate all sessions after password reset
         await conn.execute("DELETE FROM sessions WHERE user_id = $1", user_id)
         logger.info("Password reset completed for user_id=%s", user_id)

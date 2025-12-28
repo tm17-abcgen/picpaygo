@@ -116,11 +116,15 @@ async def create_password_reset(conn: asyncpg.Connection, user_id: UUID) -> str:
     return reset_token
 
 
-async def verify_password_reset_token(conn: asyncpg.Connection, token: str) -> Optional[UUID]:
-    """Verify reset token and return user_id if valid."""
+async def consume_and_verify_password_reset_token(conn: asyncpg.Connection, token: str) -> Optional[UUID]:
+    """Atomically verify and consume reset token. Returns user_id if valid, None if not found."""
     token_hash = hash_token(token)
     row = await conn.fetchrow(
-        "SELECT user_id, expires_at FROM password_resets WHERE token_hash = $1",
+        """
+        DELETE FROM password_resets
+        WHERE token_hash = $1
+        RETURNING user_id, expires_at
+        """,
         token_hash,
     )
     if not row:
@@ -128,12 +132,6 @@ async def verify_password_reset_token(conn: asyncpg.Connection, token: str) -> O
     if row["expires_at"] < now_utc():
         raise ValueError("Password reset token expired")
     return row["user_id"]
-
-
-async def consume_password_reset_token(conn: asyncpg.Connection, token: str) -> None:
-    """Delete the token after successful use."""
-    token_hash = hash_token(token)
-    await conn.execute("DELETE FROM password_resets WHERE token_hash = $1", token_hash)
 
 
 MIN_PASSWORD_LENGTH = 6
