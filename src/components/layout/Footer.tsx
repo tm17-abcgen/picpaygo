@@ -28,13 +28,6 @@ export function Footer() {
             >
               {obfuscateEmail(photographer.contact.email)}
             </a>
-            <a
-              href={`tel:${photographer.contact.phone}`}
-              className="hover:text-gray-700 transition-colors"
-              aria-label={`Call ${photographer.name}`}
-            >
-              {photographer.contact.phone}
-            </a>
           </div>
 
           {/* Copyright */}
