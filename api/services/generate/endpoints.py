@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import uuid
 from typing import Any, Dict, Optional
 from urllib.parse import unquote, urljoin
@@ -255,8 +254,8 @@ async def list_generations_endpoint(
             if gen["outputBucket"] and gen["outputKey"]:
                 gen["outputUrl"] = _build_proxy_url(request, gen["outputBucket"], gen["outputKey"])
             # Remove internal fields before returning
-            del gen["outputBucket"]
-            del gen["outputKey"]
+            gen.pop("outputBucket", None)
+            gen.pop("outputKey", None)
 
     return GenerationsListResponse(
         generations=[GenerationListItem(**g) for g in generations],
