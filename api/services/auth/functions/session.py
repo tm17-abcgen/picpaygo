@@ -89,6 +89,12 @@ async def delete_guest_generations(conn: asyncpg.Connection, guest_session_id: U
     return int(result.split()[-1]) if result else 0
 
 
+async def delete_user_generations(conn: asyncpg.Connection, user_id: UUID) -> int:
+    """Delete all generations for a logged-in user."""
+    result = await conn.execute("DELETE FROM generations WHERE user_id = $1", user_id)
+    return int(result.split()[-1]) if result else 0
+
+
 async def claim_guest_history(conn: asyncpg.Connection, user_id: UUID, guest_session_id: UUID) -> int:
     result = await conn.execute(
         """

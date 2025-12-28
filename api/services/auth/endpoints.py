@@ -20,6 +20,7 @@ from services.auth.functions.session import (
     create_session,
     delete_guest_generations,
     delete_session_by_raw_token,
+    delete_user_generations,
     get_session_user,
     rotate_guest_token,
 )
@@ -28,6 +29,7 @@ from services.auth.functions.user import (
     create_user,
     ensure_credits_row,
     get_user_auth_row,
+    get_user_id_from_email,
     verify_email_token,
 )
 from services.auth.functions.utils import generate_guest_token, hash_token, is_valid_email, now_utc
@@ -307,10 +309,22 @@ async def request_verification(request: Request) -> Dict[str, Any]:
 
 
 @router.post("/history/clear")
-async def clear_guest_history(request: Request) -> Response:
+async def clear_history(request: Request) -> Response:
+    """Clear all generations for the current user (logged-in or guest)."""
+    user = await get_session_user(request)
+
+    # Logged-in user: delete their generations
+    if user:
+        async with get_connection() as conn:
+            user_id = await get_user_id_from_email(conn, user["email"])
+            if user_id:
+                await delete_user_generations(conn, user_id)
+        return Response(content=json.dumps({"cleared": True}), media_type="application/json")
+
+    # Guest user: delete generations and rotate token
     guest_session_id = getattr(request.state, "guest_session_id", None)
     if not guest_session_id:
-        raise HTTPException(status_code=401, detail="Guest session required")
+        raise HTTPException(status_code=401, detail="Authentication required")
 
     guest_token = request.cookies.get(config.GUEST_COOKIE_NAME)
     if not guest_token:
