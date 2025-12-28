@@ -116,41 +116,45 @@ async def generate_image(
 
             guest_session_id = guest_session_id if not user_id else None
 
-            # Lock and check IP credits first
-            ip_row = await conn.fetchrow(
-                "SELECT free_remaining FROM ip_credits WHERE ip_address = $1 FOR UPDATE",
-                ip
+            # Atomically try to claim a free IP credit (decrement-or-insert)
+            # This prevents race conditions for new IPs where FOR UPDATE would lock nothing
+            ip_result = await conn.fetchrow(
+                """
+                INSERT INTO ip_credits (ip_address, free_remaining, last_seen_at)
+                VALUES ($1, $2 - 1, NOW())
+                ON CONFLICT (ip_address) DO UPDATE
+                SET free_remaining = ip_credits.free_remaining - 1, last_seen_at = NOW()
+                RETURNING free_remaining
+                """,
+                ip, config.DEFAULT_FREE_CREDITS
             )
-            free_credits = ip_row["free_remaining"] if ip_row else config.DEFAULT_FREE_CREDITS
+            ip_credit_used = ip_result["free_remaining"] >= 0
 
-            # Lock and check user credits if logged in
-            user_credits = 0
-            if user_id:
-                credit_row = await conn.fetchrow(
-                    "SELECT balance FROM credits WHERE user_id = $1 FOR UPDATE",
-                    user_id
+            # If IP credit claim failed (negative balance), restore and try user credits
+            user_credit_used = False
+            if not ip_credit_used:
+                # Restore the failed decrement
+                await conn.execute(
+                    "UPDATE ip_credits SET free_remaining = free_remaining + 1 WHERE ip_address = $1",
+                    ip
                 )
-                user_credits = credit_row["balance"] if credit_row else 0
 
-            total = free_credits + user_credits
-            if total < 1:
+                if user_id:
+                    # Lock and check user credits
+                    credit_row = await conn.fetchrow(
+                        "SELECT balance FROM credits WHERE user_id = $1 FOR UPDATE",
+                        user_id
+                    )
+                    user_credits = credit_row["balance"] if credit_row else 0
+                    if user_credits >= 1:
+                        await conn.execute(
+                            "UPDATE credits SET balance = balance - 1, updated_at = NOW() WHERE user_id = $1",
+                            user_id
+                        )
+                        user_credit_used = True
+
+            if not ip_credit_used and not user_credit_used:
                 raise HTTPException(status_code=400, detail="Insufficient credits")
-
-            # Deduct credits atomically
-            if free_credits > 0:
-                await conn.execute(
-                    """INSERT INTO ip_credits (ip_address, free_remaining, last_seen_at)
-                       VALUES ($1, $2, NOW())
-                       ON CONFLICT (ip_address) DO UPDATE SET free_remaining = $2, last_seen_at = NOW()""",
-                    ip, free_credits - 1
-                )
-            elif user_id:
-                await conn.execute(
-                    "UPDATE credits SET balance = balance - 1, updated_at = NOW() WHERE user_id = $1",
-                    user_id
-                )
-            else:
-                raise HTTPException(status_code=400, detail="Login required for paid credits")
 
             # Create generation record within transaction
             generation_id = await create_generation(conn, user_id, guest_session_id, category)
