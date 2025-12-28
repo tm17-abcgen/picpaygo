@@ -65,7 +65,7 @@ JOB_TIMEOUT_SECONDS = _get_int("JOB_TIMEOUT_SECONDS", 120, min_value=1)
 
 SESSION_COOKIE = os.getenv("SESSION_COOKIE", "session")
 SESSION_TTL_HOURS = _get_int("SESSION_TTL_HOURS", 168, min_value=1)
-DEFAULT_FREE_CREDITS = _get_int("FREE_CREDITS", 3, min_value=0)
+DEFAULT_FREE_CREDITS = _get_int("FREE_CREDITS", 1, min_value=0)
 
 GUEST_COOKIE_NAME = os.getenv("GUEST_COOKIE_NAME", "guest")
 GUEST_COOKIE_MAX_AGE = _get_int("GUEST_COOKIE_MAX_AGE", 365 * 24 * 60 * 60, min_value=60)

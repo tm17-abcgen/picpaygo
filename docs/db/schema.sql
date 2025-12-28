@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS guest_sessions (
 
 CREATE TABLE IF NOT EXISTS ip_credits (
   ip_address inet PRIMARY KEY,
-  free_remaining integer NOT NULL DEFAULT 3,
+  free_remaining integer NOT NULL DEFAULT 1,
   created_at timestamptz NOT NULL DEFAULT now(),
   last_seen_at timestamptz NOT NULL DEFAULT now()
 );
