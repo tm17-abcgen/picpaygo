@@ -10,7 +10,7 @@ export function HeaderNavigation() {
   const { photographer, series } = usePortfolio();
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [showExamples, setShowExamples] = useState(false);
+  const [showCollection, setShowCollection] = useState(false);
 
   if (!photographer) return null;
 
@@ -22,13 +22,13 @@ export function HeaderNavigation() {
 
   const handleNavClick = () => {
     setIsMenuOpen(false);
-    setShowExamples(false);
+    setShowCollection(false);
   };
 
-  // Filter out demo from series for Examples dropdown
-  const exampleSeries = series.filter((s) => s.slug !== 'demo' && !s.parentSlug);
+  // Filter out demo from series for Collection dropdown
+  const collectionSeries = series.filter((s) => s.slug !== 'demo' && !s.parentSlug);
 
-  const isExamplesActive = location.pathname.startsWith('/series/');
+  const isCollectionActive = location.pathname.startsWith('/series/');
 
   return (
     <div className="relative w-full">
@@ -80,9 +80,9 @@ export function HeaderNavigation() {
                       </Link>
                     </li>
                     <li>
-                      <span className="text-lg font-medium text-foreground">Examples</span>
+                      <span className="text-lg font-medium text-foreground">Collection</span>
                       <ul className="mt-3 ml-4 flex flex-col gap-3">
-                        {exampleSeries.map((s) => (
+                        {collectionSeries.map((s) => (
                           <li key={s.slug}>
                             <Link
                               to={`/series/${s.slug}`}
@@ -106,6 +106,17 @@ export function HeaderNavigation() {
                         }`}
                       >
                         Account
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to="/contact"
+                        onClick={handleNavClick}
+                        className={`text-lg transition-all duration-200 ${
+                          isActive('/contact') ? "font-semibold text-foreground" : "font-normal text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        Contact Us
                       </Link>
                     </li>
                   </ul>
@@ -138,27 +149,27 @@ export function HeaderNavigation() {
                 </Link>
               </li>
               
-              {/* Examples dropdown */}
+              {/* Collection dropdown */}
               <li className="relative">
                 <button
-                  onClick={() => setShowExamples(!showExamples)}
-                  onBlur={() => setTimeout(() => setShowExamples(false), 150)}
+                  onClick={() => setShowCollection(!showCollection)}
+                  onBlur={() => setTimeout(() => setShowCollection(false), 150)}
                   className={cn(
                     "flex items-center gap-1 text-sm sm:text-base lg:text-[1.0625rem] leading-[1.375rem] transition-all duration-200",
-                    isExamplesActive ? "font-semibold text-foreground" : "font-normal text-muted-foreground hover:text-foreground"
+                    isCollectionActive ? "font-semibold text-foreground" : "font-normal text-muted-foreground hover:text-foreground"
                   )}
                 >
-                  Examples
-                  <ChevronDown className={cn("h-4 w-4 transition-transform", showExamples && "rotate-180")} />
+                  Collection
+                  <ChevronDown className={cn("h-4 w-4 transition-transform", showCollection && "rotate-180")} />
                 </button>
                 
-                {showExamples && (
+                {showCollection && (
                   <div className="absolute top-full left-0 mt-2 py-2 bg-background border border-border rounded-lg shadow-lg min-w-[160px] z-50">
-                    {exampleSeries.map((s) => (
+                    {collectionSeries.map((s) => (
                       <Link
                         key={s.slug}
                         to={`/series/${s.slug}`}
-                        onClick={() => setShowExamples(false)}
+                        onClick={() => setShowCollection(false)}
                         className={cn(
                           "block px-4 py-2 text-sm transition-colors",
                           isActive(`/series/${s.slug}`) 
@@ -181,6 +192,16 @@ export function HeaderNavigation() {
                   }`}
                 >
                   Account
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/contact"
+                  className={`text-sm sm:text-base lg:text-[1.0625rem] leading-[1.375rem] transition-all duration-200 ${
+                    isActive('/contact') ? "font-semibold text-foreground" : "font-normal text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  Contact Us
                 </Link>
               </li>
             </ul>
