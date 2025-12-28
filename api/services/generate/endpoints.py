@@ -25,6 +25,7 @@ from services.generate.functions.jobs import (
     list_generations,
 )
 from services.generate.functions.prompts import PROMPT_BY_TYPE, build_prompt
+from services.generate.functions.image_utils import is_heic, convert_heic_to_jpeg
 
 router = APIRouter(prefix=config.API_PREFIX)
 
@@ -100,6 +101,11 @@ async def generate_image(
     if not image_bytes:
         raise HTTPException(status_code=400, detail="Empty image upload")
 
+    # Convert HEIC to JPEG for compatibility (iPhone photos)
+    content_type = image.content_type
+    if is_heic(image.content_type, image.filename):
+        image_bytes, content_type = convert_heic_to_jpeg(image_bytes)
+
     user = await get_session_user(request)
     guest_session_id = getattr(request.state, "guest_session_id", None)
     ip = get_client_ip(request)
@@ -158,7 +164,7 @@ async def generate_image(
 
     # Storage operations outside transaction (can retry independently)
     input_key = await storage.upload_input_async(
-        str(generation_id), image_bytes, image.content_type
+        str(generation_id), image_bytes, content_type
     )
 
     async with get_connection() as conn:
@@ -168,7 +174,7 @@ async def generate_image(
             "input",
             storage.BUCKET_RAW,
             input_key,
-            image.content_type,
+            content_type,
             len(image_bytes),
         )
 
@@ -176,7 +182,7 @@ async def generate_image(
         {
             "job_id": str(generation_id),
             "prompt": prompt,
-            "content_type": image.content_type,
+            "content_type": content_type,
             "client_ip": ip,
         }
     )
