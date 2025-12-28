@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { HeaderNavigation } from "./HeaderNavigation";
+import { Footer } from "./Footer";
 
 interface LayoutProps {
   children: ReactNode;
@@ -27,10 +28,24 @@ export function Layout({ children }: LayoutProps) {
             grid-template-columns: [full-start] 1fr [content-start] min(1200px, 100%) [content-end] 1fr [full-end];
           }
         }
+        /* Safe area padding for notch devices (mobile only) */
+        .layout-content {
+          padding-top: max(env(safe-area-inset-top, 0px), 1.5rem);
+        }
+        @media (min-width: 640px) {
+          .layout-content {
+            padding-top: 120px;
+          }
+        }
+        @media (min-width: 1024px) {
+          .layout-content {
+            padding-top: 140px;
+          }
+        }
       `}</style>
       {/* Centered container for header + gallery */}
       <div
-        className="flex flex-col gap-6 sm:gap-8 lg:gap-[50px] pointer-events-auto pt-[60px] sm:pt-[120px] lg:pt-[140px] pb-10 sm:pb-12"
+        className="layout-content flex flex-col gap-6 sm:gap-8 lg:gap-[50px] pointer-events-auto pb-10 sm:pb-12"
         style={{
           gridColumn: "content-start / content-end",
         }}
@@ -42,6 +57,11 @@ export function Layout({ children }: LayoutProps) {
 
         {/* Main Content: Gallery */}
         <main className="flex-shrink-0">{children}</main>
+
+        {/* Footer with contact info */}
+        <footer className="flex-shrink-0 mt-12 sm:mt-16 lg:mt-20">
+          <Footer />
+        </footer>
       </div>
     </div>
   );
