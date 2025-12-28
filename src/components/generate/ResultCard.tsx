@@ -8,14 +8,28 @@ interface ResultCardProps {
 }
 
 export function ResultCard({ imageUrl, onGenerateAnother, onDownload }: ResultCardProps) {
-  const handleDownload = () => {
-    // Trigger download for guests and logged-in users
-    const link = document.createElement('a');
-    link.href = imageUrl;
-    link.download = `picpaygo-${Date.now()}.jpg`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleDownload = async () => {
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `picpaygo-${Date.now()}.jpg`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch {
+      // Fallback to direct link if fetch fails
+      const link = document.createElement('a');
+      link.href = imageUrl;
+      link.download = `picpaygo-${Date.now()}.jpg`;
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
     onDownload?.();
   };
 
