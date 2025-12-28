@@ -1,11 +1,11 @@
 # PicPayGo Auth + Credits Flow
 
 ## Summary
-Users can generate up to 3 images for free per IP. Buying credits requires login. Downloads are available to guests and logged-in users. Logged-in users see their generation history and credit balance. Logging out ends the session and hides user-specific content.
+Users can generate 1 image for free per IP. Buying credits requires login. Downloads are available to guests and logged-in users. Logged-in users see their generation history and credit balance. Logging out ends the session and hides user-specific content.
 
 ## User States
 - **Guest (no session)**
-  - Can upload and generate using free IP credits (max 3).
+  - Can upload and generate using free IP credit (max 1).
   - Can view results and **download outputs**.
   - **Cannot buy credits**.
   - Cannot see generation history.
@@ -20,7 +20,7 @@ Users can generate up to 3 images for free per IP. Buying credits requires login
   - Session invalidated, history hidden, purchase disabled.
 
 ## Credits Rules
-- Guests receive **3 free credits per IP** (tracked server-side).
+- Guests receive **1 free credit per IP** (tracked server-side).
 - Free IP credits remain available even after login on the same IP.
 - When logged in, total available credits = **free IP credits + purchased user credits**.
   - Deduct free credits first, then paid credits.
@@ -60,6 +60,6 @@ Users can generate up to 3 images for free per IP. Buying credits requires login
   - Keep guest free credits based on IP and downloads remain available.
 
 ## Edge Cases
-- Guest uses all 3 credits → prompt to log in (for purchase) or wait.
+- Guest uses their free credit → prompt to log in (for purchase).
 - User logs out mid-session → downloads still available.
 - User logs in after generating as guest → guest result is still viewable but not attached to account unless backend links by IP or upload token.

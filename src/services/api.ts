@@ -66,9 +66,6 @@ const apiFetch = async (path: string, options: RequestInit = {}) => {
   return response.json();
 };
 
-// UX delay to prevent UI flicker on fast responses (not for security - server rate limiting handles abuse)
-const delay = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
-
 // API Functions
 
 export async function getCredits(): Promise<CreditsInfo> {
@@ -203,7 +200,9 @@ export async function register(
     method: 'POST',
     body: JSON.stringify({ email, password }),
   });
-  return { verificationRequired: !!data?.verificationRequired };
+  // Backend returns verificationRequired under user object
+  const verified = data?.user?.verificationRequired;
+  return { verificationRequired: verified === true || verified === 'true' };
 }
 
 export async function logout(): Promise<void> {
@@ -224,57 +223,25 @@ export async function verifyEmail(token: string): Promise<{ success: boolean }> 
   return { success: true };
 }
 
-export async function forgotPassword(email: string): Promise<{ ok: boolean }> {
-  const minDelay = delay(200);
-  try {
-    await apiFetch('/auth/forgot-password', {
-      method: 'POST',
-      body: JSON.stringify({ email }),
-    });
-    return { ok: true };
-  } finally {
-    await minDelay;
-  }
+export async function requestVerificationEmail(email: string): Promise<{ success: boolean }> {
+  await apiFetch('/auth/request-verification', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  });
+  return { success: true };
 }
 
-export async function resetPassword(token: string, password: string): Promise<{ ok: boolean }> {
-  const minDelay = delay(200);
-  try {
-    await apiFetch('/auth/reset-password', {
-      method: 'POST',
-      body: JSON.stringify({ token, password }),
-    });
-    return { ok: true };
-  } finally {
-    await minDelay;
-  }
+export interface ContactFormData {
+  name: string;
+  email: string;
+  subject?: string;
+  message: string;
 }
 
-export async function changePassword(
-  currentPassword: string,
-  newPassword: string
-): Promise<{ ok: boolean }> {
-  const minDelay = delay(200);
-  try {
-    await apiFetch('/auth/change-password', {
-      method: 'POST',
-      body: JSON.stringify({ currentPassword, newPassword }),
-    });
-    return { ok: true };
-  } finally {
-    await minDelay;
-  }
-}
-
-export async function deleteAccount(password: string): Promise<{ ok: boolean }> {
-  const minDelay = delay(200);
-  try {
-    await apiFetch('/auth/delete-account', {
-      method: 'POST',
-      body: JSON.stringify({ password }),
-    });
-    return { ok: true };
-  } finally {
-    await minDelay;
-  }
+export async function submitContactForm(data: ContactFormData): Promise<{ success: boolean }> {
+  await apiFetch('/contact', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+  return { success: true };
 }

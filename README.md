@@ -41,7 +41,7 @@ VITE_API_PROXY_TARGET=http://127.0.0.1:8081 npm run dev
 
 ```
 src/                    # React frontend
-├── pages/              # Home, Generate, Account, SeriesPage
+├── pages/              # Home, Generate, Account, SeriesPage, Contact
 ├── components/         # UI components (gallery, layout, generate)
 ├── context/            # CreditsContext, PortfolioContext
 ├── hooks/              # useGallery, useAutoAdvance
@@ -50,7 +50,7 @@ src/                    # React frontend
 api/                    # FastAPI backend
 ├── main.py             # App entry point
 ├── config.py           # Environment config
-└── services/           # auth, credits, generate, storage, payments
+└── services/           # auth, credits, generate, storage, email, contact
 ```
 
 ## Environment Variables
@@ -61,6 +61,15 @@ OPENROUTER_API_KEY=sk-or-v1-...      # AI generation
 STRIPE_SECRET_KEY=sk_test_...         # Payments
 STRIPE_WEBHOOK_SECRET=whsec_...
 FRONTEND_URL=http://localhost:8080
+
+# Email (for verification & contact form)
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USE_SSL=false
+EMAIL_ACCOUNT=noreply@example.com
+EMAIL_PW=...
+EMAIL_FROM_NAME=PicPayGo
+SUPPORT_EMAIL=support@example.com
 ```
 
 See `.env.example` and `api/.env.example` for full list.
@@ -69,12 +78,14 @@ See `.env.example` and `api/.env.example` for full list.
 
 | Endpoint | Description |
 |----------|-------------|
-| `POST /api/auth/register` | Create account |
+| `POST /api/auth/register` | Create account (sends verification email) |
+| `GET /api/auth/verify` | Verify email with token |
 | `POST /api/auth/login` | Login |
 | `GET /api/credits` | Get credit balance |
 | `POST /api/generate` | Create generation (multipart: type + image) |
 | `GET /api/generate/:id` | Get job status |
 | `GET /api/generations` | List generations |
+| `POST /api/contact` | Submit contact form |
 
 ## Database
 

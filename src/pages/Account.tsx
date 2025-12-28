@@ -4,12 +4,11 @@ import { SEO } from '@/components/seo/SEO';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCredits } from '@/context/CreditsContext';
-import { getGenerations, clearGuestHistory, Generation, forgotPassword, changePassword, deleteAccount } from '@/services/api';
+import { getGenerations, clearGuestHistory, Generation, requestVerificationEmail } from '@/services/api';
 import { BuyCreditsModal } from '@/components/credits/BuyCreditsModal';
-import { Loader2, LogOut, Download, Coins, ImageIcon, Trash2, KeyRound, AlertTriangle } from 'lucide-react';
+import { Loader2, LogOut, Download, Coins, ImageIcon, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { validatePassword } from '@/lib/passwordPolicy';
 
 export default function Account() {
   const { user, isLoggedIn, credits, refreshCredits, login, register, logout, loading: authLoading } = useCredits();
@@ -24,23 +23,12 @@ export default function Account() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
+
+  // Resend verification state
+  const [showResendForm, setShowResendForm] = useState(false);
+  const [resendEmail, setResendEmail] = useState('');
+  const [resendLoading, setResendLoading] = useState(false);
   const { toast } = useToast();
-
-  // Forgot password state
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [forgotEmail, setForgotEmail] = useState('');
-  const [forgotLoading, setForgotLoading] = useState(false);
-
-  // Change password state
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmNewPassword, setConfirmNewPassword] = useState('');
-  const [changePasswordLoading, setChangePasswordLoading] = useState(false);
-
-  // Delete account state
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [deletePassword, setDeletePassword] = useState('');
-  const [deleteLoading, setDeleteLoading] = useState(false);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const checkoutStatus = searchParams.get('checkout');
@@ -174,138 +162,51 @@ export default function Account() {
     });
   };
 
-  const handleDownload = (imageUrl: string) => {
-    const link = document.createElement('a');
-    link.href = imageUrl;
-    link.download = `picpaygo-${Date.now()}.jpg`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  const handleForgotPassword = async (e: React.FormEvent) => {
+  const handleResendVerification = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!forgotEmail) {
+    if (!resendEmail) {
       toast({
-        title: 'Missing email',
+        title: 'Email required',
         description: 'Please enter your email address.',
         variant: 'destructive',
       });
       return;
     }
 
-    setForgotLoading(true);
+    setResendLoading(true);
     try {
-      await forgotPassword(forgotEmail);
+      await requestVerificationEmail(resendEmail);
       toast({
-        title: 'Request submitted',
-        description: 'If an account exists with this email, a password reset link will be available.',
+        title: 'Check your email',
+        description: 'If an account exists and requires verification, we\'ve sent an email.',
       });
-      setShowForgotPassword(false);
-      setForgotEmail('');
+      setShowResendForm(false);
+      setResendEmail('');
     } catch (error) {
+      const message = error instanceof Error ? error.message : 'Please try again later.';
       toast({
         title: 'Request failed',
-        description: error instanceof Error ? error.message : 'Please try again.',
+        description: message,
         variant: 'destructive',
       });
     } finally {
-      setForgotLoading(false);
+      setResendLoading(false);
     }
   };
 
-  const handleChangePassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!currentPassword || !newPassword || !confirmNewPassword) {
-      toast({
-        title: 'Missing fields',
-        description: 'Please fill in all password fields.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    if (newPassword !== confirmNewPassword) {
-      toast({
-        title: 'Passwords do not match',
-        description: 'New password and confirmation must match.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    const passwordCheck = validatePassword(newPassword);
-    if (!passwordCheck.valid) {
-      toast({
-        title: 'Invalid password',
-        description: passwordCheck.message,
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    setChangePasswordLoading(true);
-    try {
-      await changePassword(currentPassword, newPassword);
-      toast({
-        title: 'Password updated',
-        description: 'Your password has been changed. Please log in again.',
-      });
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmNewPassword('');
-      // Session was invalidated server-side, refresh state and redirect
-      await logout();
-      navigate('/account');
-    } catch (error) {
-      toast({
-        title: 'Failed to change password',
-        description: error instanceof Error ? error.message : 'Please try again.',
-        variant: 'destructive',
-      });
-    } finally {
-      setChangePasswordLoading(false);
-    }
-  };
-
-  const handleDeleteAccount = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!deletePassword) {
-      toast({
-        title: 'Password required',
-        description: 'Please enter your password to confirm deletion.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    setDeleteLoading(true);
-    try {
-      await deleteAccount(deletePassword);
-      toast({
-        title: 'Account deleted',
-        description: 'Your account has been permanently deleted.',
-      });
-      setShowDeleteConfirm(false);
-      setDeletePassword('');
-      // Clear auth state and redirect (no reload needed)
-      await logout();
-      navigate('/');
-    } catch (error) {
-      toast({
-        title: 'Failed to delete account',
-        description: error instanceof Error ? error.message : 'Please try again.',
-        variant: 'destructive',
-      });
-    } finally {
-      setDeleteLoading(false);
-    }
+  const handleDownload = (imageUrl: string) => {
+    const link = document.createElement('a');
+    link.href = imageUrl;
+    link.download = `ai-portrait-${Date.now()}.jpg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   if (authLoading) {
     return (
       <Layout>
-        <SEO title="Account" description="Manage your PicPayGo account" />
+        <SEO title="Account" description="Manage your AI portrait account" />
         <div className="flex items-center justify-center py-20">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
@@ -315,7 +216,7 @@ export default function Account() {
 
   return (
     <Layout>
-      <SEO title="Account" description="Manage your PicPayGo account" />
+      <SEO title="Account" description="Manage your AI portrait account" />
       
       <div className="max-w-4xl mx-auto py-4 sm:py-6 px-4">
         <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-6 text-center">
@@ -406,59 +307,63 @@ export default function Account() {
                   <p className="text-xs text-muted-foreground mt-4 text-left">
                     You will need to verify your email before you can log in.
                   </p>
-
-                  {authMode === 'login' && !showForgotPassword && (
-                    <button
-                      type="button"
-                      onClick={() => setShowForgotPassword(true)}
-                      className="text-xs text-muted-foreground hover:text-foreground underline mt-2"
-                    >
-                      Forgot your password?
-                    </button>
-                  )}
-
-                  {showForgotPassword && (
-                    <div className="mt-4 pt-4 border-t border-border/60">
-                      <p className="text-sm font-medium text-foreground mb-2">Reset Password</p>
-                      <form onSubmit={handleForgotPassword} className="space-y-3">
-                        <Input
-                          type="email"
-                          placeholder="Enter your email"
-                          value={forgotEmail}
-                          onChange={(e) => setForgotEmail(e.target.value)}
-                          disabled={forgotLoading}
-                        />
-                        <div className="flex gap-2">
-                          <Button type="submit" size="sm" disabled={forgotLoading} className="flex-1">
-                            {forgotLoading ? (
-                              <>
-                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                Sending...
-                              </>
-                            ) : (
-                              'Send Reset Link'
-                            )}
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              setShowForgotPassword(false);
-                              setForgotEmail('');
-                            }}
-                          >
-                            Cancel
-                          </Button>
-                        </div>
-                      </form>
+                  {authMode === 'login' && (
+                    <div className="mt-4 pt-4 border-t border-border/40">
+                      {!showResendForm ? (
+                        <button
+                          type="button"
+                          onClick={() => setShowResendForm(true)}
+                          className="text-xs text-muted-foreground hover:text-foreground"
+                        >
+                          Didn't receive verification email?
+                        </button>
+                      ) : (
+                        <form onSubmit={handleResendVerification} className="space-y-3">
+                          <p className="text-xs text-muted-foreground mb-2">
+                            Enter your email to resend the verification link.
+                          </p>
+                          <Input
+                            type="email"
+                            placeholder="you@example.com"
+                            value={resendEmail}
+                            onChange={(e) => setResendEmail(e.target.value)}
+                            disabled={resendLoading}
+                          />
+                          <div className="flex gap-2">
+                            <Button
+                              type="submit"
+                              size="sm"
+                              disabled={resendLoading}
+                            >
+                              {resendLoading ? (
+                                <>
+                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                  Sending...
+                                </>
+                              ) : (
+                                'Resend verification'
+                              )}
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setShowResendForm(false);
+                                setResendEmail('');
+                              }}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        </form>
+                      )}
                     </div>
                   )}
                 </div>
               </div>
             ) : (
-              <div className="max-w-md mx-auto space-y-4">
-                {/* Profile Info */}
+              <div className="max-w-md mx-auto">
                 <div className="p-6 rounded-2xl border border-border/60 bg-background/80">
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-lg font-semibold text-foreground">Profile</h2>
@@ -468,125 +373,6 @@ export default function Account() {
                     </Button>
                   </div>
                   <p className="text-muted-foreground">{user?.email}</p>
-                </div>
-
-                {/* Change Password */}
-                <div className="p-6 rounded-2xl border border-border/60 bg-background/80">
-                  <div className="flex items-center gap-2 mb-4">
-                    <KeyRound className="h-5 w-5 text-muted-foreground" />
-                    <h2 className="text-lg font-semibold text-foreground">Change Password</h2>
-                  </div>
-                  <form onSubmit={handleChangePassword} className="space-y-3">
-                    <div>
-                      <label htmlFor="currentPassword" className="text-sm font-medium text-foreground mb-1 block">
-                        Current Password
-                      </label>
-                      <Input
-                        id="currentPassword"
-                        type="password"
-                        placeholder="Enter current password"
-                        value={currentPassword}
-                        onChange={(e) => setCurrentPassword(e.target.value)}
-                        disabled={changePasswordLoading}
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="newPassword" className="text-sm font-medium text-foreground mb-1 block">
-                        New Password
-                      </label>
-                      <Input
-                        id="newPassword"
-                        type="password"
-                        placeholder="Enter new password"
-                        value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
-                        disabled={changePasswordLoading}
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="confirmNewPassword" className="text-sm font-medium text-foreground mb-1 block">
-                        Confirm New Password
-                      </label>
-                      <Input
-                        id="confirmNewPassword"
-                        type="password"
-                        placeholder="Confirm new password"
-                        value={confirmNewPassword}
-                        onChange={(e) => setConfirmNewPassword(e.target.value)}
-                        disabled={changePasswordLoading}
-                      />
-                    </div>
-                    <Button type="submit" disabled={changePasswordLoading} className="w-full">
-                      {changePasswordLoading ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          Updating...
-                        </>
-                      ) : (
-                        'Update Password'
-                      )}
-                    </Button>
-                  </form>
-                </div>
-
-                {/* Delete Account */}
-                <div className="p-6 rounded-2xl border border-destructive/30 bg-background/80">
-                  <div className="flex items-center gap-2 mb-2">
-                    <AlertTriangle className="h-5 w-5 text-destructive" />
-                    <h2 className="text-lg font-semibold text-foreground">Delete Account</h2>
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Permanently delete your account and all associated data. This action cannot be undone.
-                  </p>
-
-                  {!showDeleteConfirm ? (
-                    <Button
-                      variant="destructive"
-                      onClick={() => setShowDeleteConfirm(true)}
-                    >
-                      Delete My Account
-                    </Button>
-                  ) : (
-                    <form onSubmit={handleDeleteAccount} className="space-y-3">
-                      <p className="text-sm text-destructive font-medium">
-                        Enter your password to confirm deletion:
-                      </p>
-                      <Input
-                        type="password"
-                        placeholder="Enter your password"
-                        value={deletePassword}
-                        onChange={(e) => setDeletePassword(e.target.value)}
-                        disabled={deleteLoading}
-                      />
-                      <div className="flex gap-2">
-                        <Button
-                          type="submit"
-                          variant="destructive"
-                          disabled={deleteLoading}
-                          className="flex-1"
-                        >
-                          {deleteLoading ? (
-                            <>
-                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                              Deleting...
-                            </>
-                          ) : (
-                            'Confirm Delete'
-                          )}
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => {
-                            setShowDeleteConfirm(false);
-                            setDeletePassword('');
-                          }}
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    </form>
-                  )}
                 </div>
               </div>
             )}

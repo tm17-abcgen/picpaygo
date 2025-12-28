@@ -25,7 +25,7 @@ export default function Verify() {
     verifyEmail(token)
       .then(() => {
         setStatus('success');
-        setMessage('Your email has been verified. You can now log in.');
+        setMessage('Your email has been verified. You are now logged in.');
       })
       .catch((error) => {
         const detail = error instanceof Error ? error.message : 'Verification failed.';

@@ -12,6 +12,7 @@ const Home = lazy(() => import("./pages/Home"));
 const SeriesPage = lazy(() => import("./pages/SeriesPage"));
 const Generate = lazy(() => import("./pages/Generate"));
 const Account = lazy(() => import("./pages/Account"));
+const Contact = lazy(() => import("./pages/Contact"));
 const Verify = lazy(() => import("./pages/Verify"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -39,6 +40,7 @@ const App = () => (
                 <Route path="/series/:slug" element={<SeriesPage />} />
                 <Route path="/generate" element={<Generate />} />
                 <Route path="/account" element={<Account />} />
+                <Route path="/contact" element={<Contact />} />
                 <Route path="/verify" element={<Verify />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="*" element={<NotFound />} />

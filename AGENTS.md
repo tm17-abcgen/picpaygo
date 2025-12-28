@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 This is a Vite + React + TypeScript app. Source lives in `src/`:
-- `src/pages/` for route-level screens (`Home`, `SeriesPage`, `About`, `NotFound`).
+- `src/pages/` for route-level screens (`Home`, `Generate`, `Account`, `SeriesPage`, `Contact`, `NotFound`).
 - `src/components/` for reusable UI (`gallery/`, `layout/`, `seo/`, `ui/`).
 - `src/context/` for global data loading (`PortfolioContext`).
 - `src/hooks/`, `src/lib/`, `src/types/` for hooks, utilities, and types.
