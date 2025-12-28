@@ -56,11 +56,11 @@ export default function PrivacyPolicy() {
               <li>Image metadata (file size, content type, timestamps) is recorded</li>
             </ul>
             <p className="mb-3 mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded">
-              <strong>Important - Guest Users:</strong> If you do not create an account, all processed images uploaded to this site 
-              will not be transferred to you but will become the property of the site. This is necessary because without an account 
-              (which requires a name, email address, or other identifying information), we cannot verify ownership or transfer images 
-              to a specific user. Images uploaded by guest users are stored in our services for processing and are automatically 
-              deleted after processing is complete.
+              <strong>Important - Guest Users:</strong> Guest users grant {legalInfo.company.name} a non-exclusive, limited license 
+              to process, store, and temporarily retain uploaded and generated images solely for the purpose of providing the 
+              enhancement service. Since guest users cannot be identified without an account (which requires an email address), 
+              we cannot provide long-term storage or data portability rights. Images uploaded by guest users are processed and 
+              automatically deleted within 3 days after processing. You retain your copyright in all images you upload.
             </p>
 
             <h3 className="text-xl font-semibold mb-3 mt-4 text-gray-800">1.4 Payment Information</h3>
@@ -87,6 +87,17 @@ export default function PrivacyPolicy() {
               <li><strong>Security:</strong> To prevent fraud, abuse, and unauthorized access</li>
               <li><strong>Service Improvement:</strong> To analyze usage patterns and improve our service quality</li>
               <li><strong>Communication:</strong> To send you account-related notifications and support responses</li>
+            </ul>
+
+            <h3 className="text-xl font-semibold mb-3 mt-4 text-gray-800">Legal Basis for Processing (GDPR Art. 6)</h3>
+            <p className="mb-3">
+              We process your personal data based on the following legal grounds under GDPR:
+            </p>
+            <ul className="list-disc list-inside ml-4 mb-4 space-y-2">
+              <li><strong>Art. 6(1)(b) GDPR – Performance of Contract:</strong> Processing your images, managing your account, and providing our enhancement services is necessary for the performance of our contract with you.</li>
+              <li><strong>Art. 6(1)(a) GDPR – Consent:</strong> For non-essential cookies and optional marketing communications, we rely on your explicit consent. You may withdraw consent at any time.</li>
+              <li><strong>Art. 6(1)(f) GDPR – Legitimate Interest:</strong> For fraud prevention, security measures, service improvement, and analytics. Our legitimate interests do not override your fundamental rights and freedoms.</li>
+              <li><strong>Art. 6(1)(c) GDPR – Legal Obligation:</strong> For retaining payment records as required by tax and accounting laws.</li>
             </ul>
           </section>
 
@@ -207,9 +218,17 @@ export default function PrivacyPolicy() {
           <section>
             <h2 className="text-2xl font-semibold mb-4 text-gray-900">9. International Data Transfers</h2>
             <p className="mb-4">
-              Your data may be processed and stored in servers located outside your country of residence. When we transfer 
-              data internationally, we ensure appropriate safeguards are in place to protect your privacy rights in accordance 
-              with applicable data protection laws.
+              Your data may be processed and stored in servers located outside your country of residence, including the United States 
+              (for AI processing through OpenRouter and payment processing through Stripe). When we transfer data internationally, 
+              we ensure appropriate safeguards are in place to protect your privacy rights:
+            </p>
+            <ul className="list-disc list-inside ml-4 mb-4 space-y-2">
+              <li><strong>Standard Contractual Clauses (SCCs):</strong> We rely on EU-approved Standard Contractual Clauses as the legal mechanism for data transfers to countries without an EU adequacy decision.</li>
+              <li><strong>EU-U.S. Data Privacy Framework (DPF):</strong> Where applicable, our service providers may be certified under the EU-U.S. Data Privacy Framework.</li>
+              <li><strong>Adequacy Decisions:</strong> For transfers to countries with an EU adequacy decision, no additional safeguards are required.</li>
+            </ul>
+            <p className="mb-4">
+              You may request a copy of the applicable transfer mechanisms by contacting us at <a href={`mailto:${legalInfo.contact.email}`} className="text-blue-600 hover:underline">{legalInfo.contact.email}</a>.
             </p>
           </section>
 

@@ -14,11 +14,9 @@ export default function Imprint() {
           <section>
             <h2 className="text-2xl font-semibold mb-4 text-gray-900">Information according to § 5 TMG (German Telemedia Act)</h2>
             <div className="bg-gray-50 p-4 rounded-lg mb-4">
-              <p className="mb-2"><strong>Company Name:</strong> {legalInfo.company.name}</p>
-              {legalInfo.company.legalForm && (
-                <p className="mb-2"><strong>Legal Form:</strong> {legalInfo.company.legalForm}</p>
-              )}
-              <p className="mb-2"><strong>Registered Office:</strong> {legalInfo.company.registeredOffice.street}</p>
+              <p className="mb-2"><strong>Business Name:</strong> {legalInfo.company.name}</p>
+              <p className="mb-2"><strong>Owner:</strong> {legalInfo.company.owner} ({legalInfo.company.legalStatus})</p>
+              <p className="mb-2"><strong>Address:</strong> {legalInfo.company.registeredOffice.street}</p>
               <p className="mb-2"><strong>Postal Code & City:</strong> {legalInfo.company.registeredOffice.postalCode} {legalInfo.company.registeredOffice.city}</p>
               <p className="mb-2"><strong>Country:</strong> {legalInfo.company.registeredOffice.country}</p>
             </div>
@@ -32,7 +30,7 @@ export default function Imprint() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-semibold mb-4 text-gray-900">Responsible for Content</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-gray-900">Responsible for Content according to § 18 Abs. 2 MStV</h2>
             <div className="bg-gray-50 p-4 rounded-lg mb-4">
               <p className="mb-2"><strong>Name:</strong> {legalInfo.responsiblePerson.name}</p>
               <p className="mb-2"><strong>Address:</strong> {legalInfo.responsiblePerson.address}</p>

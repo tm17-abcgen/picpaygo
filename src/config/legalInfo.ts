@@ -8,7 +8,8 @@
 export interface LegalInfo {
   company: {
     name: string;
-    legalForm: string;
+    owner: string;
+    legalStatus: string;
     registeredOffice: {
       street: string;
       postalCode: string;
@@ -44,7 +45,8 @@ export interface LegalInfo {
 export const legalInfo: LegalInfo = {
   company: {
     name: "PicPayGo",
-    legalForm: undefined,
+    owner: "Adrian Estevez",
+    legalStatus: "Einzelunternehmer (sole proprietor)",
     registeredOffice: {
       street: "Artilleriestr. 8",
       postalCode: "64285",

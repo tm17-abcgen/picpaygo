@@ -94,7 +94,27 @@ export default function TermsConditions() {
               <li>Purchased credits are added to your account balance immediately upon successful payment</li>
             </ul>
 
-            <h3 className="text-xl font-semibold mb-3 mt-4 text-gray-800">4.3 Refunds</h3>
+            <h3 className="text-xl font-semibold mb-3 mt-4 text-gray-800">4.3 Right of Withdrawal (Widerrufsrecht) – EU Consumers</h3>
+            <p className="mb-4 p-4 bg-blue-50 border-l-4 border-blue-500 rounded">
+              <strong>Important Notice:</strong> As a consumer in the European Union, you generally have a 14-day right of withdrawal 
+              (Widerrufsrecht) under § 355 BGB for contracts concluded at a distance. However, for digital services like ours, 
+              special rules apply under § 356 Abs. 5 BGB.
+            </p>
+            <p className="mb-3">
+              <strong>Loss of Withdrawal Right:</strong> You expressly consent that we begin providing the digital service (processing your images 
+              and adding credits to your account) immediately after purchase. By doing so, you acknowledge and agree that:
+            </p>
+            <ul className="list-disc list-inside ml-4 mb-4 space-y-2">
+              <li>The service begins immediately upon successful payment</li>
+              <li>You lose your right of withdrawal once the digital content (credits) has been fully provided or the image processing service has begun</li>
+              <li>This consent is given prior to the expiration of the 14-day withdrawal period</li>
+            </ul>
+            <p className="mb-4">
+              <strong>Unused Credits:</strong> If you have not yet used any purchased credits, you may contact us within 14 days of purchase to 
+              request a refund. Once credits are used or image processing has begun, the withdrawal right no longer applies.
+            </p>
+
+            <h3 className="text-xl font-semibold mb-3 mt-4 text-gray-800">4.4 Refunds</h3>
             <p className="mb-4">
               Refunds for credit purchases may be available in accordance with applicable consumer protection laws. 
               If a generation fails due to a technical error on our part, we may refund the consumed credit at our discretion. 
@@ -126,16 +146,16 @@ export default function TermsConditions() {
             
             <h3 className="text-xl font-semibold mb-3 mt-4 text-gray-800">6.1 Your Content</h3>
             <p className="mb-4">
-              <strong>Logged-in Users:</strong> You retain all ownership rights to images you upload. By uploading images, you grant us a limited, 
+              <strong>Logged-in Users:</strong> You retain all ownership rights and copyright to images you upload. By uploading images, you grant us a limited, 
               non-exclusive license to process, store, and display your images solely for the purpose of providing 
               the enhancement service.
             </p>
             <p className="mb-4 p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded">
-              <strong>Guest Users (No Account):</strong> If you do not create an account, all processed images uploaded to this site 
-              will not be transferred to you but will become the property of the site. This is necessary because without an account 
-              (which requires a name, email address, or other identifying information), we cannot verify ownership or transfer images 
-              to a specific user. By uploading images as a guest user, you acknowledge and agree that the images become the property 
-              of the site.
+              <strong>Guest Users (No Account):</strong> You retain your copyright in all images you upload. By uploading images as a guest user, 
+              you grant {legalInfo.company.name} a non-exclusive, limited license to process, store, and temporarily retain your uploaded 
+              and generated images solely for the purpose of providing the enhancement service. Since guest users cannot be identified 
+              without an account, we cannot provide long-term storage or data portability rights. All images are automatically deleted 
+              within 3 days after processing is complete.
             </p>
 
             <h3 className="text-xl font-semibold mb-3 mt-4 text-gray-800">6.2 Generated Content</h3>
@@ -145,8 +165,9 @@ export default function TermsConditions() {
               AI technology and algorithms remain the property of their respective owners (OpenRouter, Google).
             </p>
             <p className="mb-4">
-              <strong>Guest Users:</strong> For users without an account, all generated images become the property of the site and will not be 
-              transferred to you. Generated images are automatically deleted after 3 days.
+              <strong>Guest Users:</strong> For users without an account, you receive a limited license to view and download your generated images 
+              during the session. Generated images are automatically deleted after 3 days. Due to the anonymous nature of guest sessions, 
+              we cannot provide long-term access to generated content.
             </p>
 
             <h3 className="text-xl font-semibold mb-3 mt-4 text-gray-800">6.3 Service Content</h3>
@@ -198,7 +219,12 @@ export default function TermsConditions() {
             </p>
             <p className="mb-4">
               Our total liability for any claims arising from your use of the service shall not exceed the amount you paid 
-              to us in the 12 months preceding the claim, or $100, whichever is greater.
+              to us in the 12 months preceding the claim, or €100, whichever is greater.
+            </p>
+            <p className="mb-4 p-4 bg-blue-50 border-l-4 border-blue-500 rounded">
+              <strong>Important (EU consumers):</strong> The above limitations do not apply to: (a) liability for intent (Vorsatz) or gross 
+              negligence (grobe Fahrlässigkeit); (b) liability for injury to life, body, or health; (c) mandatory statutory liability 
+              under applicable consumer protection laws; or (d) liability under the German Product Liability Act (Produkthaftungsgesetz).
             </p>
           </section>
 
