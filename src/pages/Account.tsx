@@ -161,7 +161,7 @@ export default function Account() {
   const handleDownload = (imageUrl: string) => {
     const link = document.createElement('a');
     link.href = imageUrl;
-    link.download = `ai-portrait-${Date.now()}.jpg`;
+    link.download = `picpaygo-${Date.now()}.jpg`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -170,7 +170,7 @@ export default function Account() {
   if (authLoading) {
     return (
       <Layout>
-        <SEO title="Account" description="Manage your AI portrait account" />
+        <SEO title="Account" description="Manage your PicPayGo account" />
         <div className="flex items-center justify-center py-20">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
@@ -180,7 +180,7 @@ export default function Account() {
 
   return (
     <Layout>
-      <SEO title="Account" description="Manage your AI portrait account" />
+      <SEO title="Account" description="Manage your PicPayGo account" />
       
       <div className="max-w-4xl mx-auto py-4 sm:py-6 px-4">
         <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-6 text-center">

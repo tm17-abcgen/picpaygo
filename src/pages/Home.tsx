@@ -10,8 +10,8 @@ import { StyleExampleSwitcher } from "@/components/home/StyleExampleSwitcher";
 export default function Home() {
   const { photographer, loading, error } = usePortfolio();
 
-  const seoTitle = "AI Portrait Generator - Create Professional Portraits";
-  const seoDescription = "Transform your photos into stunning professional portraits with AI. Upload a photo, choose a style, and get magazine-quality results in seconds.";
+  const seoTitle = "PicPayGo - Transform Your Photos";
+  const seoDescription = "Transform your photos into stunning professional images. Upload a photo, choose a style, and get magazine-quality results in seconds.";
 
   if (loading) {
     return (
@@ -50,13 +50,13 @@ export default function Home() {
       <div className="flex flex-col items-center gap-10 py-4 sm:py-6">
         <div className="px-4 max-w-3xl space-y-4 text-center">
           <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">
-            PicPayGo Studio
+            PicPayGo
           </p>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">
-            Transform your photos into professional portraits
+            Transform your photos into professional images
           </h2>
           <p className="text-muted-foreground text-sm sm:text-base">
-            Upload a portrait, choose an editorial direction, and receive a clean, professional image that
+            Upload a photo, choose a style, and receive a clean, professional image that
             still looks like you.
           </p>
           <div className="flex justify-center">
