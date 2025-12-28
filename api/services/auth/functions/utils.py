@@ -6,12 +6,10 @@ import hashlib
 import ipaddress
 import secrets
 from datetime import datetime, timezone
-from typing import Set
 
 from fastapi import Request
 
-# Configure trusted proxy IPs (nginx, load balancers, Docker networks)
-TRUSTED_PROXIES: Set[str] = {"127.0.0.1", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"}
+import config
 
 
 def now_utc() -> datetime:
@@ -32,7 +30,7 @@ def _is_trusted_proxy(ip: str) -> bool:
     """Check if IP is in trusted proxy range."""
     try:
         addr = ipaddress.ip_address(ip)
-        for proxy in TRUSTED_PROXIES:
+        for proxy in config.TRUSTED_PROXIES:
             if "/" in proxy:
                 if addr in ipaddress.ip_network(proxy, strict=False):
                     return True

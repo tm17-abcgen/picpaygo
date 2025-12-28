@@ -154,8 +154,10 @@ export default function Generate() {
           pollIntervalRef.current = Math.min(pollIntervalRef.current * 1.5, MAX_POLL_INTERVAL);
         }
       }
-    } catch {
-      // Silently handle poll errors - will retry on next interval
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.warn('[Generate] Poll error (will retry):', error);
+      }
     }
   }, [jobId, status]);
 

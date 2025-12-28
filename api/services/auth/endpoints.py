@@ -11,8 +11,6 @@ from datetime import timedelta
 from typing import Any, Dict, Tuple
 
 from fastapi import APIRouter, HTTPException, Request, Response
-from slowapi import Limiter
-from slowapi.util import get_remote_address
 
 import config
 from models import AuthResponse
@@ -32,8 +30,9 @@ from services.auth.functions.user import (
     get_user_auth_row,
     verify_email_token,
 )
-from services.auth.functions.utils import generate_guest_token, get_client_ip, hash_token, now_utc
+from services.auth.functions.utils import generate_guest_token, hash_token, now_utc
 from services.database.connection import get_connection
+from services.ratelimit import limiter
 
 
 def validate_password(password: str) -> Tuple[bool, str]:
@@ -53,9 +52,6 @@ def validate_password(password: str) -> Tuple[bool, str]:
 
 logger = logging.getLogger("picpaygo.auth")
 router = APIRouter(prefix=config.API_PREFIX)
-
-# Rate limiter - uses limiter from app.state
-limiter = Limiter(key_func=get_client_ip)
 
 
 @router.post("/auth/register", response_model=AuthResponse)

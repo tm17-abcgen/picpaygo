@@ -74,6 +74,12 @@ GUEST_COOKIE_MAX_AGE = _get_int("GUEST_COOKIE_MAX_AGE", 365 * 24 * 60 * 60, min_
 COOKIE_SECURE = _get_bool("COOKIE_SECURE", True)
 COOKIE_SAMESITE = os.getenv("COOKIE_SAMESITE", "lax")
 
+# Trusted proxy CIDR ranges for X-Forwarded-For processing (comma-separated)
+_default_proxies = "127.0.0.1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+TRUSTED_PROXIES: List[str] = [
+    p.strip() for p in os.getenv("TRUSTED_PROXIES", _default_proxies).split(",") if p.strip()
+]
+
 
 # =============================================================================
 # Database (PostgreSQL)

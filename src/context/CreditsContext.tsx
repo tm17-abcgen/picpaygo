@@ -28,8 +28,10 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
     try {
       const info = await getCredits();
       setCredits(info.balance);
-    } catch {
-      // Silently handle credit fetch errors
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.warn('[CreditsContext] Failed to fetch credits:', error);
+      }
     }
   }, []);
 
@@ -42,8 +44,10 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
       ]);
       setUser(userData);
       setCredits(creditsInfo.balance);
-    } catch {
-      // Silently handle load errors
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.warn('[CreditsContext] Failed to load user/credits:', error);
+      }
     } finally {
       setLoading(false);
     }

@@ -14,10 +14,10 @@ import asyncpg
 import httpx
 
 from services import storage
-
-logger = logging.getLogger("picpaygo.jobs")
 from services.database.connection import get_connection
 from services.generate.functions.openrouter import download_image_from_url, send_openrouter_request
+
+logger = logging.getLogger("picpaygo.jobs")
 
 # =============================================================================
 # Worker State

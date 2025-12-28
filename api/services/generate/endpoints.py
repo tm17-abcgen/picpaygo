@@ -8,7 +8,6 @@ from typing import Any, Dict, Optional
 from urllib.parse import unquote, urljoin
 
 from fastapi import APIRouter, File, Form, HTTPException, Request, Response, UploadFile
-from slowapi import Limiter
 
 import config
 from services import storage
@@ -17,6 +16,7 @@ from services.auth.functions.session import get_session_user
 from services.auth.functions.user import get_user_id_from_email
 from services.auth.functions.utils import get_client_ip
 from services.credits.functions.credits import get_user_credits, set_user_credits
+from services.ratelimit import limiter
 from services.credits.functions.ip_credits import get_ip_credits, set_ip_credits
 from services.database.connection import get_connection
 from services.generate.functions.jobs import (
@@ -30,9 +30,6 @@ from services.generate.functions.jobs import (
 from services.generate.functions.prompts import PROMPT_BY_TYPE, build_prompt
 
 router = APIRouter(prefix=config.API_PREFIX)
-
-# Rate limiter
-limiter = Limiter(key_func=get_client_ip)
 
 
 @router.get("/health")
