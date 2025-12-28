@@ -12,7 +12,7 @@ export function ResultCard({ imageUrl, onGenerateAnother, onDownload }: ResultCa
     // Trigger download for guests and logged-in users
     const link = document.createElement('a');
     link.href = imageUrl;
-    link.download = `ai-portrait-${Date.now()}.jpg`;
+    link.download = `picpaygo-${Date.now()}.jpg`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -24,7 +24,7 @@ export function ResultCard({ imageUrl, onGenerateAnother, onDownload }: ResultCa
       <div className="relative aspect-square max-w-sm mx-auto rounded-lg overflow-hidden bg-secondary">
         <img
           src={imageUrl}
-          alt="Generated AI portrait"
+          alt="Generated image"
           className="w-full h-full object-cover"
         />
       </div>

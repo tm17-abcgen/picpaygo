@@ -108,7 +108,7 @@ export function UploadPanel({ onFileSelect, selectedFile, previewUrl, onClear, d
       />
       
       <p className="text-[11px] uppercase tracking-[0.35em] text-muted-foreground">
-        Upload portrait
+        Upload photo
       </p>
 
       <div className="w-14 h-14 rounded-full border border-border bg-background/80 flex items-center justify-center">

@@ -34,7 +34,7 @@ const tips = [
   {
     icon: Sun,
     title: 'Neutral background',
-    description: 'A simple, uncluttered background helps AI focus on you.',
+    description: 'A simple, uncluttered background works best.',
   },
   {
     icon: User,
@@ -50,7 +50,7 @@ const tips = [
 
 const steps = [
   {
-    title: 'Upload a portrait',
+    title: 'Upload a photo',
     description: 'Soft light, neutral background.',
   },
   {
@@ -167,7 +167,7 @@ export default function Generate() {
     if (!resultUrl) return;
     const link = document.createElement('a');
     link.href = resultUrl;
-    link.download = `ai-portrait-${Date.now()}.jpg`;
+    link.download = `picpaygo-${Date.now()}.jpg`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -180,17 +180,17 @@ export default function Generate() {
   return (
     <Layout>
       <SEO
-        title="Generate Portraits | PicPayGo"
-        description="PicPayGo turns your photo into professional portraits, editorial looks, and fashion-ready imagery."
+        title="Generate Images | PicPayGo"
+        description="PicPayGo turns your photo into professional images, editorial looks, and fashion-ready imagery."
       />
       
       <div className="max-w-3xl mx-auto py-4 sm:py-6 px-4 space-y-6">
         <div className="text-center space-y-3">
           <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">
-            PicPayGo Studio
+            PicPayGo
           </p>
           <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
-            Generate your portrait in minutes
+            Generate your image in minutes
           </h1>
           <p className="text-muted-foreground text-sm sm:text-base max-w-2xl mx-auto">
             Upload a photo, choose a category, and receive a refined, professional result.
@@ -260,7 +260,7 @@ export default function Generate() {
               )}
 
               {/* Status display */}
-              <GenerationStatus status={status} error={error || undefined} />
+              <GenerationStatus status={status} category={category} error={error || undefined} />
 
               {/* Generate button */}
               {selectedFile && status !== 'completed' && (
