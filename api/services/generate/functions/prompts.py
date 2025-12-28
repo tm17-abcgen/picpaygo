@@ -67,38 +67,35 @@ PROMPT_BY_TYPE: Dict[str, str] = {
     "right-profile": """A closeup photo of the person in the picture looking right in profile view""",
     # Selfies
     "mirror-selfie-2000s": """{
-  "subject": {
-    "description": "The specific person from the provided input image taking a mirror selfie with styled hair and a trendy outfit",
-    "age": "Consistent with the subject in the input image",
-    "expression": "Confident and engaging",
-    "hair": {
-      "color": "Natural tone",
-      "style": "Voluminous, textured, and well-groomed"
-    },
-    "clothing": {
-      "top": {
-        "type": "Fitted casual top",
-        "color": "Neutral light tone",
-        "details": "Features a central graphic print or distinct design element"
-      }
-    },
-    "face": {
-      "preserve_original": true,
-      "makeup": "Polished, photogenic look with defined features and healthy skin texture"
-    }
-  },
-  "accessories": {
-    "earrings": {
-      "type": "Statement metallic earrings"
-    },
-    "jewelry": {
-      "waistchain": "Subtle metallic body jewelry"
-    },
-    "device": {
-      "type": "Smartphone",
-      "details": "Decorative case"
-    }
-  },
+  {
+"description": "The specific person from the provided input image taking a mirror selfie with styled hair and a trendy outfit",
+"age": "Consistent with the subject in the input image",
+"expression": "Confident and engaging",
+"hair": {
+"color": "Natural tone",
+"style": "Voluminous, textured, and well-groomed"
+},
+"clothing": {
+"top": {
+"type": "Fitted casual top",
+"color": "Neutral light tone",
+"details": "Features a central graphic print or distinct design element"
+}
+},
+"face": {
+"preserve_original": true,
+"makeup": "Polished, photogenic look with defined features and healthy skin texture"
+},
+"accessories": {
+"jewelry": {
+"waistchain": "Subtle metallic body jewelry"
+},
+"device": {
+"type": "Smartphone",
+"details": "Decorative case"
+}
+}
+},
   "photography": {
     "camera_style": "early-2000s digital camera aesthetic",
     "lighting": "harsh super-flash with bright blown-out highlights but subject still visible",

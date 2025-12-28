@@ -36,7 +36,7 @@ def _get_bool(name: str, default: bool) -> bool:
 # App / CORS
 # =============================================================================
 
-APP_TITLE = os.getenv("APP_TITLE", "PicPayGo API")
+APP_TITLE = os.getenv("APP_TITLE", "PicPayGo")
 API_PREFIX = "/api"
 
 _default_cors = "http://localhost:8082,https://picpaygo.com,https://www.picpaygo.com"
