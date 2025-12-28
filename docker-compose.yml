@@ -8,8 +8,10 @@ services:
     depends_on:
       frontend:
         condition: service_healthy
+      # API uses service_started (not service_healthy) to allow nginx/frontend
+      # to start even if API is down. Frontend gracefully handles API errors.
       api:
-        condition: service_healthy
+        condition: service_started
     restart: unless-stopped
     env_file: .env
 

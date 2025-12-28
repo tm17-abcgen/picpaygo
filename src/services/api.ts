@@ -36,34 +36,50 @@ export const CREDIT_PACKS: CreditsPack[] = [
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 const apiFetch = async (path: string, options: RequestInit = {}) => {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(options.headers || {}),
-    },
-    ...options,
-  });
+  try {
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(options.headers || {}),
+      },
+      ...options,
+    });
 
-  if (!response.ok) {
-    let message = 'Request failed';
-    try {
-      const data = await response.json();
-      if (typeof data?.error === 'string' && data.error) message = data.error;
-      if (typeof data?.detail === 'string' && data.detail) message = data.detail;
-      if (message === 'Request failed' && data?.detail) message = JSON.stringify(data.detail);
-      if (typeof data?.errorId === 'string' && data.errorId) message += ` (errorId: ${data.errorId})`;
-    } catch {
-      // ignore
+    if (!response.ok) {
+      let message = 'Request failed';
+      try {
+        const data = await response.json();
+        if (typeof data?.error === 'string' && data.error) message = data.error;
+        if (typeof data?.detail === 'string' && data.detail) message = data.detail;
+        if (message === 'Request failed' && data?.detail) message = JSON.stringify(data.detail);
+        if (typeof data?.errorId === 'string' && data.errorId) message += ` (errorId: ${data.errorId})`;
+      } catch {
+        // If we can't parse JSON, use status-based messages
+        if (response.status === 503 || response.status === 502) {
+          message = 'Backend service is temporarily unavailable. Please try again later.';
+        } else if (response.status === 504) {
+          message = 'Request timeout. The server took too long to respond.';
+        } else {
+          message = `Request failed with status ${response.status}`;
+        }
+      }
+      throw new Error(message);
     }
-    throw new Error(message);
-  }
 
-  if (response.status === 204) {
-    return null;
-  }
+    if (response.status === 204) {
+      return null;
+    }
 
-  return response.json();
+    return response.json();
+  } catch (error) {
+    // Handle network errors (API completely unreachable)
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new Error('Backend service is not reachable. Please check your connection and try again later.');
+    }
+    // Re-throw other errors (including our custom Error messages)
+    throw error;
+  }
 };
 
 // UX delay to prevent UI flicker on fast responses (not for security - server rate limiting handles abuse)
@@ -83,29 +99,46 @@ export async function generateImage(
   file: File,
   category: GenerationCategory
 ): Promise<{ jobId: string }> {
-  const formData = new FormData();
-  formData.append('type', category);
-  formData.append('image', file);
+  try {
+    const formData = new FormData();
+    formData.append('type', category);
+    formData.append('image', file);
 
-  const response = await fetch(`${API_BASE_URL}/generate`, {
-    method: 'POST',
-    credentials: 'include',
-    body: formData,
-  });
+    const response = await fetch(`${API_BASE_URL}/generate`, {
+      method: 'POST',
+      credentials: 'include',
+      body: formData,
+    });
 
-  if (!response.ok) {
-    let message = 'Request failed';
-    try {
-      const data = await response.json();
-      if (data?.detail) message = data.detail;
-    } catch {
-      // ignore
+    if (!response.ok) {
+      let message = 'Request failed';
+      try {
+        const data = await response.json();
+        if (data?.detail) message = data.detail;
+        if (data?.error) message = data.error;
+      } catch {
+        // If we can't parse JSON, use status-based messages
+        if (response.status === 503 || response.status === 502) {
+          message = 'Backend service is temporarily unavailable. Please try again later.';
+        } else if (response.status === 504) {
+          message = 'Request timeout. The server took too long to respond.';
+        } else {
+          message = `Request failed with status ${response.status}`;
+        }
+      }
+      throw new Error(message);
     }
-    throw new Error(message);
-  }
 
-  const data = await response.json();
-  return { jobId: data.jobId };
+    const data = await response.json();
+    return { jobId: data.jobId };
+  } catch (error) {
+    // Handle network errors (API completely unreachable)
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new Error('Backend service is not reachable. Please check your connection and try again later.');
+    }
+    // Re-throw other errors (including our custom Error messages)
+    throw error;
+  }
 }
 
 export async function getGenerationStatus(jobId: string): Promise<Generation> {
