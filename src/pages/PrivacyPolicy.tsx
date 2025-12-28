@@ -55,6 +55,13 @@ export default function PrivacyPolicy() {
               <li>Generated output images are stored and associated with your account or guest session</li>
               <li>Image metadata (file size, content type, timestamps) is recorded</li>
             </ul>
+            <p className="mb-3 mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded">
+              <strong>Important - Guest Users:</strong> If you do not create an account, all processed images uploaded to this site 
+              will not be transferred to you but will become the property of the site. This is necessary because without an account 
+              (which requires a name, email address, or other identifying information), we cannot verify ownership or transfer images 
+              to a specific user. Images uploaded by guest users are stored in our services for processing and are automatically 
+              deleted after processing is complete.
+            </p>
 
             <h3 className="text-xl font-semibold mb-3 mt-4 text-gray-800">1.4 Payment Information</h3>
             <p className="mb-3">
@@ -147,7 +154,8 @@ export default function PrivacyPolicy() {
             <ul className="list-disc list-inside ml-4 mb-4 space-y-2">
               <li><strong>Account Data:</strong> Retained for as long as your account is active. You can request account deletion at any time.</li>
               <li><strong>Generation History:</strong> Retained for logged-in users indefinitely, or until account deletion. Guest session data is retained for 30 days.</li>
-              <li><strong>Images:</strong> Stored images are retained until you delete them or your account is deleted.</li>
+              <li><strong>Images (Logged-in Users):</strong> Stored images are retained until you delete them or your account is deleted.</li>
+              <li><strong>Images (Guest Users):</strong> Both original and processed images uploaded by users without an account are stored for 3 days after processing, after which they are automatically deleted. Images are stored in our services during processing and are deleted after processing is complete.</li>
               <li><strong>Payment Records:</strong> Retained as required by law for accounting and tax purposes (typically 7 years).</li>
               <li><strong>IP Addresses:</strong> Retained for free credit tracking and security purposes.</li>
             </ul>
@@ -221,7 +229,6 @@ export default function PrivacyPolicy() {
             </p>
             <div className="bg-gray-50 p-4 rounded-lg">
               <p className="mb-2"><strong>Email:</strong> <a href={`mailto:${legalInfo.contact.email}`} className="text-blue-600 hover:underline">{legalInfo.contact.email}</a></p>
-              <p className="mb-2"><strong>Phone:</strong> {legalInfo.contact.phone}</p>
             </div>
           </section>
         </div>

@@ -26,7 +26,6 @@ export default function Imprint() {
             <h2 className="text-2xl font-semibold mb-4 text-gray-900">Contact Information</h2>
             <div className="bg-gray-50 p-4 rounded-lg mb-4">
               <p className="mb-2"><strong>Email:</strong> <a href={`mailto:${legalInfo.contact.email}`} className="text-blue-600 hover:underline">{legalInfo.contact.email}</a></p>
-              <p className="mb-2"><strong>Phone:</strong> {legalInfo.contact.phone}</p>
             </div>
           </section>
 

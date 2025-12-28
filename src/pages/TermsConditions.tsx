@@ -126,16 +126,27 @@ export default function TermsConditions() {
             
             <h3 className="text-xl font-semibold mb-3 mt-4 text-gray-800">6.1 Your Content</h3>
             <p className="mb-4">
-              You retain all ownership rights to images you upload. By uploading images, you grant us a limited, 
+              <strong>Logged-in Users:</strong> You retain all ownership rights to images you upload. By uploading images, you grant us a limited, 
               non-exclusive license to process, store, and display your images solely for the purpose of providing 
               the enhancement service.
+            </p>
+            <p className="mb-4 p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded">
+              <strong>Guest Users (No Account):</strong> If you do not create an account, all processed images uploaded to this site 
+              will not be transferred to you but will become the property of the site. This is necessary because without an account 
+              (which requires a name, email address, or other identifying information), we cannot verify ownership or transfer images 
+              to a specific user. By uploading images as a guest user, you acknowledge and agree that the images become the property 
+              of the site.
             </p>
 
             <h3 className="text-xl font-semibold mb-3 mt-4 text-gray-800">6.2 Generated Content</h3>
             <p className="mb-4">
-              AI-generated enhanced images are created using third-party AI technology. You receive a license to use 
+              <strong>Logged-in Users:</strong> AI-generated enhanced images are created using third-party AI technology. You receive a license to use 
               the generated images for personal or commercial purposes, subject to these Terms. However, the underlying 
               AI technology and algorithms remain the property of their respective owners (OpenRouter, Google).
+            </p>
+            <p className="mb-4">
+              <strong>Guest Users:</strong> For users without an account, all generated images become the property of the site and will not be 
+              transferred to you. Generated images are automatically deleted after 3 days.
             </p>
 
             <h3 className="text-xl font-semibold mb-3 mt-4 text-gray-800">6.3 Service Content</h3>
@@ -256,7 +267,6 @@ export default function TermsConditions() {
             </p>
             <div className="bg-gray-50 p-4 rounded-lg">
               <p className="mb-2"><strong>Email:</strong> <a href={`mailto:${legalInfo.contact.email}`} className="text-blue-600 hover:underline">{legalInfo.contact.email}</a></p>
-              <p className="mb-2"><strong>Phone:</strong> {legalInfo.contact.phone}</p>
             </div>
           </section>
         </div>
