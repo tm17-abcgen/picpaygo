@@ -44,7 +44,7 @@ export interface LegalInfo {
 export const legalInfo: LegalInfo = {
   company: {
     name: "PicPayGo",
-    legalForm: "",
+    legalForm: undefined,
     registeredOffice: {
       street: "Artilleriestr. 8",
       postalCode: "64285",
