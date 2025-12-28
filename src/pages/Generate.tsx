@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Sparkles,
   Loader2,
@@ -128,33 +128,55 @@ export default function Generate() {
     }
   };
 
+  // Polling interval with exponential backoff
+  const pollIntervalRef = useRef(1000);
+  const MAX_POLL_INTERVAL = 10000;
+
   // Poll for generation status
   const pollStatus = useCallback(async () => {
     if (!jobId || status === 'completed' || status === 'failed') return;
-    
+
     try {
       const generation = await getGenerationStatus(jobId);
       if (generation) {
         if (generation.status === 'completed') {
           setStatus('completed');
           setResultUrl(generation.outputUrl || null);
+          pollIntervalRef.current = 1000; // Reset for next generation
         } else if (generation.status === 'failed') {
           setStatus('failed');
           setResultUrl(null);
           setError(generation.error || 'Generation failed. Please try again.');
+          pollIntervalRef.current = 1000; // Reset for next generation
         } else {
           setStatus(generation.status as Status);
+          // Exponential backoff: 1s -> 1.5s -> 2.25s -> ... up to 10s
+          pollIntervalRef.current = Math.min(pollIntervalRef.current * 1.5, MAX_POLL_INTERVAL);
         }
       }
-    } catch (err) {
-      console.error('Failed to poll status:', err);
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.warn('[Generate] Poll error (will retry):', error);
+      }
     }
   }, [jobId, status]);
 
   useEffect(() => {
     if (jobId && status !== 'completed' && status !== 'failed' && status !== 'idle') {
-      const interval = setInterval(pollStatus, 1000);
-      return () => clearInterval(interval);
+      // Reset polling interval when starting a new job
+      pollIntervalRef.current = 1000;
+
+      const schedulePoll = () => {
+        return setTimeout(() => {
+          pollStatus();
+          if (status !== 'completed' && status !== 'failed') {
+            timeoutId = schedulePoll();
+          }
+        }, pollIntervalRef.current);
+      };
+
+      let timeoutId = schedulePoll();
+      return () => clearTimeout(timeoutId);
     }
   }, [jobId, status, pollStatus]);
 

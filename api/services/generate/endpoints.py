@@ -15,6 +15,7 @@ from services.auth.functions.session import get_session_user
 from services.auth.functions.user import get_user_id_from_email
 from services.auth.functions.utils import get_client_ip
 from services.credits.functions.credits import get_user_credits, set_user_credits
+from services.ratelimit import limiter
 from services.credits.functions.ip_credits import get_ip_credits, set_ip_credits
 from services.database.connection import get_connection
 from services.generate.functions.jobs import (
@@ -71,13 +72,20 @@ async def get_image(bucket: str, key: str, request: Request) -> Response:
             raise HTTPException(status_code=404, detail="Not found")
 
     try:
-        image_bytes, content_type = storage.get_object_with_content_type(bucket, key)
-        return Response(content=image_bytes, media_type=content_type or "image/jpeg")
+        image_bytes, content_type = await storage.get_object_with_content_type_async(bucket, key)
+        return Response(
+            content=image_bytes,
+            media_type=content_type or "image/jpeg",
+            headers={
+                "Cache-Control": "public, max-age=31536000, immutable",
+            },
+        )
     except Exception:
         raise HTTPException(status_code=404, detail="Image not found")
 
 
 @router.post("/generate", response_model=JobCreateResponse)
+@limiter.limit("10/minute")
 async def generate_image(
     request: Request,
     image: UploadFile = File(...),
@@ -96,35 +104,66 @@ async def generate_image(
 
     user = await get_session_user(request)
     guest_session_id = getattr(request.state, "guest_session_id", None)
-
-    user_id = None
-    if user:
-        async with get_connection() as conn:
-            user_id = await get_user_id_from_email(conn, user["email"])
-
-    guest_session_id = guest_session_id if not user_id else None
-
     ip = get_client_ip(request)
-    free_credits = await get_ip_credits(ip)
-    user_credits = await get_user_credits(user["email"]) if user else 0
 
-    total = free_credits + user_credits
-    if total < 1:
-        raise HTTPException(status_code=400, detail="Insufficient credits")
+    # Use single connection with transaction for atomic credit deduction
+    async with get_connection() as conn:
+        async with conn.transaction():
+            user_id = None
+            if user:
+                user_id = await get_user_id_from_email(conn, user["email"])
 
-    if free_credits > 0:
-        free_credits -= 1
-        await set_ip_credits(ip, free_credits)
-    elif user:
-        user_credits -= 1
-        await set_user_credits(user["email"], user_credits)
-    else:
-        raise HTTPException(status_code=400, detail="Login required for paid credits")
+            guest_session_id = guest_session_id if not user_id else None
+
+            # Atomically try to claim a free IP credit (decrement-or-insert)
+            # This prevents race conditions for new IPs where FOR UPDATE would lock nothing
+            ip_result = await conn.fetchrow(
+                """
+                INSERT INTO ip_credits (ip_address, free_remaining, last_seen_at)
+                VALUES ($1, $2 - 1, NOW())
+                ON CONFLICT (ip_address) DO UPDATE
+                SET free_remaining = ip_credits.free_remaining - 1, last_seen_at = NOW()
+                RETURNING free_remaining
+                """,
+                ip, config.DEFAULT_FREE_CREDITS
+            )
+            ip_credit_used = ip_result["free_remaining"] >= 0
+
+            # If IP credit claim failed (negative balance), restore and try user credits
+            user_credit_used = False
+            if not ip_credit_used:
+                # Restore the failed decrement
+                await conn.execute(
+                    "UPDATE ip_credits SET free_remaining = free_remaining + 1 WHERE ip_address = $1",
+                    ip
+                )
+
+                if user_id:
+                    # Lock and check user credits
+                    credit_row = await conn.fetchrow(
+                        "SELECT balance FROM credits WHERE user_id = $1 FOR UPDATE",
+                        user_id
+                    )
+                    user_credits = credit_row["balance"] if credit_row else 0
+                    if user_credits >= 1:
+                        await conn.execute(
+                            "UPDATE credits SET balance = balance - 1, updated_at = NOW() WHERE user_id = $1",
+                            user_id
+                        )
+                        user_credit_used = True
+
+            if not ip_credit_used and not user_credit_used:
+                raise HTTPException(status_code=400, detail="Insufficient credits")
+
+            # Create generation record within transaction
+            generation_id = await create_generation(conn, user_id, guest_session_id, category)
+
+    # Storage operations outside transaction (can retry independently)
+    input_key = await storage.upload_input_async(
+        str(generation_id), image_bytes, image.content_type
+    )
 
     async with get_connection() as conn:
-        generation_id = await create_generation(conn, user_id, guest_session_id, category)
-
-        input_key = storage.upload_input(str(generation_id), image_bytes, image.content_type)
         await create_generation_asset(
             conn,
             generation_id,
@@ -210,12 +249,13 @@ async def list_generations_endpoint(
     async with get_connection() as conn:
         generations = await list_generations(conn, user_id, guest_session_id, scope, limit, cursor)
 
+        # Build output URLs from JOIN data (no N+1 queries)
         for gen in generations:
-            if gen["status"] == "completed":
-                assets = await get_generation_assets(conn, uuid.UUID(gen["id"]))
-                for asset in assets:
-                    if asset["kind"] == "output":
-                        gen["outputUrl"] = _build_proxy_url(request, asset["bucket"], asset["objectKey"])
+            if gen["outputBucket"] and gen["outputKey"]:
+                gen["outputUrl"] = _build_proxy_url(request, gen["outputBucket"], gen["outputKey"])
+            # Remove internal fields before returning
+            gen.pop("outputBucket", None)
+            gen.pop("outputKey", None)
 
     return GenerationsListResponse(
         generations=[GenerationListItem(**g) for g in generations],

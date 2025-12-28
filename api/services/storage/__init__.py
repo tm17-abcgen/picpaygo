@@ -11,8 +11,10 @@ Architecture:
 
 from __future__ import annotations
 
+import asyncio
 import io
-from typing import Optional
+import logging
+from typing import Optional, Tuple
 from urllib.parse import quote
 
 import urllib3
@@ -23,6 +25,8 @@ import config
 
 # Suppress SSL warnings for local development
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+logger = logging.getLogger("picpaygo.storage")
 
 # Bucket names
 BUCKET_RAW = config.BUCKET_RAW
@@ -52,9 +56,9 @@ async def init_buckets() -> None:
         try:
             if not client.bucket_exists(bucket):
                 client.make_bucket(bucket)
-                print(f"Created bucket: {bucket}")
+                logger.info("Created bucket: %s", bucket)
         except S3Error as exc:
-            print(f"Error checking/creating bucket {bucket}: {exc}")
+            logger.error("Error checking/creating bucket %s: %s", bucket, exc)
 
 
 def get_input_key(generation_id: str, filename: str = "input.jpg") -> str:
@@ -170,4 +174,38 @@ def delete_generation_files(generation_id: str) -> None:
             client.remove_object(BUCKET_GENERATED, obj.object_name)
     except S3Error:
         pass
+
+
+# =============================================================================
+# Async wrappers for non-blocking operations
+# =============================================================================
+
+
+async def upload_input_async(
+    generation_id: str, data: bytes, content_type: str, filename: str = "input.jpg"
+) -> str:
+    """Async wrapper for upload_input."""
+    return await asyncio.to_thread(upload_input, generation_id, data, content_type, filename)
+
+
+async def upload_output_async(
+    generation_id: str, data: bytes, content_type: str = "image/png", filename: str = "output.png"
+) -> str:
+    """Async wrapper for upload_output."""
+    return await asyncio.to_thread(upload_output, generation_id, data, content_type, filename)
+
+
+async def get_object_bytes_async(bucket: str, key: str) -> bytes:
+    """Async wrapper for get_object_bytes."""
+    return await asyncio.to_thread(get_object_bytes, bucket, key)
+
+
+async def get_object_with_content_type_async(bucket: str, key: str) -> Tuple[bytes, Optional[str]]:
+    """Async wrapper for get_object_with_content_type."""
+    return await asyncio.to_thread(get_object_with_content_type, bucket, key)
+
+
+async def delete_generation_files_async(generation_id: str) -> None:
+    """Async wrapper for delete_generation_files."""
+    await asyncio.to_thread(delete_generation_files, generation_id)
 

@@ -29,7 +29,9 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
       const info = await getCredits();
       setCredits(info.balance);
     } catch (error) {
-      console.error('Failed to fetch credits:', error);
+      if (import.meta.env.DEV) {
+        console.warn('[CreditsContext] Failed to fetch credits:', error);
+      }
     }
   }, []);
 
@@ -43,7 +45,9 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
       setUser(userData);
       setCredits(creditsInfo.balance);
     } catch (error) {
-      console.error('Failed to load user data:', error);
+      if (import.meta.env.DEV) {
+        console.warn('[CreditsContext] Failed to load user/credits:', error);
+      }
     } finally {
       setLoading(false);
     }
@@ -59,9 +63,7 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
   };
 
   const register = async (email: string, password: string) => {
-    console.log('[CreditsContext:register] Called with', { email });
     const result = await apiRegister(email, password);
-    console.log('[CreditsContext:register] API returned', result);
     await loadUserAndCredits();
     return result;
   };

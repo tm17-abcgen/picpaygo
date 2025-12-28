@@ -5,9 +5,10 @@ from __future__ import annotations
 import base64
 import json
 import logging
+import re
 import secrets
 from datetime import timedelta
-from typing import Any, Dict
+from typing import Any, Dict, Tuple
 
 from fastapi import APIRouter, HTTPException, Request, Response
 
@@ -31,12 +32,30 @@ from services.auth.functions.user import (
 )
 from services.auth.functions.utils import generate_guest_token, hash_token, now_utc
 from services.database.connection import get_connection
+from services.ratelimit import limiter
+
+
+def validate_password(password: str) -> Tuple[bool, str]:
+    """Validate password strength. Returns (is_valid, error_message)."""
+    if len(password) < 8:
+        return False, "Password must be at least 8 characters"
+    if len(password) > 128:
+        return False, "Password must be at most 128 characters"
+    if not re.search(r"[A-Z]", password):
+        return False, "Password must contain at least one uppercase letter"
+    if not re.search(r"[a-z]", password):
+        return False, "Password must contain at least one lowercase letter"
+    if not re.search(r"\d", password):
+        return False, "Password must contain at least one digit"
+    return True, ""
+
 
 logger = logging.getLogger("picpaygo.auth")
 router = APIRouter(prefix=config.API_PREFIX)
 
 
 @router.post("/auth/register", response_model=AuthResponse)
+@limiter.limit("3/minute")
 async def register(request: Request, response: Response) -> AuthResponse:
     payload = await request.json()
     email = (payload.get("email") or "").lower().strip()
@@ -44,8 +63,12 @@ async def register(request: Request, response: Response) -> AuthResponse:
 
     logger.info("Registration attempt for email=%s", email)
 
-    if not email or not password:
-        raise HTTPException(status_code=400, detail="Email and password required")
+    if not email:
+        raise HTTPException(status_code=400, detail="Email required")
+
+    is_valid, error_msg = validate_password(password)
+    if not is_valid:
+        raise HTTPException(status_code=400, detail=error_msg)
 
     guest_session_id = getattr(request.state, "guest_session_id", None)
     logger.info("Guest session present: %s", bool(guest_session_id))
@@ -70,7 +93,8 @@ async def register(request: Request, response: Response) -> AuthResponse:
 
         verification_token = await create_email_verification(conn, user_id)
         logger.info("Verification token created for user_id=%s", user_id)
-        print(f"Verification token for {email}: {verification_token}")
+        # TODO: Implement email service to send verification_token
+        # await send_verification_email(email, verification_token)
 
         if guest_session_id:
             await claim_guest_history(conn, user_id, guest_session_id)
@@ -96,6 +120,7 @@ async def register(request: Request, response: Response) -> AuthResponse:
 
 
 @router.post("/auth/login", response_model=AuthResponse)
+@limiter.limit("5/minute")
 async def login(request: Request, response: Response) -> AuthResponse:
     payload = await request.json()
     email = (payload.get("email") or "").lower().strip()
