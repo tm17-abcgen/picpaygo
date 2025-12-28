@@ -14,6 +14,9 @@ const Generate = lazy(() => import("./pages/Generate"));
 const Account = lazy(() => import("./pages/Account"));
 const Verify = lazy(() => import("./pages/Verify"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const Imprint = lazy(() => import("./pages/Imprint"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsConditions = lazy(() => import("./pages/TermsConditions"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -41,6 +44,9 @@ const App = () => (
                 <Route path="/account" element={<Account />} />
                 <Route path="/verify" element={<Verify />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/imprint" element={<Imprint />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms-conditions" element={<TermsConditions />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
