@@ -9,6 +9,7 @@ import { BuyCreditsModal } from '@/components/credits/BuyCreditsModal';
 import { Loader2, LogOut, Download, Coins, ImageIcon, Trash2, KeyRound, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { validatePassword } from '@/lib/passwordPolicy';
 
 export default function Account() {
   const { user, isLoggedIn, credits, refreshCredits, login, register, logout, loading: authLoading } = useCredits();
@@ -125,7 +126,6 @@ export default function Account() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('[Account:handleLogin] Form submitted', { authMode, email });
     if (!email || !password) {
       toast({
         title: 'Missing fields',
@@ -198,8 +198,8 @@ export default function Account() {
     try {
       await forgotPassword(forgotEmail);
       toast({
-        title: 'Check your email',
-        description: 'If an account exists with this email, we sent a password reset link.',
+        title: 'Request submitted',
+        description: 'If an account exists with this email, a password reset link will be available.',
       });
       setShowForgotPassword(false);
       setForgotEmail('');
@@ -234,10 +234,11 @@ export default function Account() {
       return;
     }
 
-    if (newPassword.length < 6) {
+    const passwordCheck = validatePassword(newPassword);
+    if (!passwordCheck.valid) {
       toast({
-        title: 'Password too short',
-        description: 'Password must be at least 6 characters.',
+        title: 'Invalid password',
+        description: passwordCheck.message,
         variant: 'destructive',
       });
       return;
@@ -248,11 +249,14 @@ export default function Account() {
       await changePassword(currentPassword, newPassword);
       toast({
         title: 'Password updated',
-        description: 'Your password has been changed successfully.',
+        description: 'Your password has been changed. Please log in again.',
       });
       setCurrentPassword('');
       setNewPassword('');
       setConfirmNewPassword('');
+      // Session was invalidated server-side, refresh state and redirect
+      await logout();
+      navigate('/account');
     } catch (error) {
       toast({
         title: 'Failed to change password',
@@ -284,9 +288,9 @@ export default function Account() {
       });
       setShowDeleteConfirm(false);
       setDeletePassword('');
+      // Clear auth state and redirect (no reload needed)
+      await logout();
       navigate('/');
-      // Force page reload to clear all state
-      window.location.reload();
     } catch (error) {
       toast({
         title: 'Failed to delete account',
@@ -388,7 +392,6 @@ export default function Account() {
                       type="submit"
                       className="w-full"
                       disabled={loginLoading}
-                      onClick={() => console.log('[Account:Button] Button clicked', { authMode, email, password, loginLoading })}
                     >
                       {loginLoading ? (
                         <>

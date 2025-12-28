@@ -6,6 +6,7 @@ import { SEO } from '@/components/seo/SEO';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { resetPassword } from '@/services/api';
+import { validatePassword } from '@/lib/passwordPolicy';
 
 type ResetStatus = 'idle' | 'form' | 'submitting' | 'success' | 'error';
 
@@ -40,8 +41,9 @@ export default function ResetPassword() {
       return;
     }
 
-    if (password.length < 6) {
-      setMessage('Password must be at least 6 characters.');
+    const passwordCheck = validatePassword(password);
+    if (!passwordCheck.valid) {
+      setMessage(passwordCheck.message);
       return;
     }
 

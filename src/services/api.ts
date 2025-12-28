@@ -66,6 +66,9 @@ const apiFetch = async (path: string, options: RequestInit = {}) => {
   return response.json();
 };
 
+// UX delay to prevent UI flicker on fast responses (not for security - server rate limiting handles abuse)
+const delay = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
+
 // API Functions
 
 export async function getCredits(): Promise<CreditsInfo> {
@@ -222,41 +225,56 @@ export async function verifyEmail(token: string): Promise<{ success: boolean }> 
 }
 
 export async function forgotPassword(email: string): Promise<{ ok: boolean }> {
-  await delay(200);
-  await apiFetch('/auth/forgot-password', {
-    method: 'POST',
-    body: JSON.stringify({ email }),
-  });
-  return { ok: true };
+  const minDelay = delay(200);
+  try {
+    await apiFetch('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+    return { ok: true };
+  } finally {
+    await minDelay;
+  }
 }
 
 export async function resetPassword(token: string, password: string): Promise<{ ok: boolean }> {
-  await delay(200);
-  await apiFetch('/auth/reset-password', {
-    method: 'POST',
-    body: JSON.stringify({ token, password }),
-  });
-  return { ok: true };
+  const minDelay = delay(200);
+  try {
+    await apiFetch('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ token, password }),
+    });
+    return { ok: true };
+  } finally {
+    await minDelay;
+  }
 }
 
 export async function changePassword(
   currentPassword: string,
-  newPassword: string,
-  logoutOtherSessions = false
+  newPassword: string
 ): Promise<{ ok: boolean }> {
-  await delay(200);
-  await apiFetch('/auth/change-password', {
-    method: 'POST',
-    body: JSON.stringify({ currentPassword, newPassword, logoutOtherSessions }),
-  });
-  return { ok: true };
+  const minDelay = delay(200);
+  try {
+    await apiFetch('/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
+    return { ok: true };
+  } finally {
+    await minDelay;
+  }
 }
 
 export async function deleteAccount(password: string): Promise<{ ok: boolean }> {
-  await delay(200);
-  await apiFetch('/auth/delete-account', {
-    method: 'POST',
-    body: JSON.stringify({ password }),
-  });
-  return { ok: true };
+  const minDelay = delay(200);
+  try {
+    await apiFetch('/auth/delete-account', {
+      method: 'POST',
+      body: JSON.stringify({ password }),
+    });
+    return { ok: true };
+  } finally {
+    await minDelay;
+  }
 }

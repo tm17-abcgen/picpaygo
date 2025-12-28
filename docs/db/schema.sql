@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS email_verifications (
 
 CREATE TABLE IF NOT EXISTS password_resets (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id uuid NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
   token_hash text NOT NULL UNIQUE,
   expires_at timestamptz NOT NULL,
   created_at timestamptz NOT NULL DEFAULT now()
@@ -124,4 +124,4 @@ CREATE INDEX IF NOT EXISTS idx_payments_user_id ON payments(user_id, created_at 
 CREATE INDEX IF NOT EXISTS idx_payments_stripe_session_id ON payments(stripe_session_id);
 CREATE INDEX IF NOT EXISTS idx_credit_ledger_user_id ON credit_ledger(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_credit_ledger_stripe_session_id ON credit_ledger(stripe_session_id);
-CREATE INDEX IF NOT EXISTS idx_password_resets_user_id ON password_resets(user_id);
+CREATE INDEX IF NOT EXISTS idx_password_resets_expires_at ON password_resets(expires_at);

@@ -3,18 +3,24 @@
 from __future__ import annotations
 
 import base64
+import hmac
 import json
 import logging
-import re
 import secrets
 from datetime import timedelta
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, List
 
-from fastapi import APIRouter, HTTPException, Request, Response
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Request, Response
 
 import config
-from models import AuthResponse
-from services.auth.functions.password import hash_password
+from models import (
+    AuthResponse,
+    ChangePasswordRequest,
+    DeleteAccountRequest,
+    ForgotPasswordRequest,
+    ResetPasswordRequest,
+)
+from services.auth.functions.password import hash_password, validate_password
 from services.auth.functions.session import (
     claim_guest_history,
     create_session,
@@ -28,7 +34,6 @@ from services.auth.functions.user import (
     create_email_verification,
     create_password_reset,
     create_user,
-    delete_other_sessions,
     delete_user,
     ensure_credits_row,
     get_user_auth_row,
@@ -38,21 +43,7 @@ from services.auth.functions.user import (
 from services.auth.functions.utils import generate_guest_token, hash_token, now_utc
 from services.database.connection import get_connection
 from services.ratelimit import limiter
-
-
-def validate_password(password: str) -> Tuple[bool, str]:
-    """Validate password strength. Returns (is_valid, error_message)."""
-    if len(password) < 8:
-        return False, "Password must be at least 8 characters"
-    if len(password) > 128:
-        return False, "Password must be at most 128 characters"
-    if not re.search(r"[A-Z]", password):
-        return False, "Password must contain at least one uppercase letter"
-    if not re.search(r"[a-z]", password):
-        return False, "Password must contain at least one lowercase letter"
-    if not re.search(r"\d", password):
-        return False, "Password must contain at least one digit"
-    return True, ""
+from services import storage
 
 
 logger = logging.getLogger("picpaygo.auth")
@@ -139,7 +130,8 @@ async def login(request: Request, response: Response) -> AuthResponse:
             raise HTTPException(status_code=401, detail="Invalid credentials")
 
         salt = base64.b64decode(user_row["salt"])
-        if hash_password(password, salt) != user_row["password_hash"]:
+        computed_hash = hash_password(password, salt)
+        if not hmac.compare_digest(computed_hash, user_row["password_hash"]):
             raise HTTPException(status_code=401, detail="Invalid credentials")
 
         user_id = user_row["id"]
@@ -172,7 +164,13 @@ async def logout(request: Request, response: Response) -> Dict[str, bool]:
     if token:
         async with get_connection() as conn:
             await delete_session_by_raw_token(conn, token)
-    response.delete_cookie(config.SESSION_COOKIE)
+    response.delete_cookie(
+        config.SESSION_COOKIE,
+        path="/",
+        httponly=True,
+        samesite=config.COOKIE_SAMESITE,
+        secure=config.COOKIE_SECURE,
+    )
     return {"ok": True}
 
 
@@ -230,33 +228,31 @@ async def clear_guest_history(request: Request) -> Response:
 
 
 @router.post("/auth/forgot-password")
-async def forgot_password(request: Request) -> Dict[str, bool]:
+@limiter.limit("3/minute")
+async def forgot_password(request: Request, body: ForgotPasswordRequest) -> Dict[str, bool]:
     """Request a password reset email. Always returns ok to prevent email enumeration."""
-    payload = await request.json()
-    email = (payload.get("email") or "").lower().strip()
-
-    if not email:
-        return {"ok": True}
+    email = body.email.lower().strip()
 
     async with get_connection() as conn:
         user_row = await get_user_auth_row(conn, email)
         if user_row:
             token = await create_password_reset(conn, user_row["id"])
-            logger.info("Password reset token created for email=%s", email)
+            logger.info("Password reset token created for user_id=%s", user_row["id"])
             # TODO: Send email when email service is configured
 
     return {"ok": True}
 
 
 @router.post("/auth/reset-password")
-async def reset_password(request: Request) -> Dict[str, bool]:
+@limiter.limit("5/minute")
+async def reset_password(request: Request, response: Response, body: ResetPasswordRequest) -> Dict[str, bool]:
     """Reset password using a valid reset token."""
-    payload = await request.json()
-    token = payload.get("token") or ""
-    password = payload.get("password") or ""
+    token = body.token
+    password = body.password
 
-    if not token or not password:
-        raise HTTPException(status_code=400, detail="Token and password required")
+    is_valid, error_msg = validate_password(password)
+    if not is_valid:
+        raise HTTPException(status_code=400, detail=error_msg)
 
     async with get_connection() as conn:
         try:
@@ -267,28 +263,39 @@ async def reset_password(request: Request) -> Dict[str, bool]:
         if not user_id:
             raise HTTPException(status_code=400, detail="Invalid reset token")
 
-        await update_user_password(conn, user_id, password)
+        try:
+            await update_user_password(conn, user_id, password)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
         # Invalidate all sessions after password reset
         await conn.execute("DELETE FROM sessions WHERE user_id = $1", user_id)
         logger.info("Password reset completed for user_id=%s", user_id)
 
+    # Clear any existing session cookie (best-effort cleanup)
+    response.delete_cookie(
+        config.SESSION_COOKIE,
+        path="/",
+        httponly=True,
+        samesite=config.COOKIE_SAMESITE,
+        secure=config.COOKIE_SECURE,
+    )
     return {"ok": True}
 
 
 @router.post("/auth/change-password")
-async def change_password(request: Request) -> Dict[str, bool]:
-    """Change password for authenticated user. Requires current password verification."""
+@limiter.limit("5/minute")
+async def change_password(request: Request, response: Response, body: ChangePasswordRequest) -> Dict[str, bool]:
+    """Change password for authenticated user. Forces re-login after password change."""
     user = await get_session_user(request)
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
 
-    payload = await request.json()
-    current_password = payload.get("currentPassword") or ""
-    new_password = payload.get("newPassword") or ""
-    logout_others = payload.get("logoutOtherSessions", False)
+    current_password = body.currentPassword
+    new_password = body.newPassword
 
-    if not current_password or not new_password:
-        raise HTTPException(status_code=400, detail="Current and new password required")
+    is_valid, error_msg = validate_password(new_password)
+    if not is_valid:
+        raise HTTPException(status_code=400, detail=error_msg)
 
     async with get_connection() as conn:
         user_row = await get_user_auth_row(conn, user["email"])
@@ -296,33 +303,54 @@ async def change_password(request: Request) -> Dict[str, bool]:
             raise HTTPException(status_code=401, detail="User not found")
 
         salt = base64.b64decode(user_row["salt"])
-        if hash_password(current_password, salt) != user_row["password_hash"]:
+        computed_hash = hash_password(current_password, salt)
+        if not hmac.compare_digest(computed_hash, user_row["password_hash"]):
             raise HTTPException(status_code=401, detail="Current password incorrect")
 
-        await update_user_password(conn, user_row["id"], new_password)
+        try:
+            await update_user_password(conn, user_row["id"], new_password)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
         logger.info("Password changed for user_id=%s", user_row["id"])
 
-        if logout_others:
-            token = request.cookies.get(config.SESSION_COOKIE)
-            current_hash = hash_token(token) if token else ""
-            await delete_other_sessions(conn, user_row["id"], current_hash)
-            logger.info("Other sessions invalidated for user_id=%s", user_row["id"])
+        # Force re-login: invalidate ALL sessions after password change
+        await conn.execute("DELETE FROM sessions WHERE user_id = $1", user_row["id"])
+        logger.info("All sessions invalidated for user_id=%s after password change", user_row["id"])
 
+    # Clear session cookie to force re-login
+    response.delete_cookie(
+        config.SESSION_COOKIE,
+        path="/",
+        httponly=True,
+        samesite=config.COOKIE_SAMESITE,
+        secure=config.COOKIE_SECURE,
+    )
     return {"ok": True}
 
 
+async def cleanup_user_minio_files(generation_ids: List[str]) -> None:
+    """Background task to delete MinIO files for deleted user's generations."""
+    for gen_id in generation_ids:
+        try:
+            await storage.delete_generation_files_async(gen_id)
+        except Exception as e:
+            logger.warning("Failed to delete MinIO files for generation %s: %s", gen_id, e, exc_info=True)
+
+
 @router.post("/auth/delete-account")
-async def delete_account(request: Request, response: Response) -> Dict[str, bool]:
+@limiter.limit("3/minute")
+async def delete_account(
+    request: Request,
+    response: Response,
+    body: DeleteAccountRequest,
+    background_tasks: BackgroundTasks,
+) -> Dict[str, bool]:
     """Delete user account. Requires password confirmation."""
     user = await get_session_user(request)
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
 
-    payload = await request.json()
-    password = payload.get("password") or ""
-
-    if not password:
-        raise HTTPException(status_code=400, detail="Password required")
+    password = body.password
 
     async with get_connection() as conn:
         user_row = await get_user_auth_row(conn, user["email"])
@@ -330,12 +358,36 @@ async def delete_account(request: Request, response: Response) -> Dict[str, bool
             raise HTTPException(status_code=401, detail="User not found")
 
         salt = base64.b64decode(user_row["salt"])
-        if hash_password(password, salt) != user_row["password_hash"]:
+        computed_hash = hash_password(password, salt)
+        if not hmac.compare_digest(computed_hash, user_row["password_hash"]):
             raise HTTPException(status_code=401, detail="Password incorrect")
 
-        await delete_user(conn, user_row["id"])
-        logger.info("Account deleted for user_id=%s email=%s", user_row["id"], user["email"])
+        # Fetch generation IDs BEFORE delete (CASCADE removes DB rows)
+        gen_rows = await conn.fetch(
+            "SELECT id FROM generations WHERE user_id = $1",
+            user_row["id"]
+        )
+        generation_ids = [str(row["id"]) for row in gen_rows]
 
-    response.delete_cookie(config.SESSION_COOKIE)
+        deleted = await delete_user(conn, user_row["id"])
+        if not deleted:
+            raise HTTPException(status_code=500, detail="Failed to delete account")
+
+        logger.info(
+            "Account deleted for user_id=%s, scheduling cleanup for %d generations",
+            user_row["id"], len(generation_ids)
+        )
+
+    # Schedule async MinIO cleanup (non-blocking)
+    if generation_ids:
+        background_tasks.add_task(cleanup_user_minio_files, generation_ids)
+
+    response.delete_cookie(
+        config.SESSION_COOKIE,
+        path="/",
+        httponly=True,
+        samesite=config.COOKIE_SAMESITE,
+        secure=config.COOKIE_SECURE,
+    )
     return {"ok": True}
 
