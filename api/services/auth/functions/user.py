@@ -97,6 +97,8 @@ async def ensure_credits_row(conn: asyncpg.Connection, user_id: UUID) -> None:
 async def create_password_reset(conn: asyncpg.Connection, user_id: UUID) -> str:
     """Create a password reset token. Deletes any existing tokens for this user."""
     await conn.execute("DELETE FROM password_resets WHERE user_id = $1", user_id)
+    # Opportunistic cleanup of all expired tokens
+    await conn.execute("DELETE FROM password_resets WHERE expires_at < $1", now_utc())
 
     reset_token = secrets.token_urlsafe(32)
     token_hash = hash_token(reset_token)
@@ -134,8 +136,13 @@ async def consume_password_reset_token(conn: asyncpg.Connection, token: str) -> 
     await conn.execute("DELETE FROM password_resets WHERE token_hash = $1", token_hash)
 
 
+MIN_PASSWORD_LENGTH = 6
+
+
 async def update_user_password(conn: asyncpg.Connection, user_id: UUID, new_password: str) -> None:
     """Update user's password with new salt."""
+    if len(new_password) < MIN_PASSWORD_LENGTH:
+        raise ValueError(f"Password must be at least {MIN_PASSWORD_LENGTH} characters")
     salt = secrets.token_bytes(16)
     salt_b64 = base64.b64encode(salt).decode("ascii")
     password_hash = hash_password(new_password, salt)
