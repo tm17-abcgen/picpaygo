@@ -1,158 +1,92 @@
-# Portrait Photographer Portfolio
+# PicPayGo
 
-A professional, performance-optimized portfolio website for portrait photographers. Built with React, TypeScript, and Tailwind CSS, featuring a custom filmstrip gallery with keyboard navigation, lazy loading, and comprehensive accessibility support.
+Portrait photographer portfolio with AI-powered image generation. Upload a photo, pick a style, get an AI-enhanced result.
 
-## 🚀 Features
+## Tech Stack
 
-### Core Gallery Experience
-- **Filmstrip Gallery** - Horizontal scrolling gallery with click-to-center interaction
-- **Keyboard Navigation** - Arrow keys (left/right), Home, End keys for navigation
-- **Auto-Advance** - Optional slideshow mode with pause on hover/focus (4.5 second intervals)
-- **Touch-Optimized** - Native touch scrolling with momentum on mobile devices
-- **IntersectionObserver** - Automatic active image detection during manual scrolling
+- **Frontend**: React 18, TypeScript, Vite, Tailwind CSS v4
+- **Backend**: FastAPI, Python 3.11, PostgreSQL 16, MinIO
+- **AI**: OpenRouter API (Gemini)
+- **Payments**: Stripe
 
-### Performance Optimization
-- **Lazy Loading** - Eager loading for first 3 images, lazy loading for others with IntersectionObserver
-- **Responsive Images** - srcSet with multiple sizes (800w, 1200w, 1600w)
-- **Code Splitting** - Route-based lazy loading with React.lazy() and Suspense
-- **Hardware Acceleration** - CSS transforms for smooth 60fps scrolling
-- **Loading Skeletons** - Animated placeholders during image load
-- **Preconnect** - DNS prefetching for image CDN
-
-### Accessibility (WCAG 2.1 AA Compliant)
-- **Screen Reader Support** - ARIA labels, live regions, semantic HTML
-- **Keyboard-Only Navigation** - Full functionality without mouse
-- **Focus Management** - Visible focus indicators on all interactive elements
-- **Touch Targets** - Minimum 44×44px for all buttons
-- **Reduced Motion** - Respects prefers-reduced-motion media query
-- **Color Contrast** - 4.5:1 minimum for text, 7:1 for captions
-
-### SEO Optimization
-- **Meta Tags** - Unique title and description per page
-- **Open Graph** - Social media sharing optimization
-- **Twitter Cards** - Rich previews on Twitter
-- **Structured Data** - JSON-LD schemas for Person, ImageGallery, ImageObject
-- **Sitemap.xml** - Complete site structure for search engines
-- **Robots.txt** - Search engine crawling instructions
-- **Semantic HTML** - Proper use of header, nav, main, article, figure tags
-
-### Design System
-- **Clean Editorial Aesthetic** - Pure white background, true black text
-- **Typography** - Playfair Display (serif) + Inter (sans-serif)
-- **Responsive Layout** - Mobile-first design with clamp() functions
-- **Gray Scale Hierarchy** - 7 shades for visual depth
-- **Design Tokens** - CSS custom properties for consistency
-
-## 📁 Project Structure
-
-```
-src/
-├── components/
-│   ├── gallery/          # Gallery components
-│   ├── layout/           # Navigation, footer, layout wrapper
-│   ├── about/            # About page layout
-│   └── seo/              # SEO meta tags component
-├── pages/                # Route pages
-├── context/              # React context for global state
-├── hooks/                # Custom React hooks
-├── types/                # TypeScript interfaces
-└── data/                 # JSON data files
-```
-
-## 🛠 Development
-
-### Prerequisites
-- Node.js & npm ([install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating))
-
-### Getting Started
+## Quick Start
 
 ```bash
-# Clone the repository
-git clone <YOUR_GIT_URL>
-cd <YOUR_PROJECT_NAME>
+# Copy environment files
+cp .env.example .env
+cp api/.env.example api/.env
 
-# Install dependencies
-npm install
+# Add your API keys to api/.env (OPENROUTER_API_KEY, STRIPE_SECRET_KEY)
 
-# Start development server
-npm run dev
+# Start everything
+docker compose up --build
 
-# Build for production
-npm run build
-
-# Preview production build
-npm run preview
+# Open http://localhost:8080
 ```
 
-### Backend (auth, credits, generations)
+### Development Mode
 
-The UI calls the FastAPI backend under `/api/*`. In Docker Compose the API is only reachable internally (not published to your host); Nginx exposes a single entrypoint on `http://localhost:8080` and proxies `/api/*` to the API service.
+```bash
+# Terminal 1 - Backend
+cd api && python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8081
 
-- Docker (full stack): `docker compose up --build`
-- API only: see `api/README.md` (runs on port `8081`)
-- Optional: override the proxy target with `VITE_API_PROXY_TARGET` (e.g. `http://127.0.0.1:8081`)
+# Terminal 2 - Frontend
+npm install
+VITE_API_PROXY_TARGET=http://127.0.0.1:8081 npm run dev
+```
 
-If you run via Docker Compose, use `http://localhost:8080` (reverse-proxy).
+## Project Structure
 
-### Technologies Used
-- **React 18** with TypeScript
-- **Vite** for fast builds
-- **Tailwind CSS v4** for styling
-- **React Router v6** for routing
-- **Lucide React** for icons
+```
+src/                    # React frontend
+├── pages/              # Home, Generate, Account, SeriesPage
+├── components/         # UI components (gallery, layout, generate)
+├── context/            # CreditsContext, PortfolioContext
+├── hooks/              # useGallery, useAutoAdvance
+└── services/api.ts     # API client
 
-## 📝 Content Management
+api/                    # FastAPI backend
+├── main.py             # App entry point
+├── config.py           # Environment config
+└── services/           # auth, credits, generate, storage, payments
+```
 
-### Adding a New Series
+## Environment Variables
 
-1. Create JSON file in `public/data/series/[series-name].json`
-2. Add route in `App.tsx`
-3. Add navigation link in `HeaderNavigation.tsx`
+**api/.env** (required):
+```bash
+OPENROUTER_API_KEY=sk-or-v1-...      # AI generation
+STRIPE_SECRET_KEY=sk_test_...         # Payments
+STRIPE_WEBHOOK_SECRET=whsec_...
+FRONTEND_URL=http://localhost:8080
+```
 
-### Updating Photographer Profile
+See `.env.example` and `api/.env.example` for full list.
 
-Edit `public/data/photographer.json`:
-- Name, tagline, biography
-- Client lists
-- Contact information
-- Portrait image URL
+## API Endpoints
 
-## 🎯 Performance Targets
+| Endpoint | Description |
+|----------|-------------|
+| `POST /api/auth/register` | Create account |
+| `POST /api/auth/login` | Login |
+| `GET /api/credits` | Get credit balance |
+| `POST /api/generate` | Create generation (multipart: type + image) |
+| `GET /api/generate/:id` | Get job status |
+| `GET /api/generations` | List generations |
 
-- **LCP**: <2.5s
-- **FID**: <100ms
-- **CLS**: <0.1
-- **Lighthouse**: 90+ all categories
+## Database
 
-## 🚀 Deployment
+Auto-initialized from `docs/db/schema.sql` on startup.
 
-### Via Lovable
-Simply open [Lovable](https://lovable.dev/projects/6fd12b81-631e-49d3-83b3-86e8b3fab3ae) and click Share → Publish
+Key tables: `users`, `credits`, `generations`, `generation_assets`, `guest_sessions`, `payments`
 
-### Manual Deployment
-Build files in `dist/` can be deployed to Vercel, Netlify, AWS S3, or any static host.
+## Scripts
 
-**Before deploying:**
-- Update `public/sitemap.xml` with your domain
-- Update `public/robots.txt` with your domain
-- Replace placeholder images with actual photography
-- Update photographer name and branding throughout
-
-## 🌐 Custom Domain
-
-Navigate to Project > Settings > Domains in Lovable and click Connect Domain.
-
-[Learn more about custom domains](https://docs.lovable.dev/features/custom-domain#custom-domain)
-
-## 📊 Browser Support
-
-- Chrome/Edge - Latest 2 versions
-- Firefox - Latest 2 versions
-- Safari (desktop + iOS) - Latest 2 versions
-- Samsung Internet - Latest version
-
----
-
-**Project URL**: https://lovable.dev/projects/6fd12b81-631e-49d3-83b3-86e8b3fab3ae
-
-Built with [Lovable](https://lovable.dev) ❤️
+```bash
+npm run dev              # Frontend dev server
+npm run build            # Production build
+docker compose up        # Full stack
+docker compose logs api  # View API logs
+```
