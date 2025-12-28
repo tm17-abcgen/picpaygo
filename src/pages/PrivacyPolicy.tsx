@@ -1,5 +1,6 @@
 import { Layout } from "@/components/layout/Layout";
 import { SEO } from "@/components/seo/SEO";
+import { legalInfo } from "@/config/legalInfo";
 
 export default function PrivacyPolicy() {
   return (
@@ -14,7 +15,7 @@ export default function PrivacyPolicy() {
               Last updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
             </p>
             <p className="mb-4">
-              At PicPayGo, we are committed to protecting your privacy and personal data. This Privacy Policy explains 
+              At {legalInfo.company.name}, we are committed to protecting your privacy and personal data. This Privacy Policy explains 
               how we collect, use, store, and protect your information when you use our AI-powered photo enhancement service.
             </p>
           </section>
@@ -167,7 +168,7 @@ export default function PrivacyPolicy() {
               <li><strong>Right to Withdraw Consent:</strong> Withdraw consent for data processing where applicable</li>
             </ul>
             <p className="mb-4">
-              To exercise these rights, please contact us at <a href="mailto:support@picpaygo.com" className="text-blue-600 hover:underline">support@picpaygo.com</a>.
+              To exercise these rights, please contact us at <a href={`mailto:${legalInfo.contact.email}`} className="text-blue-600 hover:underline">{legalInfo.contact.email}</a>.
             </p>
           </section>
 
@@ -219,8 +220,8 @@ export default function PrivacyPolicy() {
               If you have questions about this Privacy Policy or wish to exercise your data protection rights, please contact us:
             </p>
             <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="mb-2"><strong>Email:</strong> <a href="mailto:support@picpaygo.com" className="text-blue-600 hover:underline">support@picpaygo.com</a></p>
-              <p className="mb-2"><strong>Phone:</strong> +1 (415) 555-0133</p>
+              <p className="mb-2"><strong>Email:</strong> <a href={`mailto:${legalInfo.contact.email}`} className="text-blue-600 hover:underline">{legalInfo.contact.email}</a></p>
+              <p className="mb-2"><strong>Phone:</strong> {legalInfo.contact.phone}</p>
             </div>
           </section>
         </div>

@@ -1,5 +1,6 @@
 import { Layout } from "@/components/layout/Layout";
 import { SEO } from "@/components/seo/SEO";
+import { legalInfo } from "@/config/legalInfo";
 
 export default function TermsConditions() {
   return (
@@ -14,7 +15,7 @@ export default function TermsConditions() {
               Last updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
             </p>
             <p className="mb-4">
-              Welcome to PicPayGo. These Terms and Conditions ("Terms") govern your access to and use of our AI-powered 
+              Welcome to {legalInfo.company.name}. These Terms and Conditions ("Terms") govern your access to and use of our AI-powered 
               photo enhancement service. By accessing or using our service, you agree to be bound by these Terms.
             </p>
           </section>
@@ -22,7 +23,7 @@ export default function TermsConditions() {
           <section>
             <h2 className="text-2xl font-semibold mb-4 text-gray-900">1. Acceptance of Terms</h2>
             <p className="mb-4">
-              By creating an account, accessing, or using PicPayGo's services, you acknowledge that you have read, understood, 
+              By creating an account, accessing, or using {legalInfo.company.name}'s services, you acknowledge that you have read, understood, 
               and agree to be bound by these Terms and our Privacy Policy. If you do not agree to these Terms, you must not 
               use our service.
             </p>
@@ -31,7 +32,7 @@ export default function TermsConditions() {
           <section>
             <h2 className="text-2xl font-semibold mb-4 text-gray-900">2. Description of Service</h2>
             <p className="mb-3">
-              PicPayGo is an AI-powered photo enhancement platform that allows users to:
+              {legalInfo.company.name} is an AI-powered photo enhancement platform that allows users to:
             </p>
             <ul className="list-disc list-inside ml-4 mb-4 space-y-2">
               <li>Upload photos for AI-powered enhancement and transformation</li>
@@ -97,7 +98,7 @@ export default function TermsConditions() {
             <p className="mb-4">
               Refunds for credit purchases may be available in accordance with applicable consumer protection laws. 
               If a generation fails due to a technical error on our part, we may refund the consumed credit at our discretion. 
-              Refund requests must be submitted within 30 days of purchase. Contact us at <a href="mailto:support@picpaygo.com" className="text-blue-600 hover:underline">support@picpaygo.com</a> for refund inquiries.
+              Refund requests must be submitted within 30 days of purchase. Contact us at <a href={`mailto:${legalInfo.contact.email}`} className="text-blue-600 hover:underline">{legalInfo.contact.email}</a> for refund inquiries.
             </p>
           </section>
 
@@ -219,13 +220,13 @@ export default function TermsConditions() {
             <h2 className="text-2xl font-semibold mb-4 text-gray-900">12. Dispute Resolution</h2>
             <p className="mb-4">
               For users in the European Union, the European Commission provides an online dispute resolution platform at 
-              <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-1">
-                https://ec.europa.eu/consumers/odr/
+              <a href={legalInfo.disputeResolution.odrUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-1">
+                {legalInfo.disputeResolution.odrUrl}
               </a>.
             </p>
             <p className="mb-4">
               Any disputes arising from these Terms or your use of the service shall be resolved through good faith negotiation. 
-              If negotiation fails, disputes shall be resolved through binding arbitration or in the courts of [Jurisdiction], 
+              If negotiation fails, disputes shall be resolved through binding arbitration or in the courts of {legalInfo.jurisdiction.country}{legalInfo.jurisdiction.region ? `, ${legalInfo.jurisdiction.region}` : ''}, 
               as applicable under local law.
             </p>
           </section>
@@ -242,9 +243,9 @@ export default function TermsConditions() {
           <section>
             <h2 className="text-2xl font-semibold mb-4 text-gray-900">14. Governing Law</h2>
             <p className="mb-4">
-              These Terms shall be governed by and construed in accordance with the laws of [Jurisdiction], without regard 
+              These Terms shall be governed by and construed in accordance with the laws of {legalInfo.jurisdiction.country}{legalInfo.jurisdiction.region ? `, ${legalInfo.jurisdiction.region}` : ''}, without regard 
               to its conflict of law provisions. Any legal action or proceeding arising under these Terms will be brought 
-              exclusively in the courts of [Jurisdiction].
+              exclusively in the courts of {legalInfo.jurisdiction.country}{legalInfo.jurisdiction.region ? `, ${legalInfo.jurisdiction.region}` : ''}.
             </p>
           </section>
 
@@ -254,8 +255,8 @@ export default function TermsConditions() {
               If you have questions about these Terms, please contact us:
             </p>
             <div className="bg-gray-50 p-4 rounded-lg">
-              <p className="mb-2"><strong>Email:</strong> <a href="mailto:support@picpaygo.com" className="text-blue-600 hover:underline">support@picpaygo.com</a></p>
-              <p className="mb-2"><strong>Phone:</strong> +1 (415) 555-0133</p>
+              <p className="mb-2"><strong>Email:</strong> <a href={`mailto:${legalInfo.contact.email}`} className="text-blue-600 hover:underline">{legalInfo.contact.email}</a></p>
+              <p className="mb-2"><strong>Phone:</strong> {legalInfo.contact.phone}</p>
             </div>
           </section>
         </div>

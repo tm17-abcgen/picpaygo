@@ -1,9 +1,8 @@
 import { Layout } from "@/components/layout/Layout";
 import { SEO } from "@/components/seo/SEO";
-import { usePortfolio } from "@/context/PortfolioContext";
+import { legalInfo } from "@/config/legalInfo";
 
 export default function Imprint() {
-  const { photographer } = usePortfolio();
 
   return (
     <Layout>
@@ -15,53 +14,48 @@ export default function Imprint() {
           <section>
             <h2 className="text-2xl font-semibold mb-4 text-gray-900">Information according to § 5 TMG (German Telemedia Act)</h2>
             <div className="bg-gray-50 p-4 rounded-lg mb-4">
-              <p className="mb-2"><strong>Company Name:</strong> PicPayGo</p>
-              <p className="mb-2"><strong>Legal Form:</strong> [To be completed - e.g., Limited Liability Company, Sole Proprietorship]</p>
-              <p className="mb-2"><strong>Registered Office:</strong> [To be completed - Street Address]</p>
-              <p className="mb-2"><strong>Postal Code & City:</strong> [To be completed]</p>
-              <p className="mb-2"><strong>Country:</strong> [To be completed]</p>
+              <p className="mb-2"><strong>Company Name:</strong> {legalInfo.company.name}</p>
+              <p className="mb-2"><strong>Legal Form:</strong> {legalInfo.company.legalForm}</p>
+              <p className="mb-2"><strong>Registered Office:</strong> {legalInfo.company.registeredOffice.street}</p>
+              <p className="mb-2"><strong>Postal Code & City:</strong> {legalInfo.company.registeredOffice.postalCode} {legalInfo.company.registeredOffice.city}</p>
+              <p className="mb-2"><strong>Country:</strong> {legalInfo.company.registeredOffice.country}</p>
             </div>
           </section>
 
           <section>
             <h2 className="text-2xl font-semibold mb-4 text-gray-900">Contact Information</h2>
             <div className="bg-gray-50 p-4 rounded-lg mb-4">
-              {photographer ? (
-                <>
-                  <p className="mb-2"><strong>Email:</strong> <a href={`mailto:${photographer.contact.email}`} className="text-blue-600 hover:underline">{photographer.contact.email}</a></p>
-                  <p className="mb-2"><strong>Phone:</strong> {photographer.contact.phone}</p>
-                </>
-              ) : (
-                <>
-                  <p className="mb-2"><strong>Email:</strong> <a href="mailto:support@picpaygo.com" className="text-blue-600 hover:underline">support@picpaygo.com</a></p>
-                  <p className="mb-2"><strong>Phone:</strong> +1 (415) 555-0133</p>
-                </>
-              )}
+              <p className="mb-2"><strong>Email:</strong> <a href={`mailto:${legalInfo.contact.email}`} className="text-blue-600 hover:underline">{legalInfo.contact.email}</a></p>
+              <p className="mb-2"><strong>Phone:</strong> {legalInfo.contact.phone}</p>
             </div>
           </section>
 
           <section>
             <h2 className="text-2xl font-semibold mb-4 text-gray-900">Responsible for Content</h2>
             <div className="bg-gray-50 p-4 rounded-lg mb-4">
-              <p className="mb-2"><strong>Name:</strong> [To be completed - Name of responsible person]</p>
-              <p className="mb-2"><strong>Address:</strong> [To be completed]</p>
-              <p className="mb-2"><strong>Contact:</strong> [To be completed]</p>
+              <p className="mb-2"><strong>Name:</strong> {legalInfo.responsiblePerson.name}</p>
+              <p className="mb-2"><strong>Address:</strong> {legalInfo.responsiblePerson.address}</p>
+              <p className="mb-2"><strong>Contact:</strong> {legalInfo.responsiblePerson.contact}</p>
             </div>
           </section>
 
-          <section>
-            <h2 className="text-2xl font-semibold mb-4 text-gray-900">VAT Identification Number</h2>
-            <p className="mb-4">
-              <strong>VAT ID:</strong> [To be completed if applicable - e.g., DE123456789 for German companies]
-            </p>
-          </section>
+          {legalInfo.tax.vatId && (
+            <section>
+              <h2 className="text-2xl font-semibold mb-4 text-gray-900">VAT Identification Number</h2>
+              <p className="mb-4">
+                <strong>VAT ID:</strong> {legalInfo.tax.vatId}
+              </p>
+            </section>
+          )}
 
-          <section>
-            <h2 className="text-2xl font-semibold mb-4 text-gray-900">Supervisory Authority</h2>
-            <p className="mb-4">
-              [To be completed - Information about relevant supervisory authority, if applicable]
-            </p>
-          </section>
+          {legalInfo.regulatory.supervisoryAuthority && (
+            <section>
+              <h2 className="text-2xl font-semibold mb-4 text-gray-900">Supervisory Authority</h2>
+              <p className="mb-4">
+                {legalInfo.regulatory.supervisoryAuthority}
+              </p>
+            </section>
+          )}
 
           <section>
             <h2 className="text-2xl font-semibold mb-4 text-gray-900">EU Dispute Resolution</h2>
@@ -70,16 +64,19 @@ export default function Imprint() {
             </p>
             <p className="mb-4">
               <a 
-                href="https://ec.europa.eu/consumers/odr/" 
+                href={legalInfo.disputeResolution.odrUrl}
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="text-blue-600 hover:underline"
               >
-                https://ec.europa.eu/consumers/odr/
+                {legalInfo.disputeResolution.odrUrl}
               </a>
             </p>
             <p className="mb-4">
-              We are not willing or obliged to participate in dispute resolution proceedings before a consumer arbitration board.
+              {legalInfo.disputeResolution.participateInODR 
+                ? "We are willing to participate in dispute resolution proceedings before a consumer arbitration board."
+                : "We are not willing or obliged to participate in dispute resolution proceedings before a consumer arbitration board."
+              }
             </p>
           </section>
 
