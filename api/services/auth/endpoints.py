@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import base64
+import hmac
 import json
 import logging
 import secrets
@@ -13,7 +14,7 @@ from fastapi import APIRouter, HTTPException, Request, Response
 
 import config
 from models import AuthResponse, UserResponse
-from services.auth.functions.password import hash_password
+from services.auth.functions.password import hash_password, validate_password
 from services.auth.functions.session import (
     claim_guest_history,
     create_session,
@@ -33,6 +34,7 @@ from services.auth.functions.utils import generate_guest_token, hash_token, is_v
 from services.database.connection import get_connection
 from services.email.sender import EmailError
 from services.email.verification import send_verification_email
+from services.ratelimit import limiter
 
 logger = logging.getLogger("picpaygo.auth")
 router = APIRouter(prefix=config.API_PREFIX)
@@ -52,6 +54,10 @@ async def register(request: Request, response: Response) -> AuthResponse:
     if not is_valid_email(email):
         raise HTTPException(status_code=400, detail="Invalid email format")
 
+    is_valid, error_msg = validate_password(password)
+    if not is_valid:
+        raise HTTPException(status_code=400, detail=error_msg)
+
     guest_session_id = getattr(request.state, "guest_session_id", None)
     logger.info("Guest session present: %s", bool(guest_session_id))
 
@@ -65,9 +71,9 @@ async def register(request: Request, response: Response) -> AuthResponse:
 
         if existing_user:
             if existing_user["is_verified"]:
-                # Already verified - reject registration
+                # Non-enumerating: return same response as new registration
                 logger.info("Email already registered and verified: %s", email)
-                raise HTTPException(status_code=409, detail="Email already registered")
+                return AuthResponse(user=UserResponse(email=email, verificationRequired=True))
 
             # Unverified user - treat as resend (prevents lockout-by-register attack)
             user_id = existing_user["id"]
@@ -128,7 +134,8 @@ async def login(request: Request, response: Response) -> AuthResponse:
             raise HTTPException(status_code=401, detail="Invalid credentials")
 
         salt = base64.b64decode(user_row["salt"])
-        if hash_password(password, salt) != user_row["password_hash"]:
+        computed_hash = hash_password(password, salt)
+        if not hmac.compare_digest(computed_hash, user_row["password_hash"]):
             raise HTTPException(status_code=401, detail="Invalid credentials")
 
         if not user_row["is_verified"]:
@@ -152,7 +159,7 @@ async def login(request: Request, response: Response) -> AuthResponse:
         token,
         httponly=True,
         samesite=config.COOKIE_SAMESITE,
-        secure=True,
+        secure=config.COOKIE_SECURE,
         expires=expires_at,
     )
     return AuthResponse(user=UserResponse(email=email, isVerified=True))
@@ -204,7 +211,44 @@ async def verify_email(request: Request, response: Response) -> Dict[str, Any]:
         session_token,
         httponly=True,
         samesite=config.COOKIE_SAMESITE,
-        secure=True,
+        secure=config.COOKIE_SECURE,
+        expires=expires_at,
+    )
+
+    return {"ok": True, "verified": True}
+
+
+@router.post("/auth/verify")
+async def verify_email_post(request: Request, response: Response) -> Dict[str, Any]:
+    """Verify email via POST body (preferred over GET query param)."""
+    payload = await request.json()
+    token = payload.get("token")
+    if not token:
+        raise HTTPException(status_code=400, detail="Token required")
+
+    user_id = None
+    async with get_connection() as conn:
+        try:
+            user_id = await verify_email_token(conn, token)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
+    if not user_id:
+        raise HTTPException(status_code=404, detail="Invalid verification token")
+
+    # Auto-login: create session after successful verification
+    session_token = secrets.token_hex(32)
+    expires_at = now_utc() + timedelta(hours=config.SESSION_TTL_HOURS)
+
+    async with get_connection() as conn:
+        await create_session(conn, user_id, session_token, expires_at)
+
+    response.set_cookie(
+        config.SESSION_COOKIE,
+        session_token,
+        httponly=True,
+        samesite=config.COOKIE_SAMESITE,
+        secure=config.COOKIE_SECURE,
         expires=expires_at,
     )
 
@@ -212,52 +256,16 @@ async def verify_email(request: Request, response: Response) -> Dict[str, Any]:
 
 
 @router.post("/auth/resend-verification")
-async def resend_verification(request: Request) -> Dict[str, bool]:
-    """Resend verification email for the current logged-in user."""
-    user = await get_session_user(request)
-    if not user:
-        raise HTTPException(status_code=401, detail="Login required")
-
-    email = user.get("email")
-    if not email:
-        raise HTTPException(status_code=401, detail="Login required")
-
-    async with get_connection() as conn:
-        # Get user ID and verification status
-        row = await conn.fetchrow(
-            "SELECT id, is_verified FROM users WHERE email = $1",
-            email,
-        )
-        if not row:
-            raise HTTPException(status_code=404, detail="User not found")
-
-        if row["is_verified"]:
-            raise HTTPException(status_code=400, detail="Email already verified")
-
-        user_id = row["id"]
-
-        # Delete any existing verification tokens
-        await conn.execute(
-            "DELETE FROM email_verifications WHERE user_id = $1",
-            user_id,
-        )
-
-        # Create new token
-        verification_token = await create_email_verification(conn, user_id)
-        logger.info("New verification token created for user_id=%s", user_id)
-
-    # Send email
-    try:
-        await send_verification_email(email, verification_token)
-        logger.info("Verification email resent to=%s", email)
-    except EmailError as exc:
-        logger.error("Failed to resend verification email: %s", exc)
-        raise HTTPException(status_code=500, detail="Failed to send email")
-
-    return {"ok": True}
+async def resend_verification(request: Request) -> Dict[str, Any]:
+    """DEPRECATED: Use POST /auth/request-verification instead."""
+    raise HTTPException(
+        status_code=410,
+        detail="This endpoint is deprecated. Use POST /auth/request-verification with {email: '...'} instead.",
+    )
 
 
 @router.post("/auth/request-verification")
+@limiter.limit("5/minute")
 async def request_verification(request: Request) -> Dict[str, Any]:
     """Request verification email without authentication (non-enumerating)."""
     payload = await request.json()
@@ -322,7 +330,7 @@ async def clear_guest_history(request: Request) -> Response:
         max_age=config.GUEST_COOKIE_MAX_AGE,
         httponly=True,
         samesite=config.COOKIE_SAMESITE,
-        secure=True,
+        secure=config.COOKIE_SECURE,
     )
     return response
 

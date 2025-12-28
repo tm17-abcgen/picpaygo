@@ -35,6 +35,13 @@ export const CREDIT_PACKS: CreditsPack[] = [
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
+export class ApiError extends Error {
+  constructor(message: string, public status: number) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
+
 const apiFetch = async (path: string, options: RequestInit = {}) => {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     credentials: 'include',
@@ -56,7 +63,7 @@ const apiFetch = async (path: string, options: RequestInit = {}) => {
     } catch {
       // ignore
     }
-    throw new Error(message);
+    throw new ApiError(message, response.status);
   }
 
   if (response.status === 204) {
@@ -219,7 +226,16 @@ export async function getUser(): Promise<{ email: string; isVerified?: boolean }
 }
 
 export async function verifyEmail(token: string): Promise<{ success: boolean }> {
-  await apiFetch(`/auth/verify?token=${encodeURIComponent(token)}`);
+  try {
+    // Prefer POST with body
+    await apiFetch('/auth/verify', {
+      method: 'POST',
+      body: JSON.stringify({ token }),
+    });
+  } catch {
+    // Fall back to GET for backward compatibility
+    await apiFetch(`/auth/verify?token=${encodeURIComponent(token)}`);
+  }
   return { success: true };
 }
 

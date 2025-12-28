@@ -4,7 +4,7 @@ import { SEO } from '@/components/seo/SEO';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCredits } from '@/context/CreditsContext';
-import { getGenerations, clearGuestHistory, Generation, requestVerificationEmail } from '@/services/api';
+import { getGenerations, clearGuestHistory, Generation, requestVerificationEmail, ApiError } from '@/services/api';
 import { BuyCreditsModal } from '@/components/credits/BuyCreditsModal';
 import { Loader2, LogOut, Download, Coins, ImageIcon, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -142,6 +142,19 @@ export default function Account() {
         setAuthMode('login');
       }
     } catch (error) {
+      // Check for 403 unverified email on login
+      if (authMode === 'login' && error instanceof ApiError && error.status === 403) {
+        setResendEmail(email);
+        setShowResendForm(true);
+        toast({
+          title: 'Email not verified',
+          description: 'Please verify your email. We can resend the verification link.',
+          variant: 'destructive',
+        });
+        setLoginLoading(false);
+        return;
+      }
+
       const message = error instanceof Error ? error.message : 'Please check your credentials.';
       toast({
         title: authMode === 'login' ? 'Login failed' : 'Registration failed',

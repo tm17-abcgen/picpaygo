@@ -1,7 +1,5 @@
 """Generation endpoints (create job, status, listing, image proxy)."""
 
-from __future__ import annotations
-
 import uuid
 from typing import Any, Dict, Optional
 from urllib.parse import unquote, urljoin

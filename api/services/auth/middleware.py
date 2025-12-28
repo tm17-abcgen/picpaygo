@@ -68,7 +68,7 @@ class GuestSessionMiddleware(BaseHTTPMiddleware):
                 max_age=config.GUEST_COOKIE_MAX_AGE,
                 httponly=True,
                 samesite=config.COOKIE_SAMESITE,
-                secure=True,
+                secure=config.COOKIE_SECURE,
             )
 
         return response
