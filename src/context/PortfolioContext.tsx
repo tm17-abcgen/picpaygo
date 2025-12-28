@@ -28,6 +28,7 @@ function createChildSeries(parent: PortfolioSeries): PortfolioSeries[] {
     parentSlug: parent.slug,
     isTools: parent.isTools,
     images: child.images,
+    beforeAfterExamples: child.beforeAfterExamples,
   }));
 }
 

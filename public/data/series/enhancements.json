@@ -27,6 +27,20 @@
             "series": "crowd-removal"
           }
         }
+      ],
+      "beforeAfterExamples": [
+        {
+          "id": "crowd-removal-ba-001",
+          "before": {
+            "src": "https://images.pexels.com/photos/2108813/pexels-photo-2108813.jpeg?auto=compress&cs=tinysrgb&w=800",
+            "alt": "Crowded tourist location before crowd removal"
+          },
+          "after": {
+            "src": "https://images.pexels.com/photos/1682748/pexels-photo-1682748.jpeg?auto=compress&cs=tinysrgb&w=800",
+            "alt": "Clean scene after crowd removal"
+          },
+          "caption": "Tourist landmark"
+        }
       ]
     },
     {
@@ -50,6 +64,20 @@
             "series": "upscaling"
           }
         }
+      ],
+      "beforeAfterExamples": [
+        {
+          "id": "upscaling-ba-001",
+          "before": {
+            "src": "https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=400",
+            "alt": "Low resolution portrait before upscaling"
+          },
+          "after": {
+            "src": "https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=800",
+            "alt": "High resolution portrait after upscaling"
+          },
+          "caption": "Portrait enhancement"
+        }
       ]
     },
     {
@@ -72,6 +100,20 @@
             "description": "Repairs damaged images while keeping believable results.",
             "series": "restoration"
           }
+        }
+      ],
+      "beforeAfterExamples": [
+        {
+          "id": "restoration-ba-001",
+          "before": {
+            "src": "https://images.pexels.com/photos/3680316/pexels-photo-3680316.jpeg?auto=compress&cs=tinysrgb&w=800",
+            "alt": "Vintage photo before restoration"
+          },
+          "after": {
+            "src": "https://images.pexels.com/photos/1043474/pexels-photo-1043474.jpeg?auto=compress&cs=tinysrgb&w=800",
+            "alt": "Restored photo after AI enhancement"
+          },
+          "caption": "Vintage photo restoration"
         }
       ]
     }
