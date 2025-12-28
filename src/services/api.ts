@@ -169,10 +169,17 @@ export async function getGenerations(
 }
 
 /**
- * Clear all generations for the current guest session.
- * Only works for guest users (not logged in).
+ * Delete a single generation by ID.
+ * Works for both guests and logged-in users.
  */
-export async function clearGuestHistory(): Promise<void> {
+export async function deleteGeneration(generationId: string): Promise<void> {
+  await apiFetch(`/generations/${generationId}`, { method: 'DELETE' });
+}
+
+/**
+ * Clear all generations for the current user (guest or logged-in).
+ */
+export async function clearAllGenerations(): Promise<void> {
   await apiFetch('/history/clear', { method: 'POST' });
 }
 

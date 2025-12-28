@@ -24,7 +24,6 @@ const SELFIE_CATEGORIES: GenerationCategory[] = [
 ];
 
 const FASHION_CATEGORIES: GenerationCategory[] = [
-  'victorias-secret-shoot',
   'studio-vogue-editorial',
 ];
 
