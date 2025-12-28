@@ -184,6 +184,8 @@ async def generate_image(
             "prompt": prompt,
             "content_type": content_type,
             "client_ip": ip,
+            "credit_source": "user" if user_credit_used else "ip",
+            "user_id": str(user_id) if user_credit_used else None,
         }
     )
 
