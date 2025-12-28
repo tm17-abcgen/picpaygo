@@ -12,6 +12,7 @@ export function Layout({ children }: LayoutProps) {
       className="grid w-screen min-h-screen items-start layout-home"
       style={{
         overscrollBehavior: "contain",
+        backgroundColor: "rgba(255, 255, 255, 1)",
       }}
     >
       <style>{`
@@ -48,6 +49,7 @@ export function Layout({ children }: LayoutProps) {
         className="layout-content flex flex-col gap-6 sm:gap-8 lg:gap-[50px] pointer-events-auto pb-10 sm:pb-12"
         style={{
           gridColumn: "content-start / content-end",
+          backgroundColor: "rgba(255, 255, 255, 1)",
         }}
       >
         {/* Header: Minimal height */}
