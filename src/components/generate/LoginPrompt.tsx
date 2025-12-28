@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCredits } from '@/context/CreditsContext';
 import { useToast } from '@/hooks/use-toast';
+import { validatePassword } from '@/lib/passwordPolicy';
 
 interface LoginPromptProps {
   onSuccess?: () => void;
@@ -28,7 +29,15 @@ export function LoginPrompt({ onSuccess }: LoginPromptProps) {
       });
       return;
     }
-    
+
+    if (mode === 'register') {
+      const { valid, message } = validatePassword(password);
+      if (!valid) {
+        toast({ title: 'Invalid password', description: message, variant: 'destructive' });
+        return;
+      }
+    }
+
     setLoading(true);
     try {
       if (mode === 'login') {
@@ -97,6 +106,11 @@ export function LoginPrompt({ onSuccess }: LoginPromptProps) {
           disabled={loading}
           aria-label="Password"
         />
+        {mode === 'register' && (
+          <p className="text-xs text-muted-foreground">
+            8+ characters with uppercase, lowercase, and number
+          </p>
+        )}
         <Button
           type="submit"
           className="w-full"

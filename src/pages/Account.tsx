@@ -9,6 +9,7 @@ import { BuyCreditsModal } from '@/components/credits/BuyCreditsModal';
 import { Loader2, LogOut, Download, Coins, ImageIcon, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { validatePassword } from '@/lib/passwordPolicy';
 
 export default function Account() {
   const { user, isLoggedIn, credits, refreshCredits, login, register, logout, loading: authLoading } = useCredits();
@@ -122,7 +123,15 @@ export default function Account() {
       });
       return;
     }
-    
+
+    if (authMode === 'register') {
+      const { valid, message } = validatePassword(password);
+      if (!valid) {
+        toast({ title: 'Invalid password', description: message, variant: 'destructive' });
+        return;
+      }
+    }
+
     setLoginLoading(true);
     try {
       if (authMode === 'login') {
@@ -301,6 +310,11 @@ export default function Account() {
                         onChange={(e) => setPassword(e.target.value)}
                         disabled={loginLoading}
                       />
+                      {authMode === 'register' && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          8+ characters with uppercase, lowercase, and number
+                        </p>
+                      )}
                     </div>
                     <Button
                       type="submit"
