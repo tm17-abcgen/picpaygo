@@ -1,3 +1,10 @@
+export interface BeforeAfterPair {
+  id: string;
+  before: { src: string; alt: string };
+  after: { src: string; alt: string };
+  caption?: string;
+}
+
 export interface GalleryImage {
   id: string;
   src: string;
@@ -23,6 +30,7 @@ export interface SeriesChild {
   title: string;
   description?: string;
   images: GalleryImage[];
+  beforeAfterExamples?: BeforeAfterPair[];
 }
 
 export interface PortfolioSeries {
@@ -35,6 +43,7 @@ export interface PortfolioSeries {
   isTools?: boolean;
   parentSlug?: string;
   children?: SeriesChild[];
+  beforeAfterExamples?: BeforeAfterPair[];
 }
 
 // Taxonomy types

@@ -6,7 +6,7 @@ import { FilmstripGallery } from "@/components/gallery/FilmstripGallery";
 import { GallerySkeleton } from "@/components/gallery/GallerySkeleton";
 import { SEO } from "@/components/seo/SEO";
 import { SubseriesPreviewCard } from "@/components/gallery/SubseriesPreviewCard";
-import { ServiceCard } from "@/components/series/ServiceCard";
+import { EnhancementShowcase } from "@/components/comparison";
 import NotFound from "./NotFound";
 
 export default function SeriesPage() {
@@ -103,26 +103,29 @@ export default function SeriesPage() {
               </p>
             </header>
 
+            {/* Tools with Before/After Sliders OR Subseries Grid */}
             <section className="mt-10 sm:mt-12">
-              <div className="grid items-stretch grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8">
-                {childCards.map(({ child, series: childSeries }) =>
-                  isToolsCategory ? (
-                    <ServiceCard
-                      key={child.slug}
-                      title={child.title}
-                      description={child.description || ''}
-                      to={`/generate?tool=${child.slug}`}
-                    />
-                  ) : (
+              {isToolsCategory ? (
+                <EnhancementShowcase
+                  tools={childCards.map(({ child, series: childSeries }) => ({
+                    slug: child.slug,
+                    title: child.title,
+                    description: child.description,
+                    beforeAfterExamples: childSeries.beforeAfterExamples,
+                  }))}
+                />
+              ) : (
+                <div className="grid items-stretch grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8">
+                  {childCards.map(({ child, series: childSeries }) => (
                     <SubseriesPreviewCard
                       key={child.slug}
                       title={child.title}
                       to={`/series/${child.slug}`}
                       images={childSeries.images.slice(0, 4)}
                     />
-                  )
-                )}
-              </div>
+                  ))}
+                </div>
+              )}
             </section>
           </div>
         </div>
