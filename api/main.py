@@ -12,10 +12,13 @@ from fastapi import FastAPI
 from fastapi import Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
 
 import config
 from services import storage
 from services.auth.endpoints import router as auth_router
+from services.auth.functions.utils import get_client_ip
 from services.auth.middleware import GuestSessionMiddleware
 from services.credits.endpoints import router as credits_router
 from services.database.connection import close_pool, init_pool, init_schema
@@ -23,7 +26,12 @@ from services.generate.endpoints import router as generate_router
 from services.generate.functions.jobs import start_workers, stop_workers
 from services.webhooks.endpoints import router as webhooks_router
 
+# Initialize rate limiter
+limiter = Limiter(key_func=get_client_ip)
+
 app = FastAPI(title=config.APP_TITLE)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 logger = logging.getLogger("picpaygo")
 
 # Configure logging to output to stdout

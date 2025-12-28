@@ -33,9 +33,6 @@ export const CREDIT_PACKS: CreditsPack[] = [
   { id: 'pack_5_20', credits: 20, price: 5.0 },
 ];
 
-// Simulated delay for mock API calls
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 const apiFetch = async (path: string, options: RequestInit = {}) => {
@@ -72,7 +69,6 @@ const apiFetch = async (path: string, options: RequestInit = {}) => {
 // API Functions
 
 export async function getCredits(): Promise<CreditsInfo> {
-  await delay(200);
   const data = await apiFetch('/credits');
   return {
     balance: data.balance,
@@ -84,8 +80,6 @@ export async function generateImage(
   file: File,
   category: GenerationCategory
 ): Promise<{ jobId: string }> {
-  await delay(200);
-
   const formData = new FormData();
   formData.append('type', category);
   formData.append('image', file);
@@ -112,8 +106,6 @@ export async function generateImage(
 }
 
 export async function getGenerationStatus(jobId: string): Promise<Generation> {
-  await delay(200);
-
   const data = await apiFetch(`/generate/${jobId}`);
   return {
     id: data.id,
@@ -136,8 +128,6 @@ export async function getGenerations(
   limit = 50,
   cursor?: string
 ): Promise<{ generations: Generation[]; cursor?: string }> {
-  await delay(200);
-
   const params = new URLSearchParams({ scope: scope, limit: limit.toString() });
   if (cursor) {
     params.set('cursor', cursor);
@@ -180,8 +170,6 @@ export async function clearGuestHistory(): Promise<void> {
 }
 
 export async function createCheckout(packId: string): Promise<{ url: string }> {
-  await delay(800);
-
   const pack = CREDIT_PACKS.find(p => p.id === packId);
   if (!pack) {
     throw new Error('Invalid pack');
@@ -195,9 +183,8 @@ export async function createCheckout(packId: string): Promise<{ url: string }> {
   return { url: data.url };
 }
 
-// Auth mock functions
+// Auth functions
 export async function login(email: string, password: string): Promise<{ success: boolean }> {
-  await delay(300);
   await apiFetch('/auth/login', {
     method: 'POST',
     body: JSON.stringify({ email, password }),
@@ -209,29 +196,18 @@ export async function register(
   email: string,
   password: string
 ): Promise<{ verificationRequired: boolean }> {
-  console.log('[api:register] Starting registration', { email });
-  await delay(300);
-  try {
-    console.log('[api:register] Calling apiFetch with path:', '/auth/register');
-    const data = await apiFetch('/auth/register', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    });
-    console.log('[api:register] Success:', data);
-    return { verificationRequired: !!data?.verificationRequired };
-  } catch (error) {
-    console.error('[api:register] Error:', error);
-    throw error;
-  }
+  const data = await apiFetch('/auth/register', {
+    method: 'POST',
+    body: JSON.stringify({ email, password }),
+  });
+  return { verificationRequired: !!data?.verificationRequired };
 }
 
 export async function logout(): Promise<void> {
-  await delay(200);
   await apiFetch('/auth/logout', { method: 'POST' });
 }
 
 export async function getUser(): Promise<{ email: string; isVerified?: boolean } | null> {
-  await delay(100);
   const data = await apiFetch('/auth/me');
   if (!data?.user) return null;
   return {
@@ -241,7 +217,6 @@ export async function getUser(): Promise<{ email: string; isVerified?: boolean }
 }
 
 export async function verifyEmail(token: string): Promise<{ success: boolean }> {
-  await delay(200);
   await apiFetch(`/auth/verify?token=${encodeURIComponent(token)}`);
   return { success: true };
 }

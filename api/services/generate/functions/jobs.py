@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import base64
+import logging
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Optional
@@ -13,6 +14,8 @@ import asyncpg
 import httpx
 
 from services import storage
+
+logger = logging.getLogger("picpaygo.jobs")
 from services.database.connection import get_connection
 from services.generate.functions.openrouter import download_image_from_url, send_openrouter_request
 
@@ -71,7 +74,9 @@ async def _worker_loop() -> None:
                     if not input_info:
                         raise RuntimeError("Input asset not found")
 
-                    input_bytes = storage.get_object_bytes(input_info["bucket"], input_info["objectKey"])
+                    input_bytes = await storage.get_object_bytes_async(
+                        input_info["bucket"], input_info["objectKey"]
+                    )
 
                     assert http_client is not None
                     output_url = await send_openrouter_request(
@@ -84,7 +89,7 @@ async def _worker_loop() -> None:
                     if output_url.startswith("data:"):
                         header, data = output_url.split(",", 1)
                         output_bytes = base64.b64decode(data)
-                        output_key = storage.upload_output(job_id, output_bytes, "image/png")
+                        output_key = await storage.upload_output_async(job_id, output_bytes, "image/png")
                         await create_generation_asset(
                             conn,
                             uuid.UUID(job_id),
@@ -97,7 +102,7 @@ async def _worker_loop() -> None:
                     else:
                         assert http_client is not None
                         output_bytes = await download_image_from_url(http_client, output_url)
-                        output_key = storage.upload_output(job_id, output_bytes, "image/png")
+                        output_key = await storage.upload_output_async(job_id, output_bytes, "image/png")
                         await create_generation_asset(
                             conn,
                             uuid.UUID(job_id),
@@ -110,10 +115,7 @@ async def _worker_loop() -> None:
 
                     await update_generation_status(conn, uuid.UUID(job_id), "completed")
                 except Exception as exc:
-                    print(f"Worker error for job {job_id}: {exc}")
-                    import traceback
-
-                    traceback.print_exc()
+                    logger.exception("Worker error for job %s: %s", job_id, exc)
                     await update_generation_status(conn, uuid.UUID(job_id), "failed", error_message=str(exc))
         finally:
             job_queue.task_done()
@@ -184,40 +186,47 @@ async def list_generations(
     limit: int = 20,
     cursor: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
+    """List generations with output URLs in a single query (avoiding N+1)."""
     query_parts: List[str] = []
     params: List[Any] = []
     param_count = 0
 
-    query_parts.append("SELECT id, category, status, error_message, created_at, completed_at FROM generations")
+    # Use LEFT JOIN to get output asset in single query
+    query_parts.append("""
+        SELECT g.id, g.category, g.status, g.error_message, g.created_at, g.completed_at,
+               a.bucket AS output_bucket, a.object_key AS output_key
+        FROM generations g
+        LEFT JOIN generation_assets a ON g.id = a.generation_id AND a.kind = 'output'
+    """)
 
     if scope == "auto":
         owner_id = user_id if user_id else guest_session_id
         if not owner_id:
             return []
         param_count += 1
-        query_parts.append(f"WHERE (user_id = ${param_count} OR guest_session_id = ${param_count})")
+        query_parts.append(f"WHERE (g.user_id = ${param_count} OR g.guest_session_id = ${param_count})")
         params.append(owner_id)
     elif scope == "user":
         if not user_id:
             return []
         param_count += 1
-        query_parts.append(f"WHERE user_id = ${param_count}")
+        query_parts.append(f"WHERE g.user_id = ${param_count}")
         params.append(user_id)
     elif scope == "guest":
         if not guest_session_id:
             return []
         param_count += 1
-        query_parts.append(f"WHERE guest_session_id = ${param_count}")
+        query_parts.append(f"WHERE g.guest_session_id = ${param_count}")
         params.append(guest_session_id)
     elif scope == "all":
         if not user_id:
             return []
         param_count += 1
-        query_parts.append(f"WHERE (user_id = ${param_count}")
+        query_parts.append(f"WHERE (g.user_id = ${param_count}")
         params.append(user_id)
         if guest_session_id:
             param_count += 1
-            query_parts.append(f"OR guest_session_id = ${param_count})")
+            query_parts.append(f"OR g.guest_session_id = ${param_count})")
             params.append(guest_session_id)
         else:
             query_parts.append(")")
@@ -227,14 +236,14 @@ async def list_generations(
             cursor_dt = datetime.fromisoformat(cursor)
             param_count += 1
             if "WHERE" in " ".join(query_parts):
-                query_parts.append(f"AND created_at < ${param_count}")
+                query_parts.append(f"AND g.created_at < ${param_count}")
             else:
-                query_parts.append(f"WHERE created_at < ${param_count}")
+                query_parts.append(f"WHERE g.created_at < ${param_count}")
             params.append(cursor_dt)
         except ValueError:
             pass
 
-    query_parts.append("ORDER BY created_at DESC")
+    query_parts.append("ORDER BY g.created_at DESC")
     param_count += 1
     query_parts.append(f"LIMIT ${param_count}")
     params.append(limit)
@@ -250,6 +259,8 @@ async def list_generations(
             "error": row["error_message"],
             "createdAt": row["created_at"].isoformat(),
             "completedAt": row["completed_at"].isoformat() if row["completed_at"] else None,
+            "outputBucket": row["output_bucket"],
+            "outputKey": row["output_key"],
         }
         for row in rows
     ]

@@ -70,7 +70,8 @@ DEFAULT_FREE_CREDITS = _get_int("FREE_CREDITS", 1, min_value=0)
 GUEST_COOKIE_NAME = os.getenv("GUEST_COOKIE_NAME", "guest")
 GUEST_COOKIE_MAX_AGE = _get_int("GUEST_COOKIE_MAX_AGE", 365 * 24 * 60 * 60, min_value=60)
 
-COOKIE_SECURE = _get_bool("COOKIE_SECURE", False)
+# Default to secure cookies; explicitly set COOKIE_SECURE=false for local dev
+COOKIE_SECURE = _get_bool("COOKIE_SECURE", True)
 COOKIE_SAMESITE = os.getenv("COOKIE_SAMESITE", "lax")
 
 

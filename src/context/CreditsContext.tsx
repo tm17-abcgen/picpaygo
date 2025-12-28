@@ -28,8 +28,8 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
     try {
       const info = await getCredits();
       setCredits(info.balance);
-    } catch (error) {
-      console.error('Failed to fetch credits:', error);
+    } catch {
+      // Silently handle credit fetch errors
     }
   }, []);
 
@@ -42,8 +42,8 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
       ]);
       setUser(userData);
       setCredits(creditsInfo.balance);
-    } catch (error) {
-      console.error('Failed to load user data:', error);
+    } catch {
+      // Silently handle load errors
     } finally {
       setLoading(false);
     }
@@ -59,9 +59,7 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
   };
 
   const register = async (email: string, password: string) => {
-    console.log('[CreditsContext:register] Called with', { email });
     const result = await apiRegister(email, password);
-    console.log('[CreditsContext:register] API returned', result);
     await loadUserAndCredits();
     return result;
   };
