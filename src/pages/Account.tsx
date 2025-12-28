@@ -4,7 +4,15 @@ import { SEO } from '@/components/seo/SEO';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCredits } from '@/context/CreditsContext';
-import { getGenerations, clearGuestHistory, Generation, requestVerificationEmail, ApiError } from '@/services/api';
+import { getGenerations, clearAllGenerations, deleteGeneration, Generation, requestVerificationEmail, ApiError } from '@/services/api';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { BuyCreditsModal } from '@/components/credits/BuyCreditsModal';
 import { Loader2, LogOut, Download, Coins, ImageIcon, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -18,7 +26,8 @@ export default function Account() {
   const [showBuyModal, setShowBuyModal] = useState(false);
   const [activeTab, setActiveTab] = useState<'profile' | 'credits' | 'history'>('profile');
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
-  const [clearingHistory, setClearingHistory] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ type: 'single'; id: string } | { type: 'all' } | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   // Login form state
   const [email, setEmail] = useState('');
@@ -83,33 +92,46 @@ export default function Account() {
     }
   };
 
-  const handleClearHistory = async () => {
-    if (isLoggedIn) {
-      toast({
-        title: 'Not available',
-        description: 'History clearing is only available for guest accounts.',
-        variant: 'destructive',
-      });
-      return;
-    }
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
 
-    setClearingHistory(true);
+    setDeleting(true);
     try {
-      await clearGuestHistory();
-      setGenerations([]);
-      toast({
-        title: 'History cleared',
-        description: 'Your generation history has been cleared.',
-      });
+      if (deleteTarget.type === 'single') {
+        // Optimistic update
+        const previousGenerations = generations;
+        setGenerations((prev) => prev.filter((g) => g.id !== deleteTarget.id));
+
+        try {
+          await deleteGeneration(deleteTarget.id);
+          toast({
+            title: 'Deleted',
+            description: 'Generation removed.',
+          });
+        } catch (error) {
+          // Rollback on error
+          setGenerations(previousGenerations);
+          throw error;
+        }
+      } else {
+        // Clear all
+        await clearAllGenerations();
+        setGenerations([]);
+        toast({
+          title: 'All cleared',
+          description: 'Your generations have been deleted.',
+        });
+      }
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to clear history.';
+      const message = error instanceof Error ? error.message : 'Please try again.';
       toast({
-        title: 'Failed to clear history',
+        title: 'Failed to delete',
         description: message,
         variant: 'destructive',
       });
     } finally {
-      setClearingHistory(false);
+      setDeleting(false);
+      setDeleteTarget(null);
     }
   };
 
@@ -453,24 +475,14 @@ export default function Account() {
               <h2 className="text-lg font-semibold text-foreground text-center flex-1">
                 {isLoggedIn ? 'Your Generations' : 'Your Generations (Guest)'}
               </h2>
-              {!isLoggedIn && generations.length > 0 && (
+              {generations.length > 0 && (
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={handleClearHistory}
-                  disabled={clearingHistory}
+                  onClick={() => setDeleteTarget({ type: 'all' })}
                 >
-                  {clearingHistory ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Clearing...
-                    </>
-                  ) : (
-                    <>
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      Clear History
-                    </>
-                  )}
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Clear All
                 </Button>
               )}
             </div>
@@ -508,14 +520,24 @@ export default function Account() {
                           loading="lazy"
                         />
                         <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/40 transition-colors flex items-center justify-center">
-                          <Button
-                            size="sm"
-                            variant="secondary"
-                            className="opacity-0 group-hover:opacity-100 transition-opacity"
-                            onClick={() => handleDownload(outputUrl)}
-                          >
-                            <Download className="h-4 w-4" />
-                          </Button>
+                          <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              onClick={() => handleDownload(outputUrl)}
+                              title="Download"
+                            >
+                              <Download className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => setDeleteTarget({ type: 'single', id: generation.id })}
+                              title="Delete"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     );
@@ -527,6 +549,39 @@ export default function Account() {
       </div>
       
       <BuyCreditsModal open={showBuyModal} onOpenChange={setShowBuyModal} />
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteTarget !== null} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {deleteTarget?.type === 'all' ? 'Clear All Generations?' : 'Delete Generation?'}
+            </DialogTitle>
+            <DialogDescription>
+              {deleteTarget?.type === 'all'
+                ? 'This will permanently delete all your generations. This cannot be undone.'
+                : 'This will permanently delete this generation.'}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteTarget(null)} disabled={deleting}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleConfirmDelete} disabled={deleting}>
+              {deleting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : deleteTarget?.type === 'all' ? (
+                'Delete All'
+              ) : (
+                'Delete'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 }

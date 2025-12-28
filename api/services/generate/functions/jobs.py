@@ -355,3 +355,22 @@ async def get_asset_url_info(conn: asyncpg.Connection, generation_id: UUID, kind
         "objectKey": row["object_key"],
         "contentType": row["content_type"],
     }
+
+
+async def delete_generation_by_id(
+    conn: asyncpg.Connection,
+    generation_id: UUID,
+    user_id: Optional[UUID],
+    guest_session_id: Optional[UUID],
+) -> bool:
+    """Delete a single generation if owned by user/guest. Returns True if deleted."""
+    result = await conn.execute(
+        """
+        DELETE FROM generations
+        WHERE id = $1 AND (user_id = $2 OR guest_session_id = $3)
+        """,
+        generation_id,
+        user_id,
+        guest_session_id,
+    )
+    return result != "DELETE 0"

@@ -19,6 +19,7 @@ from services.database.connection import get_connection
 from services.generate.functions.jobs import (
     create_generation,
     create_generation_asset,
+    delete_generation_by_id,
     enqueue_job,
     get_generation,
     get_generation_assets,
@@ -265,3 +266,27 @@ async def list_generations_endpoint(
         generations=[GenerationListItem(**g) for g in generations],
         cursor=generations[-1]["createdAt"] if generations else None,
     )
+
+
+@router.delete("/generations/{generation_id}")
+async def delete_generation(generation_id: str, request: Request) -> Response:
+    """Delete a single generation. Must be owned by the current user/guest."""
+    try:
+        generation_uuid = uuid.UUID(generation_id)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="Invalid generation ID")
+
+    user = await get_session_user(request)
+    guest_session_id = getattr(request.state, "guest_session_id", None)
+
+    user_id = None
+    if user:
+        async with get_connection() as conn:
+            user_id = await get_user_id_from_email(conn, user["email"])
+
+    async with get_connection() as conn:
+        deleted = await delete_generation_by_id(conn, generation_uuid, user_id, guest_session_id)
+        if not deleted:
+            raise HTTPException(status_code=404, detail="Generation not found")
+
+    return Response(status_code=204)
