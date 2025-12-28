@@ -30,7 +30,7 @@ export function Layout({ children }: LayoutProps) {
       `}</style>
       {/* Centered container for header + gallery */}
       <div
-        className="flex flex-col gap-6 sm:gap-8 lg:gap-[50px] pointer-events-auto pt-[100px] sm:pt-[120px] lg:pt-[140px] pb-10 sm:pb-12"
+        className="flex flex-col gap-6 sm:gap-8 lg:gap-[50px] pointer-events-auto pt-[60px] sm:pt-[120px] lg:pt-[140px] pb-10 sm:pb-12"
         style={{
           gridColumn: "content-start / content-end",
         }}
