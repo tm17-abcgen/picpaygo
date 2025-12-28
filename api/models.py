@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Dict, List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, Field
 
 
 class JobCreateResponse(BaseModel):
@@ -49,4 +49,23 @@ class GenerationsListResponse(BaseModel):
 
 class ClearHistoryResponse(BaseModel):
     cleared: bool
+
+
+# Auth request models for type-safe parsing
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str = Field(..., min_length=1)
+    password: str = Field(..., min_length=1)
+
+
+class ChangePasswordRequest(BaseModel):
+    currentPassword: str = Field(..., min_length=1)
+    newPassword: str = Field(..., min_length=1)
+
+
+class DeleteAccountRequest(BaseModel):
+    password: str = Field(..., min_length=1)
 

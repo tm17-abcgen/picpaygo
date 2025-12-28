@@ -10,7 +10,7 @@ from uuid import UUID
 
 import asyncpg
 
-from services.auth.functions.password import hash_password
+from services.auth.functions.password import hash_password, validate_password
 from services.auth.functions.utils import hash_token, now_utc
 
 
@@ -92,3 +92,69 @@ async def verify_email_token(conn: asyncpg.Connection, token: str) -> bool:
 
 async def ensure_credits_row(conn: asyncpg.Connection, user_id: UUID) -> None:
     await conn.execute("INSERT INTO credits (user_id, balance) VALUES ($1, 0)", user_id)
+
+
+async def create_password_reset(conn: asyncpg.Connection, user_id: UUID) -> str:
+    """Create a password reset token. Replaces any existing token for this user (UNIQUE constraint)."""
+    # Opportunistic cleanup of all expired tokens
+    await conn.execute("DELETE FROM password_resets WHERE expires_at < $1", now_utc())
+
+    reset_token = secrets.token_urlsafe(32)
+    token_hash = hash_token(reset_token)
+    expires_at = now_utc() + timedelta(hours=1)
+
+    await conn.execute(
+        """
+        INSERT INTO password_resets (user_id, token_hash, expires_at)
+        VALUES ($1, $2, $3)
+        ON CONFLICT (user_id) DO UPDATE SET
+            token_hash = EXCLUDED.token_hash,
+            expires_at = EXCLUDED.expires_at,
+            created_at = now()
+        """,
+        user_id,
+        token_hash,
+        expires_at,
+    )
+    return reset_token
+
+
+async def consume_and_verify_password_reset_token(conn: asyncpg.Connection, token: str) -> Optional[UUID]:
+    """Atomically verify and consume reset token. Returns user_id if valid, None if not found."""
+    token_hash = hash_token(token)
+    row = await conn.fetchrow(
+        """
+        DELETE FROM password_resets
+        WHERE token_hash = $1
+        RETURNING user_id, expires_at
+        """,
+        token_hash,
+    )
+    if not row:
+        return None
+    if row["expires_at"] < now_utc():
+        raise ValueError("Password reset token expired")
+    return row["user_id"]
+
+
+async def update_user_password(conn: asyncpg.Connection, user_id: UUID, new_password: str) -> None:
+    """Update user's password with new salt. Validates password strength."""
+    is_valid, error_msg = validate_password(new_password)
+    if not is_valid:
+        raise ValueError(error_msg)
+    salt = secrets.token_bytes(16)
+    salt_b64 = base64.b64encode(salt).decode("ascii")
+    password_hash = hash_password(new_password, salt)
+
+    await conn.execute(
+        "UPDATE users SET password_hash = $1, salt = $2 WHERE id = $3",
+        password_hash,
+        salt_b64,
+        user_id,
+    )
+
+
+async def delete_user(conn: asyncpg.Connection, user_id: UUID) -> bool:
+    """Delete user account. CASCADE handles related data."""
+    result = await conn.execute("DELETE FROM users WHERE id = $1", user_id)
+    return result == "DELETE 1"
