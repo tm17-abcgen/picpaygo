@@ -43,7 +43,7 @@ async def get_session_user(request: Request) -> Optional[Dict[str, str]]:
     async with get_connection() as conn:
         row = await conn.fetchrow(
             """
-            SELECT u.email, s.expires_at
+            SELECT u.email, u.is_verified, s.expires_at
             FROM sessions s
             JOIN users u ON s.user_id = u.id
             WHERE s.session_token_hash = $1 AND s.expires_at > NOW()
@@ -52,7 +52,7 @@ async def get_session_user(request: Request) -> Optional[Dict[str, str]]:
         )
         if not row:
             return None
-        return {"email": row["email"]}
+        return {"email": row["email"], "is_verified": row["is_verified"]}
 
 
 # =============================================================================

@@ -129,3 +129,16 @@ STRIPE_PRICE_ID_3_10 = os.getenv("STRIPE_PRICE_ID_3_10", "")
 STRIPE_PRICE_ID_5_20 = os.getenv("STRIPE_PRICE_ID_5_20", "")
 
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:8080").rstrip("/")
+
+
+# =============================================================================
+# Email (SMTP)
+# =============================================================================
+
+SMTP_HOST = os.getenv("SMTP_HOST", "")
+SMTP_PORT = _get_int("SMTP_PORT", 465, min_value=1)
+SMTP_USE_SSL = _get_bool("SMTP_USE_SSL", True)
+EMAIL_ACCOUNT = os.getenv("EMAIL_ACCOUNT", "")
+EMAIL_PW = os.getenv("EMAIL_PW", "")
+EMAIL_FROM_NAME = os.getenv("EMAIL_FROM_NAME", "PicPayGo")
+SUPPORT_EMAIL = os.getenv("SUPPORT_EMAIL", "")

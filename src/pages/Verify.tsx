@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { Loader2, MailCheck, MailX } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { SEO } from '@/components/seo/SEO';
@@ -25,7 +25,11 @@ export default function Verify() {
     verifyEmail(token)
       .then(() => {
         setStatus('success');
-        setMessage('Your email has been verified. You can now log in.');
+        setMessage('Your email has been verified. Redirecting...');
+        // Full page refresh to pick up session cookie
+        setTimeout(() => {
+          window.location.href = '/account';
+        }, 1500);
       })
       .catch((error) => {
         const detail = error instanceof Error ? error.message : 'Verification failed.';
@@ -53,8 +57,8 @@ export default function Verify() {
           <p className="text-sm text-muted-foreground">{message}</p>
 
           <div className="pt-2">
-            <Button asChild>
-              <Link to="/account">Go to Account</Link>
+            <Button onClick={() => window.location.href = '/account'}>
+              Go to Account
             </Button>
           </div>
         </div>

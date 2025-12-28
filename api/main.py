@@ -20,6 +20,7 @@ from services import storage
 from services.auth.endpoints import router as auth_router
 from services.ratelimit import limiter
 from services.auth.middleware import GuestSessionMiddleware
+from services.contact.endpoints import router as contact_router
 from services.credits.endpoints import router as credits_router
 from services.database.connection import close_pool, init_pool, init_schema
 from services.generate.endpoints import router as generate_router
@@ -53,6 +54,7 @@ app.add_middleware(GuestSessionMiddleware)
 
 # Routers
 app.include_router(auth_router)
+app.include_router(contact_router)
 app.include_router(credits_router)
 app.include_router(generate_router)
 app.include_router(webhooks_router)

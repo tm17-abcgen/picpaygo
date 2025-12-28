@@ -4,12 +4,21 @@ from __future__ import annotations
 
 import hashlib
 import ipaddress
+import re
 import secrets
 from datetime import datetime, timezone
 
 from fastapi import Request
 
 import config
+
+# Simple email validation regex
+EMAIL_REGEX = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+
+
+def is_valid_email(email: str) -> bool:
+    """Check if email has valid format."""
+    return bool(EMAIL_REGEX.match(email))
 
 
 def now_utc() -> datetime:

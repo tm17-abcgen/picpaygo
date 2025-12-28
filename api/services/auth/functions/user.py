@@ -66,7 +66,8 @@ async def create_email_verification(conn: asyncpg.Connection, user_id: UUID) -> 
     return verification_token
 
 
-async def verify_email_token(conn: asyncpg.Connection, token: str) -> bool:
+async def verify_email_token(conn: asyncpg.Connection, token: str) -> Optional[UUID]:
+    """Verify email token and return user_id on success, None on failure."""
     token_hash = hash_token(token)
 
     row = await conn.fetchrow(
@@ -79,7 +80,7 @@ async def verify_email_token(conn: asyncpg.Connection, token: str) -> bool:
     )
 
     if not row:
-        return False
+        return None
 
     if row["expires_at"] < now_utc():
         raise ValueError("Verification token expired")
@@ -87,7 +88,7 @@ async def verify_email_token(conn: asyncpg.Connection, token: str) -> bool:
     user_id = row["user_id"]
     await conn.execute("UPDATE users SET is_verified = true WHERE id = $1", user_id)
     await conn.execute("DELETE FROM email_verifications WHERE token_hash = $1", token_hash)
-    return True
+    return user_id
 
 
 async def ensure_credits_row(conn: asyncpg.Connection, user_id: UUID) -> None:
