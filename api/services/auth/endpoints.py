@@ -24,11 +24,17 @@ from services.auth.functions.session import (
     rotate_guest_token,
 )
 from services.auth.functions.user import (
+    consume_password_reset_token,
     create_email_verification,
+    create_password_reset,
     create_user,
+    delete_other_sessions,
+    delete_user,
     ensure_credits_row,
     get_user_auth_row,
+    update_user_password,
     verify_email_token,
+    verify_password_reset_token,
 )
 from services.auth.functions.utils import generate_guest_token, hash_token, now_utc
 from services.database.connection import get_connection
@@ -222,4 +228,117 @@ async def clear_guest_history(request: Request) -> Response:
         secure=config.COOKIE_SECURE,
     )
     return response
+
+
+@router.post("/auth/forgot-password")
+async def forgot_password(request: Request) -> Dict[str, bool]:
+    """Request a password reset email. Always returns ok to prevent email enumeration."""
+    payload = await request.json()
+    email = (payload.get("email") or "").lower().strip()
+
+    if not email:
+        return {"ok": True}
+
+    async with get_connection() as conn:
+        user_row = await get_user_auth_row(conn, email)
+        if user_row:
+            token = await create_password_reset(conn, user_row["id"])
+            logger.info("Password reset token created for email=%s", email)
+            # TODO: Send email when email service is configured
+            print(f"Password reset token for {email}: {token}")
+
+    return {"ok": True}
+
+
+@router.post("/auth/reset-password")
+async def reset_password(request: Request) -> Dict[str, bool]:
+    """Reset password using a valid reset token."""
+    payload = await request.json()
+    token = payload.get("token") or ""
+    password = payload.get("password") or ""
+
+    if not token or not password:
+        raise HTTPException(status_code=400, detail="Token and password required")
+
+    async with get_connection() as conn:
+        try:
+            user_id = await verify_password_reset_token(conn, token)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
+        if not user_id:
+            raise HTTPException(status_code=400, detail="Invalid reset token")
+
+        await update_user_password(conn, user_id, password)
+        await consume_password_reset_token(conn, token)
+        # Invalidate all sessions after password reset
+        await conn.execute("DELETE FROM sessions WHERE user_id = $1", user_id)
+        logger.info("Password reset completed for user_id=%s", user_id)
+
+    return {"ok": True}
+
+
+@router.post("/auth/change-password")
+async def change_password(request: Request) -> Dict[str, bool]:
+    """Change password for authenticated user. Requires current password verification."""
+    user = await get_session_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    payload = await request.json()
+    current_password = payload.get("currentPassword") or ""
+    new_password = payload.get("newPassword") or ""
+    logout_others = payload.get("logoutOtherSessions", False)
+
+    if not current_password or not new_password:
+        raise HTTPException(status_code=400, detail="Current and new password required")
+
+    async with get_connection() as conn:
+        user_row = await get_user_auth_row(conn, user["email"])
+        if not user_row:
+            raise HTTPException(status_code=401, detail="User not found")
+
+        salt = base64.b64decode(user_row["salt"])
+        if hash_password(current_password, salt) != user_row["password_hash"]:
+            raise HTTPException(status_code=401, detail="Current password incorrect")
+
+        await update_user_password(conn, user_row["id"], new_password)
+        logger.info("Password changed for user_id=%s", user_row["id"])
+
+        if logout_others:
+            token = request.cookies.get(config.SESSION_COOKIE)
+            current_hash = hash_token(token) if token else ""
+            await delete_other_sessions(conn, user_row["id"], current_hash)
+            logger.info("Other sessions invalidated for user_id=%s", user_row["id"])
+
+    return {"ok": True}
+
+
+@router.post("/auth/delete-account")
+async def delete_account(request: Request, response: Response) -> Dict[str, bool]:
+    """Delete user account. Requires password confirmation."""
+    user = await get_session_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    payload = await request.json()
+    password = payload.get("password") or ""
+
+    if not password:
+        raise HTTPException(status_code=400, detail="Password required")
+
+    async with get_connection() as conn:
+        user_row = await get_user_auth_row(conn, user["email"])
+        if not user_row:
+            raise HTTPException(status_code=401, detail="User not found")
+
+        salt = base64.b64decode(user_row["salt"])
+        if hash_password(password, salt) != user_row["password_hash"]:
+            raise HTTPException(status_code=401, detail="Password incorrect")
+
+        await delete_user(conn, user_row["id"])
+        logger.info("Account deleted for user_id=%s email=%s", user_row["id"], user["email"])
+
+    response.delete_cookie(config.SESSION_COOKIE)
+    return {"ok": True}
 
