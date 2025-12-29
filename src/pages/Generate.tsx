@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import heic2any from 'heic2any';
 import {
   Sparkles,
   Loader2,
@@ -24,6 +25,27 @@ import { useCredits } from '@/context/CreditsContext';
 import { generateImage, getGenerationStatus } from '@/services/api';
 import { toast } from 'sonner';
 import type { GenerationCategory } from '@/types/generation';
+
+// HEIC detection helper
+function isHeicFile(file: File): boolean {
+  const heicMimeTypes = ['image/heic', 'image/heif'];
+  const heicExtensions = ['.heic', '.heif'];
+  if (heicMimeTypes.includes(file.type.toLowerCase())) return true;
+  return heicExtensions.some(ext => file.name.toLowerCase().endsWith(ext));
+}
+
+// HEIC to JPEG conversion helper
+async function convertHeicToJpeg(file: File): Promise<File> {
+  const blob = await heic2any({
+    blob: file,
+    toType: 'image/jpeg',
+    quality: 0.9
+  });
+  const resultBlob = Array.isArray(blob) ? blob[0] : blob;
+  return new File([resultBlob], file.name.replace(/\.(heic|heif)$/i, '.jpg'), {
+    type: 'image/jpeg'
+  });
+}
 
 const tips = [
   {
@@ -74,15 +96,28 @@ export default function Generate() {
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showTips, setShowTips] = useState(false);
+  const [isConverting, setIsConverting] = useState(false);
   
   const { credits, isLoggedIn, refreshCredits } = useCredits();
 
-  const handleFileSelect = (file: File) => {
-    setSelectedFile(file);
-    setPreviewUrl(URL.createObjectURL(file));
-    setResultUrl(null);
-    setStatus('idle');
+  const handleFileSelect = async (file: File) => {
+    setIsConverting(true);
     setError(null);
+    try {
+      let processedFile = file;
+      if (isHeicFile(file)) {
+        processedFile = await convertHeicToJpeg(file);
+      }
+      setSelectedFile(processedFile);
+      setPreviewUrl(URL.createObjectURL(processedFile));
+      setResultUrl(null);
+      setStatus('idle');
+    } catch (err) {
+      setError('Failed to process image. Please try a different file.');
+      toast.error('Failed to process image');
+    } finally {
+      setIsConverting(false);
+    }
   };
 
   const handleClear = () => {
@@ -268,7 +303,7 @@ export default function Generate() {
                 selectedFile={selectedFile}
                 previewUrl={previewUrl}
                 onClear={handleClear}
-                disabled={isGenerating}
+                disabled={isGenerating || isConverting}
               />
 
               {/* Category picker */}
@@ -288,11 +323,16 @@ export default function Generate() {
                 <div className="space-y-3">
                   <Button
                     onClick={handleGenerate}
-                    disabled={isGenerating || credits < 1}
+                    disabled={isGenerating || isConverting || credits < 1}
                     className="w-full"
                     size="lg"
                   >
-                    {isGenerating ? (
+                    {isConverting ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Converting...
+                      </>
+                    ) : isGenerating ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                         Generating...
