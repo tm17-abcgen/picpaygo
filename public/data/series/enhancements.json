@@ -13,8 +13,8 @@
       "images": [
         {
           "id": "crowd-removal-001",
-          "src": "https://images.pexels.com/photos/1704488/pexels-photo-1704488.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Smart crowd removal tool example",
+          "src": "/examples/crowd_removal/guy_bruessel_crowd_removal.png",
+          "alt": "Scene with crowd removed, clean background",
           "aspectRatio": 0.667,
           "caption": {
             "subject": "AI Tool",
@@ -32,14 +32,14 @@
         {
           "id": "crowd-removal-ba-001",
           "before": {
-            "src": "https://images.pexels.com/photos/2108813/pexels-photo-2108813.jpeg?auto=compress&cs=tinysrgb&w=800",
-            "alt": "Crowded tourist location before crowd removal"
+            "src": "/examples/crowd_removal/guy_bruessel.jpg",
+            "alt": "Original photo with crowd in background"
           },
           "after": {
-            "src": "https://images.pexels.com/photos/1682748/pexels-photo-1682748.jpeg?auto=compress&cs=tinysrgb&w=800",
+            "src": "/examples/crowd_removal/guy_bruessel_crowd_removal.png",
             "alt": "Clean scene after crowd removal"
           },
-          "caption": "Tourist landmark"
+          "caption": "Brussels street scene"
         }
       ]
     },
@@ -50,8 +50,8 @@
       "images": [
         {
           "id": "upscaling-001",
-          "src": "https://images.pexels.com/photos/1598409/pexels-photo-1598409.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "AI upscaling tool example",
+          "src": "/examples/upscaling/pixelman_upscaling.png",
+          "alt": "High resolution upscaled portrait",
           "aspectRatio": 0.667,
           "caption": {
             "subject": "AI Tool",
@@ -69,11 +69,11 @@
         {
           "id": "upscaling-ba-001",
           "before": {
-            "src": "https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=400",
+            "src": "/examples/upscaling/pixelman.jpg",
             "alt": "Low resolution portrait before upscaling"
           },
           "after": {
-            "src": "https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=800",
+            "src": "/examples/upscaling/pixelman_upscaling.png",
             "alt": "High resolution portrait after upscaling"
           },
           "caption": "Portrait enhancement"
@@ -87,8 +87,8 @@
       "images": [
         {
           "id": "restoration-001",
-          "src": "https://images.pexels.com/photos/159711/pexels-photo-159711.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "AI restoration tool example",
+          "src": "/examples/restoration/broken_image_restoration.png",
+          "alt": "Restored image with damage repaired",
           "aspectRatio": 0.667,
           "caption": {
             "subject": "AI Tool",
@@ -106,14 +106,14 @@
         {
           "id": "restoration-ba-001",
           "before": {
-            "src": "https://images.pexels.com/photos/3680316/pexels-photo-3680316.jpeg?auto=compress&cs=tinysrgb&w=800",
-            "alt": "Vintage photo before restoration"
+            "src": "/examples/restoration/broken_image.png",
+            "alt": "Damaged photo before restoration"
           },
           "after": {
-            "src": "https://images.pexels.com/photos/1043474/pexels-photo-1043474.jpeg?auto=compress&cs=tinysrgb&w=800",
+            "src": "/examples/restoration/broken_image_restoration.png",
             "alt": "Restored photo after AI enhancement"
           },
-          "caption": "Vintage photo restoration"
+          "caption": "Damaged photo restoration"
         }
       ]
     }

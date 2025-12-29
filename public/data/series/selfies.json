@@ -12,8 +12,8 @@
       "images": [
         {
           "id": "mirror-2000s-001",
-          "src": "https://images.pexels.com/photos/1892968/pexels-photo-1892968.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Y2K era mirror selfie aesthetic",
+          "src": "/examples/2000s/generated_2ffe6753-85e0-4529-bf9a-7698756fb91a_output.png",
+          "alt": "Y2K era mirror selfie with flash",
           "aspectRatio": 0.75,
           "caption": {
             "subject": "Y2K",
@@ -28,8 +28,8 @@
         },
         {
           "id": "mirror-2000s-002",
-          "src": "https://images.pexels.com/photos/1892968/pexels-photo-1892968.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Y2K era mirror selfie aesthetic",
+          "src": "/examples/2000s/generated_4e8f4453-b036-4abd-bae7-1f192a9f24ed_output.png",
+          "alt": "Early 2000s style mirror selfie",
           "aspectRatio": 0.75,
           "caption": {
             "subject": "Y2K",
@@ -44,8 +44,8 @@
         },
         {
           "id": "mirror-2000s-003",
-          "src": "https://images.pexels.com/photos/1892968/pexels-photo-1892968.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Y2K era mirror selfie aesthetic",
+          "src": "/examples/2000s/generated_92839acb-bdb7-4096-8379-0c1a3b4bd7ee_output.png",
+          "alt": "Playful 2000s mirror selfie",
           "aspectRatio": 0.75,
           "caption": {
             "subject": "Y2K",
@@ -60,8 +60,8 @@
         },
         {
           "id": "mirror-2000s-004",
-          "src": "https://images.pexels.com/photos/1892968/pexels-photo-1892968.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Y2K era mirror selfie aesthetic",
+          "src": "/examples/2000s/generated_ed5dccc5-2b65-4518-ba1f-b5aa72fb6b46_output.png",
+          "alt": "Casual Y2K mirror selfie",
           "aspectRatio": 0.75,
           "caption": {
             "subject": "Y2K",
@@ -83,8 +83,8 @@
       "images": [
         {
           "id": "bath-mirror-001",
-          "src": "https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Bathroom mirror selfie example",
+          "src": "/examples/bathroom/generated_031a3631-3167-458e-a032-ddf4746fbc5b_output.png",
+          "alt": "Bathroom mirror selfie with natural lighting",
           "aspectRatio": 0.667,
           "caption": {
             "subject": "Casual",
@@ -99,8 +99,8 @@
         },
         {
           "id": "bath-mirror-002",
-          "src": "https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Bathroom mirror selfie example",
+          "src": "/examples/bathroom/generated_2ba3d6bb-d123-410f-912d-ab315475f656_output.png",
+          "alt": "Candid bathroom mirror selfie",
           "aspectRatio": 0.667,
           "caption": {
             "subject": "Casual",
@@ -115,8 +115,8 @@
         },
         {
           "id": "bath-mirror-003",
-          "src": "https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Bathroom mirror selfie example",
+          "src": "/examples/bathroom/generated_dd0a092a-8867-4971-abcf-9601c8a376e5_output.png",
+          "alt": "Informal bathroom selfie",
           "aspectRatio": 0.667,
           "caption": {
             "subject": "Casual",
@@ -131,8 +131,8 @@
         },
         {
           "id": "bath-mirror-004",
-          "src": "https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Bathroom mirror selfie example",
+          "src": "/examples/bathroom/generated_f76d8005-d40a-412b-a8f7-f5941e8c8dd8_output.png",
+          "alt": "Realistic bathroom mirror selfie",
           "aspectRatio": 0.667,
           "caption": {
             "subject": "Casual",

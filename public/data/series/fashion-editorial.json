@@ -12,8 +12,8 @@
       "images": [
         {
           "id": "vogue-001",
-          "src": "https://images.pexels.com/photos/32160350/pexels-photo-32160350.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Studio Vogue editorial fashion shoot",
+          "src": "/examples/studio_vogue/vogue_1.png",
+          "alt": "Vogue editorial studio portrait",
           "aspectRatio": 0.8,
           "caption": {
             "subject": "Editorial",
@@ -28,8 +28,8 @@
         },
         {
           "id": "vogue-002",
-          "src": "https://images.pexels.com/photos/32160350/pexels-photo-32160350.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Studio Vogue editorial fashion shoot",
+          "src": "/examples/studio_vogue/vogue_2.png",
+          "alt": "High-fashion magazine style portrait",
           "aspectRatio": 0.8,
           "caption": {
             "subject": "Editorial",
@@ -44,8 +44,8 @@
         },
         {
           "id": "vogue-003",
-          "src": "https://images.pexels.com/photos/32160350/pexels-photo-32160350.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Studio Vogue editorial fashion shoot",
+          "src": "/examples/studio_vogue/vogue_3.png",
+          "alt": "Magazine-ready editorial portrait",
           "aspectRatio": 0.8,
           "caption": {
             "subject": "Editorial",
@@ -60,8 +60,8 @@
         },
         {
           "id": "vogue-004",
-          "src": "https://images.pexels.com/photos/32160350/pexels-photo-32160350.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Studio Vogue editorial fashion shoot",
+          "src": "/examples/studio_vogue/vogue_4.png",
+          "alt": "Professional fashion editorial",
           "aspectRatio": 0.8,
           "caption": {
             "subject": "Editorial",

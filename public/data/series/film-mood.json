@@ -7,8 +7,56 @@
   "images": [
     {
       "id": "emotional-film-001",
-      "src": "https://images.pexels.com/photos/1866149/pexels-photo-1866149.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-      "alt": "Emotional film photography mood",
+      "src": "/examples/film_mood/mood_1.png",
+      "alt": "Emotional film photography with cinematic mood",
+      "aspectRatio": 0.667,
+      "caption": {
+        "subject": "Cinematic",
+        "profession": "Film Mood"
+      },
+      "metadata": {
+        "title": "Emotional Film Photography",
+        "year": "2024",
+        "description": "Filmic mood with grain, softer highlights, and emotional color treatment.",
+        "series": "emotional-film"
+      }
+    },
+    {
+      "id": "emotional-film-002",
+      "src": "/examples/film_mood/mood_2.png",
+      "alt": "Atmospheric film grain portrait",
+      "aspectRatio": 0.667,
+      "caption": {
+        "subject": "Cinematic",
+        "profession": "Film Mood"
+      },
+      "metadata": {
+        "title": "Emotional Film Photography",
+        "year": "2024",
+        "description": "Filmic mood with grain, softer highlights, and emotional color treatment.",
+        "series": "emotional-film"
+      }
+    },
+    {
+      "id": "emotional-film-003",
+      "src": "/examples/film_mood/mood_3.png",
+      "alt": "Cinematic color treatment portrait",
+      "aspectRatio": 0.667,
+      "caption": {
+        "subject": "Cinematic",
+        "profession": "Film Mood"
+      },
+      "metadata": {
+        "title": "Emotional Film Photography",
+        "year": "2024",
+        "description": "Filmic mood with grain, softer highlights, and emotional color treatment.",
+        "series": "emotional-film"
+      }
+    },
+    {
+      "id": "emotional-film-004",
+      "src": "/examples/film_mood/mood_4.png",
+      "alt": "Storytelling film photography",
       "aspectRatio": 0.667,
       "caption": {
         "subject": "Cinematic",
