@@ -238,17 +238,15 @@ export default function Account() {
     }
   };
 
-  const handleDownload = async (imageUrl: string) => {
-    const response = await fetch(imageUrl);
-    const blob = await response.blob();
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `ai-portrait-${Date.now()}.jpg`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+  const handleDownload = (imageUrl: string) => {
+    const url = new URL(imageUrl, window.location.origin);
+    url.searchParams.set('download', '1');
+    const a = document.createElement('a');
+    a.href = url.toString();
+    a.download = '';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
   if (authLoading) {

@@ -185,18 +185,16 @@ export default function Generate() {
     setJobId(null);
   };
 
-  const handleDownload = async () => {
+  const handleDownload = () => {
     if (!resultUrl) return;
-    const response = await fetch(resultUrl);
-    const blob = await response.blob();
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `picpaygo-${Date.now()}.jpg`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    const url = new URL(resultUrl, window.location.origin);
+    url.searchParams.set('download', '1');
+    const a = document.createElement('a');
+    a.href = url.toString();
+    a.download = '';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
   const isGenerating = status === 'uploading' || status === 'queued' || status === 'processing';

@@ -8,18 +8,16 @@ interface ResultCardProps {
 }
 
 export function ResultCard({ imageUrl, onGenerateAnother, onDownload }: ResultCardProps) {
-  const handleDownload = async () => {
-    const response = await fetch(imageUrl);
-    const blob = await response.blob();
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `picpaygo-${Date.now()}.jpg`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+  const handleDownload = () => {
     onDownload?.();
+    const url = new URL(imageUrl, window.location.origin);
+    url.searchParams.set('download', '1');
+    const a = document.createElement('a');
+    a.href = url.toString();
+    a.download = '';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
   return (
