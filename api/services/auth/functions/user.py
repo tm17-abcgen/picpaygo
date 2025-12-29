@@ -10,6 +10,7 @@ from uuid import UUID
 
 import asyncpg
 
+import config
 from services.auth.functions.password import hash_password, validate_password
 from services.auth.functions.utils import hash_token, now_utc
 
@@ -92,7 +93,20 @@ async def verify_email_token(conn: asyncpg.Connection, token: str) -> Optional[U
 
 
 async def ensure_credits_row(conn: asyncpg.Connection, user_id: UUID) -> None:
-    await conn.execute("INSERT INTO credits (user_id, balance) VALUES ($1, 0)", user_id)
+    initial_balance = config.SIGNUP_FREE_CREDITS
+    async with conn.transaction():
+        inserted = await conn.fetchval(
+            """INSERT INTO credits (user_id, balance) VALUES ($1, $2)
+               ON CONFLICT (user_id) DO NOTHING
+               RETURNING user_id""",
+            user_id, initial_balance
+        )
+        if inserted and initial_balance > 0:
+            await conn.execute(
+                """INSERT INTO credit_ledger (user_id, delta, reason)
+                   VALUES ($1, $2, 'signup_bonus')""",
+                user_id, initial_balance
+            )
 
 
 async def create_password_reset(conn: asyncpg.Connection, user_id: UUID) -> str:

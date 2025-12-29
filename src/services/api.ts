@@ -28,9 +28,8 @@ export interface CreditsPack {
 }
 
 export const CREDIT_PACKS: CreditsPack[] = [
-  { id: 'pack_2_5', credits: 5, price: 2.0 },
-  { id: 'pack_3_10', credits: 10, price: 3.0 },
-  { id: 'pack_5_20', credits: 20, price: 5.0 },
+  { id: 'pack_2_99_15', credits: 15, price: 2.99 },
+  { id: 'pack_4_99_30', credits: 30, price: 4.99 },
 ];
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
