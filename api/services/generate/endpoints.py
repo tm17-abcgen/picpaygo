@@ -1,8 +1,10 @@
 """Generation endpoints (create job, status, listing, image proxy)."""
 
+import re
 import uuid
+from pathlib import Path
 from typing import Any, Dict, Optional
-from urllib.parse import unquote, urljoin
+from urllib.parse import unquote
 
 from fastapi import APIRouter, File, Form, HTTPException, Request, Response, UploadFile
 
@@ -36,12 +38,12 @@ async def health() -> Dict[str, bool]:
     return {"ok": True}
 
 
-def _build_proxy_url(request: Request, bucket: str, key: str) -> str:
-    return urljoin(str(request.base_url), storage.get_proxy_url(bucket, key))
+def _build_proxy_url(bucket: str, key: str) -> str:
+    return storage.get_proxy_url(bucket, key)
 
 
 @router.get("/images/{bucket}/{key:path}")
-async def get_image(bucket: str, key: str, request: Request) -> Response:
+async def get_image(bucket: str, key: str, request: Request, download: bool = False) -> Response:
     key = unquote(key)
 
     if bucket not in [storage.BUCKET_RAW, storage.BUCKET_GENERATED]:
@@ -73,12 +75,16 @@ async def get_image(bucket: str, key: str, request: Request) -> Response:
 
     try:
         image_bytes, content_type = await storage.get_object_with_content_type_async(bucket, key)
+        headers = {"Cache-Control": "public, max-age=31536000, immutable"}
+        if download:
+            raw_name = Path(key).name
+            safe_name = re.sub(r'["\r\n]', '', raw_name)
+            filename = f"picpaygo-{safe_name}"
+            headers["Content-Disposition"] = f'attachment; filename="{filename}"'
         return Response(
             content=image_bytes,
             media_type=content_type or "image/jpeg",
-            headers={
-                "Cache-Control": "public, max-age=31536000, immutable",
-            },
+            headers=headers,
         )
     except Exception:
         raise HTTPException(status_code=404, detail="Image not found")
@@ -220,9 +226,9 @@ async def get_generation_status(job_id: str, request: Request) -> JobStatusRespo
 
         for asset in assets:
             if asset["kind"] == "input":
-                input_url = _build_proxy_url(request, asset["bucket"], asset["objectKey"])
+                input_url = _build_proxy_url(asset["bucket"], asset["objectKey"])
             elif asset["kind"] == "output":
-                output_url = _build_proxy_url(request, asset["bucket"], asset["objectKey"])
+                output_url = _build_proxy_url(asset["bucket"], asset["objectKey"])
 
     return JobStatusResponse(
         id=job_id,
@@ -259,7 +265,7 @@ async def list_generations_endpoint(
         # Build output URLs from JOIN data (no N+1 queries)
         for gen in generations:
             if gen["outputBucket"] and gen["outputKey"]:
-                gen["outputUrl"] = _build_proxy_url(request, gen["outputBucket"], gen["outputKey"])
+                gen["outputUrl"] = _build_proxy_url(gen["outputBucket"], gen["outputKey"])
             # Remove internal fields before returning
             gen.pop("outputBucket", None)
             gen.pop("outputKey", None)
