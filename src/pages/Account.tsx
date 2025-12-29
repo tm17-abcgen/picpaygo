@@ -4,7 +4,7 @@ import { SEO } from '@/components/seo/SEO';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCredits } from '@/context/CreditsContext';
-import { getGenerations, clearAllGenerations, deleteGeneration, Generation, requestVerificationEmail, ApiError } from '@/services/api';
+import { getGenerations, clearAllGenerations, deleteGeneration, Generation, requestVerificationEmail, forgotPassword, ApiError } from '@/services/api';
 import {
   Dialog,
   DialogContent,
@@ -38,6 +38,11 @@ export default function Account() {
   const [showResendForm, setShowResendForm] = useState(false);
   const [resendEmail, setResendEmail] = useState('');
   const [resendLoading, setResendLoading] = useState(false);
+
+  // Forgot password state
+  const [showForgotForm, setShowForgotForm] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const checkoutStatus = searchParams.get('checkout');
@@ -197,6 +202,28 @@ export default function Account() {
     }
   };
 
+  const handleForgotPassword = async () => {
+    if (!forgotEmail) {
+      toast.error('Email required', { description: 'Please enter your email address.' });
+      return;
+    }
+
+    setForgotLoading(true);
+    try {
+      await forgotPassword(forgotEmail);
+      toast.success('Check your email', {
+        description: 'If an account exists, we\'ve sent a password reset link.',
+      });
+      setShowForgotForm(false);
+      setForgotEmail('');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Please try again later.';
+      toast.error('Request failed', { description: message });
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
   const handleDownload = (imageUrl: string) => {
     const url = new URL(imageUrl, window.location.origin);
     url.searchParams.set('download', '1');
@@ -297,6 +324,63 @@ export default function Account() {
                         <p className="text-xs text-muted-foreground mt-1">
                           8+ characters with uppercase, lowercase, and number
                         </p>
+                      )}
+                      {authMode === 'login' && (
+                        <div className="mt-1">
+                          {!showForgotForm ? (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setForgotEmail(email);
+                                setShowForgotForm(true);
+                              }}
+                              className="text-xs text-muted-foreground hover:text-foreground"
+                            >
+                              Forgot password?
+                            </button>
+                          ) : (
+                            <div className="mt-2 p-3 rounded-lg bg-secondary/50 space-y-2">
+                              <p className="text-xs text-muted-foreground">
+                                Enter your email to receive a password reset link.
+                              </p>
+                              <Input
+                                type="email"
+                                placeholder="you@example.com"
+                                value={forgotEmail}
+                                onChange={(e) => setForgotEmail(e.target.value)}
+                                disabled={forgotLoading}
+                              />
+                              <div className="flex gap-2">
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  disabled={forgotLoading}
+                                  onClick={handleForgotPassword}
+                                >
+                                  {forgotLoading ? (
+                                    <>
+                                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                      Sending...
+                                    </>
+                                  ) : (
+                                    'Send reset link'
+                                  )}
+                                </Button>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    setShowForgotForm(false);
+                                    setForgotEmail('');
+                                  }}
+                                >
+                                  Cancel
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       )}
                     </div>
                     <Button

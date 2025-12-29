@@ -25,16 +25,20 @@ from services.auth.functions.session import (
     rotate_guest_token,
 )
 from services.auth.functions.user import (
+    consume_and_verify_password_reset_token,
     create_email_verification,
+    create_password_reset,
     create_user,
     ensure_credits_row,
     get_user_auth_row,
     get_user_id_from_email,
+    update_user_password,
     verify_email_token,
 )
 from services.auth.functions.utils import generate_guest_token, hash_token, is_valid_email, now_utc
 from services.database.connection import get_connection
 from services.email.sender import EmailError
+from services.email.password_reset import send_password_reset_email
 from services.email.verification import send_verification_email
 from services.ratelimit import limiter
 
@@ -306,6 +310,82 @@ async def request_verification(request: Request) -> Dict[str, Any]:
         "ok": True,
         "message": "If an account exists and requires verification, we've sent an email.",
     }
+
+
+@router.post("/auth/forgot-password")
+@limiter.limit("5/minute")
+async def forgot_password(request: Request) -> Dict[str, Any]:
+    """Request password reset email (non-enumerating)."""
+    try:
+        payload = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid request body")
+    email = (payload.get("email") or "").lower().strip()
+
+    if not email:
+        raise HTTPException(status_code=400, detail="Email required")
+
+    if not is_valid_email(email):
+        raise HTTPException(status_code=400, detail="Invalid email format")
+
+    reset_token = None
+
+    async with get_connection() as conn:
+        user_id = await get_user_id_from_email(conn, email)
+        if user_id:
+            reset_token = await create_password_reset(conn, user_id)
+
+    # Send email outside DB connection scope
+    if reset_token:
+        try:
+            await send_password_reset_email(email, reset_token)
+            # Redact email for privacy: show first char + domain
+            redacted = email[0] + "***@" + email.split("@")[-1] if "@" in email else "***"
+            logger.info("Password reset email sent to=%s", redacted)
+        except EmailError as exc:
+            logger.error("Failed to send password reset email: %s", exc)
+
+    # Always return success (non-enumerating)
+    return {
+        "ok": True,
+        "message": "If an account exists with that email, we've sent a password reset link.",
+    }
+
+
+@router.post("/auth/reset-password")
+async def reset_password(request: Request) -> Dict[str, Any]:
+    """Reset password using token."""
+    try:
+        payload = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid request body")
+    token = (payload.get("token") or "").strip()
+    password = payload.get("password") or ""
+
+    if not token:
+        raise HTTPException(status_code=400, detail="Token required")
+
+    if not password:
+        raise HTTPException(status_code=400, detail="Password required")
+
+    async with get_connection() as conn:
+        try:
+            user_id = await consume_and_verify_password_reset_token(conn, token)
+        except ValueError as exc:
+            logger.warning("Password reset token error: %s", exc)
+            raise HTTPException(status_code=400, detail="Invalid or expired reset link")
+
+        if not user_id:
+            raise HTTPException(status_code=400, detail="Invalid or expired reset link")
+
+        try:
+            await update_user_password(conn, user_id, password)
+        except ValueError as exc:
+            logger.warning("Password validation error for user_id=%s: %s", user_id, exc)
+            raise HTTPException(status_code=400, detail="Password does not meet requirements")
+
+    logger.info("Password reset successful for user_id=%s", user_id)
+    return {"ok": True, "message": "Password reset successfully. Please log in with your new password."}
 
 
 @router.post("/history/clear")

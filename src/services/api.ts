@@ -253,6 +253,22 @@ export async function requestVerificationEmail(email: string): Promise<{ success
   return { success: true };
 }
 
+export async function forgotPassword(email: string): Promise<{ success: boolean }> {
+  await apiFetch('/auth/forgot-password', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  });
+  return { success: true };
+}
+
+export async function resetPassword(token: string, password: string): Promise<{ success: boolean }> {
+  await apiFetch('/auth/reset-password', {
+    method: 'POST',
+    body: JSON.stringify({ token, password }),
+  });
+  return { success: true };
+}
+
 export interface ContactFormData {
   name: string;
   email: string;
