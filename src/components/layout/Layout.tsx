@@ -59,7 +59,7 @@ export function Layout({ children }: LayoutProps) {
         <main className="flex-shrink-0">{children}</main>
 
         {/* Footer with contact info */}
-        <footer className="flex-shrink-0 mt-12 sm:mt-16 lg:mt-20">
+        <footer className="flex-shrink-0 mt-6 sm:mt-8 lg:mt-10">
           <Footer />
         </footer>
       </div>

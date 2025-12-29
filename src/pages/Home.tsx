@@ -47,19 +47,23 @@ export default function Home() {
   return (
     <Layout>
       <SEO title={seoTitle} description={seoDescription} type="website" />
-      <div className="flex flex-col items-center gap-10 py-4 sm:py-6">
-        <div className="px-4 max-w-3xl space-y-4 text-center">
-          <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">
-            PicPayGo
-          </p>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">
+      <div className="flex flex-col items-center gap-6 py-4 sm:py-6">
+        <div className="grain-panel rounded-[36px] border border-border/50 bg-card/40 px-6 py-5 max-w-3xl space-y-2 text-center">
+          <div className="flex items-center justify-center gap-3">
+            <div className="h-px w-6 bg-border/50" />
+            <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
+              PicPayGo
+            </p>
+            <div className="h-px w-6 bg-border/50" />
+          </div>
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">
             Transform your photos into professional images
           </h2>
-          <p className="text-muted-foreground text-sm sm:text-base">
+          <p className="text-muted-foreground text-xs sm:text-sm">
             Upload a photo, choose a style, and receive a clean, professional image that
-            still looks like you.
+            still looks like you. Every generation is unique—like capturing a new moment each time.
           </p>
-          <div className="flex justify-center">
+          <div className="flex justify-center pt-1">
             <Link to="/generate">
               <Button size="lg">
                 <Sparkles className="h-4 w-4 mr-2" />
