@@ -48,7 +48,7 @@ export default function Home() {
     <Layout>
       <SEO title={seoTitle} description={seoDescription} type="website" />
       <div className="flex flex-col items-center gap-6 py-4 sm:py-6">
-        <div className="grain-panel rounded-[36px] border border-border/50 bg-card/40 px-6 py-5 max-w-3xl space-y-2 text-center">
+        <div className="grain-panel rounded-[36px] border border-border/50 bg-card/40 px-6 py-5 max-w-4xl space-y-2 text-center">
           <div className="flex items-center justify-center gap-3">
             <div className="h-px w-6 bg-border/50" />
             <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
