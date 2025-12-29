@@ -1,6 +1,8 @@
 """Generation endpoints (create job, status, listing, image proxy)."""
 
+import re
 import uuid
+from pathlib import Path
 from typing import Any, Dict, Optional
 from urllib.parse import unquote, urljoin
 
@@ -41,7 +43,7 @@ def _build_proxy_url(request: Request, bucket: str, key: str) -> str:
 
 
 @router.get("/images/{bucket}/{key:path}")
-async def get_image(bucket: str, key: str, request: Request) -> Response:
+async def get_image(bucket: str, key: str, request: Request, download: bool = False) -> Response:
     key = unquote(key)
 
     if bucket not in [storage.BUCKET_RAW, storage.BUCKET_GENERATED]:
@@ -73,12 +75,16 @@ async def get_image(bucket: str, key: str, request: Request) -> Response:
 
     try:
         image_bytes, content_type = await storage.get_object_with_content_type_async(bucket, key)
+        headers = {"Cache-Control": "public, max-age=31536000, immutable"}
+        if download:
+            raw_name = Path(key).name
+            safe_name = re.sub(r'["\r\n]', '', raw_name)
+            filename = f"picpaygo-{safe_name}"
+            headers["Content-Disposition"] = f'attachment; filename="{filename}"'
         return Response(
             content=image_bytes,
             media_type=content_type or "image/jpeg",
-            headers={
-                "Cache-Control": "public, max-age=31536000, immutable",
-            },
+            headers=headers,
         )
     except Exception:
         raise HTTPException(status_code=404, detail="Image not found")
