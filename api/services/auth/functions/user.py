@@ -93,6 +93,7 @@ async def verify_email_token(conn: asyncpg.Connection, token: str) -> Optional[U
 
 
 async def ensure_credits_row(conn: asyncpg.Connection, user_id: UUID) -> None:
+    """Create credits row for user with signup bonus (if configured)."""
     initial_balance = config.SIGNUP_FREE_CREDITS
     async with conn.transaction():
         inserted = await conn.fetchval(

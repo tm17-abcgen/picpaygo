@@ -28,6 +28,7 @@ export interface CreditsPack {
 }
 
 export const CREDIT_PACKS: CreditsPack[] = [
+  { id: 'pack_0_99_3', credits: 3, price: 0.99 },
   { id: 'pack_2_99_15', credits: 15, price: 2.99 },
   { id: 'pack_4_99_30', credits: 30, price: 4.99 },
 ];

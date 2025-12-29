@@ -23,6 +23,7 @@ _init_stripe()
 
 
 CREDIT_PACKS: Dict[str, CreditPack] = {
+    "pack_0_99_3": {"credits": 3, "price_id": config.STRIPE_PRICE_ID_0_99_3},
     "pack_2_99_15": {"credits": 15, "price_id": config.STRIPE_PRICE_ID_2_99_15},
     "pack_4_99_30": {"credits": 30, "price_id": config.STRIPE_PRICE_ID_4_99_30},
 }
