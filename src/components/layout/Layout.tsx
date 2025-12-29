@@ -34,12 +34,12 @@ export function Layout({ children }: LayoutProps) {
         }
         @media (min-width: 640px) {
           .layout-content {
-            padding-top: 120px;
+            padding-top: 32px;
           }
         }
         @media (min-width: 1024px) {
           .layout-content {
-            padding-top: 140px;
+            padding-top: 40px;
           }
         }
       `}</style>
