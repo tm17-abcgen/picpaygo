@@ -84,13 +84,6 @@ export function StyleExampleSwitcher() {
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
-      <div className="text-center max-w-2xl mx-auto text-sm text-muted-foreground leading-relaxed">
-        <p>
-          PicPayGo preserves identity while enhancing lighting, styling, and composition. Use it for
-          CV headshots, personal branding, or editorial looks without a full shoot.
-        </p>
-      </div>
-
       <div className="grain-panel editorial-grid rounded-[36px] border border-border/50 bg-card/40 p-6 sm:p-8">
         <div className="grid gap-8 lg:grid-cols-[1.05fr_0.9fr_1.05fr] lg:items-center">
           <div>
@@ -166,6 +159,13 @@ export function StyleExampleSwitcher() {
               </div>
             </div>
         </div>
+      </div>
+
+      <div className="text-center max-w-2xl mx-auto text-sm text-muted-foreground leading-relaxed">
+        <p>
+          PicPayGo preserves identity while enhancing lighting, styling, and composition. Use it for
+          CV headshots, personal branding, or editorial looks without a full shoot.
+        </p>
       </div>
     </div>
   );
