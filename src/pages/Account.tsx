@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import { BuyCreditsModal } from '@/components/credits/BuyCreditsModal';
 import { Loader2, LogOut, Download, Coins, ImageIcon, Trash2 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { validatePassword } from '@/lib/passwordPolicy';
 
@@ -38,7 +38,6 @@ export default function Account() {
   const [showResendForm, setShowResendForm] = useState(false);
   const [resendEmail, setResendEmail] = useState('');
   const [resendLoading, setResendLoading] = useState(false);
-  const { toast } = useToast();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const checkoutStatus = searchParams.get('checkout');
@@ -47,18 +46,12 @@ export default function Account() {
     if (checkoutStatus !== 'success' && checkoutStatus !== 'cancel') return;
 
     if (checkoutStatus === 'cancel') {
-      toast({
-        title: 'Payment canceled',
-        description: 'No charges were made.',
-      });
+      toast('Payment canceled', { description: 'No charges were made.' });
       navigate('/account', { replace: true });
       return;
     }
 
-    toast({
-      title: 'Payment successful',
-      description: 'Credits may take a moment to appear.',
-    });
+    toast.success('Payment successful', { description: 'Credits may take a moment to appear.' });
 
     void refreshCredits();
 
@@ -73,7 +66,7 @@ export default function Account() {
     }, 2000);
 
     return () => window.clearInterval(interval);
-  }, [checkoutStatus, navigate, refreshCredits, toast]);
+  }, [checkoutStatus, navigate, refreshCredits]);
 
   useEffect(() => {
     // Always load generations - works for both guests and logged in users
@@ -104,10 +97,7 @@ export default function Account() {
 
         try {
           await deleteGeneration(deleteTarget.id);
-          toast({
-            title: 'Deleted',
-            description: 'Generation removed.',
-          });
+          toast.success('Deleted', { description: 'Generation removed.' });
         } catch (error) {
           // Rollback on error
           setGenerations(previousGenerations);
@@ -117,18 +107,11 @@ export default function Account() {
         // Clear all
         await clearAllGenerations();
         setGenerations([]);
-        toast({
-          title: 'All cleared',
-          description: 'Your generations have been deleted.',
-        });
+        toast.success('All cleared', { description: 'Your generations have been deleted.' });
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Please try again.';
-      toast({
-        title: 'Failed to delete',
-        description: message,
-        variant: 'destructive',
-      });
+      toast.error('Failed to delete', { description: message });
     } finally {
       setDeleting(false);
       setDeleteTarget(null);
@@ -138,18 +121,14 @@ export default function Account() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      toast({
-        title: 'Missing fields',
-        description: 'Please enter both email and password.',
-        variant: 'destructive',
-      });
+      toast.error('Missing fields', { description: 'Please enter both email and password.' });
       return;
     }
 
     if (authMode === 'register') {
       const { valid, message } = validatePassword(password);
       if (!valid) {
-        toast({ title: 'Invalid password', description: message, variant: 'destructive' });
+        toast.error('Invalid password', { description: message });
         return;
       }
     }
@@ -158,14 +137,10 @@ export default function Account() {
     try {
       if (authMode === 'login') {
         await login(email, password);
-        toast({
-          title: 'Welcome!',
-          description: 'You are now logged in.',
-        });
+        toast.success('Welcome!', { description: 'You are now logged in.' });
       } else {
         const result = await register(email, password);
-        toast({
-          title: 'Check your email',
+        toast.success('Check your email', {
           description: result.verificationRequired
             ? 'We sent a verification link. Verify your email, then log in.'
             : 'Account created. Please log in.',
@@ -177,20 +152,16 @@ export default function Account() {
       if (authMode === 'login' && error instanceof ApiError && error.status === 403) {
         setResendEmail(email);
         setShowResendForm(true);
-        toast({
-          title: 'Email not verified',
+        toast.error('Email not verified', {
           description: 'Please verify your email. We can resend the verification link.',
-          variant: 'destructive',
         });
         setLoginLoading(false);
         return;
       }
 
       const message = error instanceof Error ? error.message : 'Please check your credentials.';
-      toast({
-        title: authMode === 'login' ? 'Login failed' : 'Registration failed',
+      toast.error(authMode === 'login' ? 'Login failed' : 'Registration failed', {
         description: message,
-        variant: 'destructive',
       });
     } finally {
       setLoginLoading(false);
@@ -200,39 +171,27 @@ export default function Account() {
   const handleLogout = async () => {
     await logout();
     setGenerations([]);
-    toast({
-      title: 'Logged out',
-      description: 'See you next time!',
-    });
+    toast.success('Logged out', { description: 'See you next time!' });
   };
 
   const handleResendVerification = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!resendEmail) {
-      toast({
-        title: 'Email required',
-        description: 'Please enter your email address.',
-        variant: 'destructive',
-      });
+      toast.error('Email required', { description: 'Please enter your email address.' });
       return;
     }
 
     setResendLoading(true);
     try {
       await requestVerificationEmail(resendEmail);
-      toast({
-        title: 'Check your email',
+      toast.success('Check your email', {
         description: 'If an account exists and requires verification, we\'ve sent an email.',
       });
       setShowResendForm(false);
       setResendEmail('');
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Please try again later.';
-      toast({
-        title: 'Request failed',
-        description: message,
-        variant: 'destructive',
-      });
+      toast.error('Request failed', { description: message });
     } finally {
       setResendLoading(false);
     }
