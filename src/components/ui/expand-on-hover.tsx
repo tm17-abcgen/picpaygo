@@ -134,10 +134,6 @@ const HoverExpand_001 = ({
                 decoding="async"
                 fetchPriority={index === 0 ? "high" : "auto"}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
-              <div className="absolute bottom-4 left-4 right-4">
-                <p className="text-sm text-white/90 font-medium">{image.code}</p>
-              </div>
             </motion.div>
           ))}
         </div>
@@ -185,28 +181,6 @@ const HoverExpand_001 = ({
                 onClick={() => setActiveImage(index)}
                 onHoverStart={() => setActiveImage(index)}
               >
-                <AnimatePresence>
-                  {isActive && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="absolute h-full w-full bg-gradient-to-t from-black/40 to-transparent"
-                    />
-                  )}
-                </AnimatePresence>
-                <AnimatePresence>
-                  {isActive && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="absolute flex h-full w-full flex-col items-end justify-end p-4"
-                    >
-                      <p className="text-left text-xs text-white/50">{image.code}</p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
                 <img
                   src={image.src}
                   srcSet={generateSrcSet(image.src)}

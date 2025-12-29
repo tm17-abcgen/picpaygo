@@ -240,24 +240,18 @@ export default function Generate() {
         description="PicPayGo turns your photo into professional images, editorial looks, and fashion-ready imagery."
       />
       
-      <div className="max-w-3xl mx-auto py-4 sm:py-6 px-4 space-y-6">
-        <div className="text-center space-y-3">
-          <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">
-            PicPayGo
-          </p>
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+      <div className="max-w-3xl mx-auto py-2 sm:py-4 px-4 space-y-3">
+        <div className="text-center">
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground">
             Generate your image in minutes
           </h1>
-          <p className="text-muted-foreground text-sm sm:text-base max-w-2xl mx-auto">
-            Upload a photo, choose a category, and receive a refined, professional result.
-          </p>
         </div>
 
-        <div className="border-y border-border/60 py-5">
-          <p className="text-[11px] uppercase tracking-[0.35em] text-muted-foreground text-center mb-5">
+        <div className="border-y border-border/60 py-3">
+          <p className="text-[11px] uppercase tracking-[0.35em] text-muted-foreground text-center mb-3">
             How it works
           </p>
-          <div className="grid gap-5 sm:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-3">
             {steps.map((step, index) => (
               <div key={step.title} className="space-y-2">
                 <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground">

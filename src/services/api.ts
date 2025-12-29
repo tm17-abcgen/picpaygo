@@ -28,9 +28,9 @@ export interface CreditsPack {
 }
 
 export const CREDIT_PACKS: CreditsPack[] = [
-  { id: 'pack_2_5', credits: 5, price: 2.0 },
-  { id: 'pack_3_10', credits: 10, price: 3.0 },
-  { id: 'pack_5_20', credits: 20, price: 5.0 },
+  { id: 'pack_0_99_3', credits: 3, price: 0.99 },
+  { id: 'pack_2_99_15', credits: 15, price: 2.99 },
+  { id: 'pack_4_99_30', credits: 30, price: 4.99 },
 ];
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
@@ -250,6 +250,22 @@ export async function requestVerificationEmail(email: string): Promise<{ success
   await apiFetch('/auth/request-verification', {
     method: 'POST',
     body: JSON.stringify({ email }),
+  });
+  return { success: true };
+}
+
+export async function forgotPassword(email: string): Promise<{ success: boolean }> {
+  await apiFetch('/auth/forgot-password', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  });
+  return { success: true };
+}
+
+export async function resetPassword(token: string, password: string): Promise<{ success: boolean }> {
+  await apiFetch('/auth/reset-password', {
+    method: 'POST',
+    body: JSON.stringify({ token, password }),
   });
   return { success: true };
 }
