@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { submitContactForm } from '@/services/api';
 import { Loader2, Send, CheckCircle } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 export default function Contact() {
   const [name, setName] = useState('');
@@ -15,17 +15,12 @@ export default function Contact() {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!name.trim() || !email.trim() || !message.trim()) {
-      toast({
-        title: 'Missing fields',
-        description: 'Please fill in all required fields.',
-        variant: 'destructive',
-      });
+      toast.error('Missing fields', { description: 'Please fill in all required fields.' });
       return;
     }
 
@@ -38,17 +33,10 @@ export default function Contact() {
         message: message.trim(),
       });
       setSubmitted(true);
-      toast({
-        title: 'Message sent',
-        description: 'We\'ll get back to you as soon as possible.',
-      });
+      toast.success('Message sent', { description: 'We\'ll get back to you as soon as possible.' });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Please try again later.';
-      toast({
-        title: 'Failed to send',
-        description: errorMessage,
-        variant: 'destructive',
-      });
+      toast.error('Failed to send', { description: errorMessage });
     } finally {
       setLoading(false);
     }
