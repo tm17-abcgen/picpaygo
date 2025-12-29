@@ -4,7 +4,7 @@ import re
 import uuid
 from pathlib import Path
 from typing import Any, Dict, Optional
-from urllib.parse import unquote, urljoin
+from urllib.parse import unquote
 
 from fastapi import APIRouter, File, Form, HTTPException, Request, Response, UploadFile
 
@@ -38,8 +38,8 @@ async def health() -> Dict[str, bool]:
     return {"ok": True}
 
 
-def _build_proxy_url(request: Request, bucket: str, key: str) -> str:
-    return urljoin(str(request.base_url), storage.get_proxy_url(bucket, key))
+def _build_proxy_url(bucket: str, key: str) -> str:
+    return storage.get_proxy_url(bucket, key)
 
 
 @router.get("/images/{bucket}/{key:path}")
@@ -226,9 +226,9 @@ async def get_generation_status(job_id: str, request: Request) -> JobStatusRespo
 
         for asset in assets:
             if asset["kind"] == "input":
-                input_url = _build_proxy_url(request, asset["bucket"], asset["objectKey"])
+                input_url = _build_proxy_url(asset["bucket"], asset["objectKey"])
             elif asset["kind"] == "output":
-                output_url = _build_proxy_url(request, asset["bucket"], asset["objectKey"])
+                output_url = _build_proxy_url(asset["bucket"], asset["objectKey"])
 
     return JobStatusResponse(
         id=job_id,
@@ -265,7 +265,7 @@ async def list_generations_endpoint(
         # Build output URLs from JOIN data (no N+1 queries)
         for gen in generations:
             if gen["outputBucket"] and gen["outputKey"]:
-                gen["outputUrl"] = _build_proxy_url(request, gen["outputBucket"], gen["outputKey"])
+                gen["outputUrl"] = _build_proxy_url(gen["outputBucket"], gen["outputKey"])
             # Remove internal fields before returning
             gen.pop("outputBucket", None)
             gen.pop("outputKey", None)
