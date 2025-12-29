@@ -57,22 +57,29 @@ api/                    # FastAPI backend
 
 **api/.env** (required):
 ```bash
-OPENROUTER_API_KEY=sk-or-v1-...      # AI generation
-STRIPE_SECRET_KEY=sk_test_...         # Payments
+# AI Generation
+OPENROUTER_API_KEY=sk-or-v1-...
+OPENROUTER_MODEL=google/gemini-3-pro-image-preview
+
+# Stripe Payments
+STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
+STRIPE_PRICE_ID_0_99_3=price_...    # $0.99 for 3 credits
+STRIPE_PRICE_ID_2_99_15=price_...   # $2.99 for 15 credits
+STRIPE_PRICE_ID_4_99_30=price_...   # $4.99 for 30 credits
 FRONTEND_URL=http://localhost:8080
 
-# Email (for verification & contact form)
+# Email (SMTP)
 SMTP_HOST=smtp.example.com
-SMTP_PORT=587
-SMTP_USE_SSL=false
+SMTP_PORT=465
+SMTP_USE_SSL=true
 EMAIL_ACCOUNT=noreply@example.com
 EMAIL_PW=...
 EMAIL_FROM_NAME=PicPayGo
 SUPPORT_EMAIL=support@example.com
 ```
 
-See `.env.example` and `api/.env.example` for full list.
+See `api/.env.example` for full list with defaults.
 
 ## API Endpoints
 
