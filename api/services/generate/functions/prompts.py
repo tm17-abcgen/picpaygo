@@ -55,13 +55,14 @@ PROMPT_BY_TYPE: Dict[str, str] = {
     ]
   },
   "environment": {
-    "setting": "Modern pub",
+    "setting": "Dimly lit indoor social atmosphere",
     "foreground_props": [
-      "Round table",
-      "Bottle of liquor",
-      "Glass of liquor"
+      "Reflective tabletop surfaces",
+      "Glassware",
+      "Ambient lifestyle details"
     ]
   }
+
 }""",
     "left-profile": """A closeup photo of the person in the picture looking left in profile view""",
     "right-profile": """A closeup photo of the person in the picture looking right in profile view""",
