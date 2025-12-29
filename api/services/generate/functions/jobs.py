@@ -116,7 +116,28 @@ async def _worker_loop() -> None:
                     await update_generation_status(conn, uuid.UUID(job_id), "completed")
                 except Exception as exc:
                     logger.exception("Worker error for job %s: %s", job_id, exc)
-                    await update_generation_status(conn, uuid.UUID(job_id), "failed", error_message=str(exc))
+
+                    # Refund credit on any processing error
+                    credit_source = payload.get("credit_source")
+                    if credit_source == "user":
+                        refund_user_id = payload.get("user_id")
+                        if refund_user_id:
+                            await conn.execute(
+                                "UPDATE credits SET balance = balance + 1, updated_at = NOW() WHERE user_id = $1",
+                                uuid.UUID(refund_user_id)
+                            )
+                    elif credit_source == "ip":
+                        client_ip = payload.get("client_ip")
+                        if client_ip:
+                            await conn.execute(
+                                "UPDATE ip_credits SET free_remaining = free_remaining + 1 WHERE ip_address = $1",
+                                client_ip
+                            )
+
+                    await update_generation_status(
+                        conn, uuid.UUID(job_id), "failed",
+                        error_message="Processing error occurred. Please try again - no credit was used."
+                    )
         finally:
             job_queue.task_done()
 
@@ -355,3 +376,22 @@ async def get_asset_url_info(conn: asyncpg.Connection, generation_id: UUID, kind
         "objectKey": row["object_key"],
         "contentType": row["content_type"],
     }
+
+
+async def delete_generation_by_id(
+    conn: asyncpg.Connection,
+    generation_id: UUID,
+    user_id: Optional[UUID],
+    guest_session_id: Optional[UUID],
+) -> bool:
+    """Delete a single generation if owned by user/guest. Returns True if deleted."""
+    result = await conn.execute(
+        """
+        DELETE FROM generations
+        WHERE id = $1 AND (user_id = $2 OR guest_session_id = $3)
+        """,
+        generation_id,
+        user_id,
+        guest_session_id,
+    )
+    return result != "DELETE 0"

@@ -41,7 +41,7 @@ VITE_API_PROXY_TARGET=http://127.0.0.1:8081 npm run dev
 
 ```
 src/                    # React frontend
-├── pages/              # Home, Generate, Account, SeriesPage
+├── pages/              # Home, Generate, Account, SeriesPage, Contact
 ├── components/         # UI components (gallery, layout, generate)
 ├── context/            # CreditsContext, PortfolioContext
 ├── hooks/              # useGallery, useAutoAdvance
@@ -50,31 +50,49 @@ src/                    # React frontend
 api/                    # FastAPI backend
 ├── main.py             # App entry point
 ├── config.py           # Environment config
-└── services/           # auth, credits, generate, storage, payments
+└── services/           # auth, credits, generate, storage, email, contact
 ```
 
 ## Environment Variables
 
 **api/.env** (required):
 ```bash
-OPENROUTER_API_KEY=sk-or-v1-...      # AI generation
-STRIPE_SECRET_KEY=sk_test_...         # Payments
+# AI Generation
+OPENROUTER_API_KEY=sk-or-v1-...
+OPENROUTER_MODEL=google/gemini-3-pro-image-preview
+
+# Stripe Payments
+STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
+STRIPE_PRICE_ID_0_99_3=price_...    # $0.99 for 3 credits
+STRIPE_PRICE_ID_2_99_15=price_...   # $2.99 for 15 credits
+STRIPE_PRICE_ID_4_99_30=price_...   # $4.99 for 30 credits
 FRONTEND_URL=http://localhost:8080
+
+# Email (SMTP)
+SMTP_HOST=smtp.example.com
+SMTP_PORT=465
+SMTP_USE_SSL=true
+EMAIL_ACCOUNT=noreply@example.com
+EMAIL_PW=...
+EMAIL_FROM_NAME=PicPayGo
+SUPPORT_EMAIL=support@example.com
 ```
 
-See `.env.example` and `api/.env.example` for full list.
+See `api/.env.example` for full list with defaults.
 
 ## API Endpoints
 
 | Endpoint | Description |
 |----------|-------------|
-| `POST /api/auth/register` | Create account |
+| `POST /api/auth/register` | Create account (sends verification email) |
+| `GET /api/auth/verify` | Verify email with token |
 | `POST /api/auth/login` | Login |
 | `GET /api/credits` | Get credit balance |
 | `POST /api/generate` | Create generation (multipart: type + image) |
 | `GET /api/generate/:id` | Get job status |
 | `GET /api/generations` | List generations |
+| `POST /api/contact` | Submit contact form |
 
 ## Database
 

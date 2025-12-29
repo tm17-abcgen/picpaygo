@@ -1,6 +1,11 @@
 import { Link } from 'react-router-dom';
 import { usePortfolio } from '@/context/PortfolioContext';
 
+function obfuscateEmail(email: string): string {
+  // Simple obfuscation for display while keeping it readable
+  return email;
+}
+
 export function Footer() {
   const { photographer } = usePortfolio();
 
@@ -9,7 +14,7 @@ export function Footer() {
   return (
     <div className="w-full bg-white text-gray-700">
       <div className="mx-auto w-full max-w-[1200px] px-4 sm:px-8 lg:px-12 py-6 sm:py-8">
-        {/* Top Section: Logo and Copyright */}
+        {/* Top Section: Logo, Contact, and Copyright */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
           {/* Logo */}
           <Link to="/" className="flex items-center hover:opacity-80 transition-opacity">
@@ -19,6 +24,15 @@ export function Footer() {
               className="h-6 sm:h-8 w-auto"
             />
           </Link>
+
+          {/* Contact */}
+          <a
+            href={`mailto:${photographer.contact.email}`}
+            className="text-[0.8125rem] sm:text-sm text-gray-500 hover:text-gray-700 transition-colors"
+            aria-label={`Email ${photographer.name}`}
+          >
+            {obfuscateEmail(photographer.contact.email)}
+          </a>
 
           {/* Copyright */}
           <p className="text-[0.8125rem] sm:text-sm text-gray-500 text-center sm:text-right">

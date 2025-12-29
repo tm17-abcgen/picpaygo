@@ -3,7 +3,8 @@ import { LogIn, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useCredits } from '@/context/CreditsContext';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
+import { validatePassword } from '@/lib/passwordPolicy';
 
 interface LoginPromptProps {
   onSuccess?: () => void;
@@ -15,35 +16,32 @@ export function LoginPrompt({ onSuccess }: LoginPromptProps) {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { login, register } = useCredits();
-  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('[LoginPrompt:handleSubmit] Form submitted', { mode, email });
 
     if (!email || !password) {
-      toast({
-        title: 'Missing fields',
-        description: 'Please enter both email and password.',
-        variant: 'destructive',
-      });
+      toast.error('Missing fields', { description: 'Please enter both email and password.' });
       return;
     }
-    
+
+    if (mode === 'register') {
+      const { valid, message } = validatePassword(password);
+      if (!valid) {
+        toast.error('Invalid password', { description: message });
+        return;
+      }
+    }
+
     setLoading(true);
-    console.log('[LoginPrompt:handleSubmit] Loading set to true, calling register...');
     try {
       if (mode === 'login') {
         await login(email, password);
-        toast({
-          title: 'Welcome back!',
-          description: 'You are now logged in.',
-        });
+        toast.success('Welcome back!', { description: 'You are now logged in.' });
         onSuccess?.();
       } else {
         const result = await register(email, password);
-        toast({
-          title: 'Check your email',
+        toast.success('Check your email', {
           description: result.verificationRequired
             ? 'We sent a verification link. Verify your email, then log in.'
             : 'Account created. Please log in.',
@@ -54,10 +52,8 @@ export function LoginPrompt({ onSuccess }: LoginPromptProps) {
       const message = error instanceof Error
         ? error.message
         : 'Please check your credentials and try again.';
-      toast({
-        title: mode === 'login' ? 'Login failed' : 'Registration failed',
+      toast.error(mode === 'login' ? 'Login failed' : 'Registration failed', {
         description: message,
-        variant: 'destructive',
       });
     } finally {
       setLoading(false);
@@ -99,11 +95,15 @@ export function LoginPrompt({ onSuccess }: LoginPromptProps) {
           disabled={loading}
           aria-label="Password"
         />
+        {mode === 'register' && (
+          <p className="text-xs text-muted-foreground">
+            8+ characters with uppercase, lowercase, and number
+          </p>
+        )}
         <Button
           type="submit"
           className="w-full"
           disabled={loading}
-          onClick={() => console.log('[LoginPrompt:Button] Button clicked', { mode, email, password, loading })}
         >
           {loading ? (
             <>

@@ -6,85 +6,14 @@
   "featured": true,
   "children": [
     {
-      "slug": "victorias-secret-shoot",
-      "title": "Victoria's Secret–Style Shoot",
-      "description": "Lingerie/glam studio vibe—soft yet polished lighting, confident posing, glossy finish.",
-      "images": [
-        {
-          "id": "vs-shoot-001",
-          "src": "https://images.pexels.com/photos/2921424/pexels-photo-2921424.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Victoria's Secret style fashion shoot",
-          "aspectRatio": 0.8,
-          "caption": {
-            "subject": "Fashion",
-            "profession": "VS Style"
-          },
-          "metadata": {
-            "title": "Victoria's Secret Style Shoot",
-            "year": "2024",
-            "description": "Lingerie/glam studio vibe with soft polished lighting.",
-            "series": "victorias-secret-shoot"
-          }
-        },
-        {
-          "id": "vs-shoot-002",
-          "src": "https://images.pexels.com/photos/2921424/pexels-photo-2921424.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Victoria's Secret style fashion shoot",
-          "aspectRatio": 0.8,
-          "caption": {
-            "subject": "Fashion",
-            "profession": "VS Style"
-          },
-          "metadata": {
-            "title": "Victoria's Secret Style Shoot",
-            "year": "2024",
-            "description": "Lingerie/glam studio vibe with soft polished lighting.",
-            "series": "victorias-secret-shoot"
-          }
-        },
-        {
-          "id": "vs-shoot-003",
-          "src": "https://images.pexels.com/photos/2921424/pexels-photo-2921424.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Victoria's Secret style fashion shoot",
-          "aspectRatio": 0.8,
-          "caption": {
-            "subject": "Fashion",
-            "profession": "VS Style"
-          },
-          "metadata": {
-            "title": "Victoria's Secret Style Shoot",
-            "year": "2024",
-            "description": "Lingerie/glam studio vibe with soft polished lighting.",
-            "series": "victorias-secret-shoot"
-          }
-        },
-        {
-          "id": "vs-shoot-004",
-          "src": "https://images.pexels.com/photos/2921424/pexels-photo-2921424.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Victoria's Secret style fashion shoot",
-          "aspectRatio": 0.8,
-          "caption": {
-            "subject": "Fashion",
-            "profession": "VS Style"
-          },
-          "metadata": {
-            "title": "Victoria's Secret Style Shoot",
-            "year": "2024",
-            "description": "Lingerie/glam studio vibe with soft polished lighting.",
-            "series": "victorias-secret-shoot"
-          }
-        }
-      ]
-    },
-    {
       "slug": "studio-vogue-editorial",
       "title": "Studio Vogue Editorial",
       "description": "Editorial studio look—high-fashion posing, strong styling direction, and magazine-ready lighting.",
       "images": [
         {
           "id": "vogue-001",
-          "src": "https://images.pexels.com/photos/32160350/pexels-photo-32160350.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Studio Vogue editorial fashion shoot",
+          "src": "/examples/studio_vogue/vogue_1.png",
+          "alt": "Vogue editorial studio portrait",
           "aspectRatio": 0.8,
           "caption": {
             "subject": "Editorial",
@@ -99,8 +28,8 @@
         },
         {
           "id": "vogue-002",
-          "src": "https://images.pexels.com/photos/32160350/pexels-photo-32160350.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Studio Vogue editorial fashion shoot",
+          "src": "/examples/studio_vogue/vogue_2.png",
+          "alt": "High-fashion magazine style portrait",
           "aspectRatio": 0.8,
           "caption": {
             "subject": "Editorial",
@@ -115,8 +44,8 @@
         },
         {
           "id": "vogue-003",
-          "src": "https://images.pexels.com/photos/32160350/pexels-photo-32160350.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Studio Vogue editorial fashion shoot",
+          "src": "/examples/studio_vogue/vogue_3.png",
+          "alt": "Magazine-ready editorial portrait",
           "aspectRatio": 0.8,
           "caption": {
             "subject": "Editorial",
@@ -131,8 +60,8 @@
         },
         {
           "id": "vogue-004",
-          "src": "https://images.pexels.com/photos/32160350/pexels-photo-32160350.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Studio Vogue editorial fashion shoot",
+          "src": "/examples/studio_vogue/vogue_4.png",
+          "alt": "Professional fashion editorial",
           "aspectRatio": 0.8,
           "caption": {
             "subject": "Editorial",

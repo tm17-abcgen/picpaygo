@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import heic2any from 'heic2any';
 import {
   Sparkles,
   Loader2,
@@ -22,8 +23,29 @@ import { LoginPrompt } from '@/components/generate/LoginPrompt';
 import { BuyCreditsModal } from '@/components/credits/BuyCreditsModal';
 import { useCredits } from '@/context/CreditsContext';
 import { generateImage, getGenerationStatus } from '@/services/api';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import type { GenerationCategory } from '@/types/generation';
+
+// HEIC detection helper
+function isHeicFile(file: File): boolean {
+  const heicMimeTypes = ['image/heic', 'image/heif'];
+  const heicExtensions = ['.heic', '.heif'];
+  if (heicMimeTypes.includes(file.type.toLowerCase())) return true;
+  return heicExtensions.some(ext => file.name.toLowerCase().endsWith(ext));
+}
+
+// HEIC to JPEG conversion helper
+async function convertHeicToJpeg(file: File): Promise<File> {
+  const blob = await heic2any({
+    blob: file,
+    toType: 'image/jpeg',
+    quality: 0.9
+  });
+  const resultBlob = Array.isArray(blob) ? blob[0] : blob;
+  return new File([resultBlob], file.name.replace(/\.(heic|heif)$/i, '.jpg'), {
+    type: 'image/jpeg'
+  });
+}
 
 const tips = [
   {
@@ -74,16 +96,28 @@ export default function Generate() {
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showTips, setShowTips] = useState(false);
+  const [isConverting, setIsConverting] = useState(false);
   
   const { credits, isLoggedIn, refreshCredits } = useCredits();
-  const { toast } = useToast();
 
-  const handleFileSelect = (file: File) => {
-    setSelectedFile(file);
-    setPreviewUrl(URL.createObjectURL(file));
-    setResultUrl(null);
-    setStatus('idle');
+  const handleFileSelect = async (file: File) => {
+    setIsConverting(true);
     setError(null);
+    try {
+      let processedFile = file;
+      if (isHeicFile(file)) {
+        processedFile = await convertHeicToJpeg(file);
+      }
+      setSelectedFile(processedFile);
+      setPreviewUrl(URL.createObjectURL(processedFile));
+      setResultUrl(null);
+      setStatus('idle');
+    } catch (err) {
+      setError('Failed to process image. Please try a different file.');
+      toast.error('Failed to process image');
+    } finally {
+      setIsConverting(false);
+    }
   };
 
   const handleClear = () => {
@@ -120,10 +154,8 @@ export default function Generate() {
     } catch (err) {
       setStatus('failed');
       setError(err instanceof Error ? err.message : 'Generation failed');
-      toast({
-        title: 'Generation failed',
+      toast.error('Generation failed', {
         description: err instanceof Error ? err.message : 'Something went wrong',
-        variant: 'destructive',
       });
     }
   };
@@ -187,12 +219,14 @@ export default function Generate() {
 
   const handleDownload = () => {
     if (!resultUrl) return;
-    const link = document.createElement('a');
-    link.href = resultUrl;
-    link.download = `picpaygo-${Date.now()}.jpg`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const url = new URL(resultUrl, window.location.origin);
+    url.searchParams.set('download', '1');
+    const a = document.createElement('a');
+    a.href = url.toString();
+    a.download = '';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
   const isGenerating = status === 'uploading' || status === 'queued' || status === 'processing';
@@ -206,24 +240,18 @@ export default function Generate() {
         description="PicPayGo turns your photo into professional images, editorial looks, and fashion-ready imagery."
       />
       
-      <div className="max-w-3xl mx-auto py-4 sm:py-6 px-4 space-y-6">
-        <div className="text-center space-y-3">
-          <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">
-            PicPayGo
-          </p>
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+      <div className="max-w-3xl mx-auto py-2 sm:py-4 px-4 space-y-3">
+        <div className="text-center">
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground">
             Generate your image in minutes
           </h1>
-          <p className="text-muted-foreground text-sm sm:text-base max-w-2xl mx-auto">
-            Upload a photo, choose a category, and receive a refined, professional result.
-          </p>
         </div>
 
-        <div className="border-y border-border/60 py-5">
-          <p className="text-[11px] uppercase tracking-[0.35em] text-muted-foreground text-center mb-5">
+        <div className="border-y border-border/60 py-3">
+          <p className="text-[11px] uppercase tracking-[0.35em] text-muted-foreground text-center mb-3">
             How it works
           </p>
-          <div className="grid gap-5 sm:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-3">
             {steps.map((step, index) => (
               <div key={step.title} className="space-y-2">
                 <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
@@ -269,7 +297,7 @@ export default function Generate() {
                 selectedFile={selectedFile}
                 previewUrl={previewUrl}
                 onClear={handleClear}
-                disabled={isGenerating}
+                disabled={isGenerating || isConverting}
               />
 
               {/* Category picker */}
@@ -289,11 +317,16 @@ export default function Generate() {
                 <div className="space-y-3">
                   <Button
                     onClick={handleGenerate}
-                    disabled={isGenerating || credits < 1}
+                    disabled={isGenerating || isConverting || credits < 1}
                     className="w-full"
                     size="lg"
                   >
-                    {isGenerating ? (
+                    {isConverting ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Converting...
+                      </>
+                    ) : isGenerating ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                         Generating...

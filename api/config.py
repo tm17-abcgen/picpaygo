@@ -36,7 +36,7 @@ def _get_bool(name: str, default: bool) -> bool:
 # App / CORS
 # =============================================================================
 
-APP_TITLE = os.getenv("APP_TITLE", "PicPayGo API")
+APP_TITLE = os.getenv("APP_TITLE", "PicPayGo")
 API_PREFIX = "/api"
 
 _default_cors = "http://localhost:8082,https://picpaygo.com,https://www.picpaygo.com"
@@ -65,7 +65,8 @@ JOB_TIMEOUT_SECONDS = _get_int("JOB_TIMEOUT_SECONDS", 120, min_value=1)
 
 SESSION_COOKIE = os.getenv("SESSION_COOKIE", "session")
 SESSION_TTL_HOURS = _get_int("SESSION_TTL_HOURS", 168, min_value=1)
-DEFAULT_FREE_CREDITS = _get_int("FREE_CREDITS", 1, min_value=0)
+DEFAULT_FREE_CREDITS = _get_int("FREE_CREDITS", 1, min_value=0)  # IP-based guest credits (1 free trial)
+SIGNUP_FREE_CREDITS = _get_int("SIGNUP_FREE_CREDITS", 0, min_value=0)  # No signup bonus
 
 GUEST_COOKIE_NAME = os.getenv("GUEST_COOKIE_NAME", "guest")
 GUEST_COOKIE_MAX_AGE = _get_int("GUEST_COOKIE_MAX_AGE", 365 * 24 * 60 * 60, min_value=60)
@@ -124,8 +125,21 @@ GUEST_RETENTION_DAYS = _get_int("GUEST_RETENTION_DAYS", 30, min_value=1)
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
 
-STRIPE_PRICE_ID_2_5 = os.getenv("STRIPE_PRICE_ID_2_5", "")
-STRIPE_PRICE_ID_3_10 = os.getenv("STRIPE_PRICE_ID_3_10", "")
-STRIPE_PRICE_ID_5_20 = os.getenv("STRIPE_PRICE_ID_5_20", "")
+STRIPE_PRICE_ID_0_99_3 = os.getenv("STRIPE_PRICE_ID_0_99_3", "")
+STRIPE_PRICE_ID_2_99_15 = os.getenv("STRIPE_PRICE_ID_2_99_15", "")
+STRIPE_PRICE_ID_4_99_30 = os.getenv("STRIPE_PRICE_ID_4_99_30", "")
 
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:8080").rstrip("/")
+
+
+# =============================================================================
+# Email (SMTP)
+# =============================================================================
+
+SMTP_HOST = os.getenv("SMTP_HOST", "")
+SMTP_PORT = _get_int("SMTP_PORT", 465, min_value=1)
+SMTP_USE_SSL = _get_bool("SMTP_USE_SSL", True)
+EMAIL_ACCOUNT = os.getenv("EMAIL_ACCOUNT", "")
+EMAIL_PW = os.getenv("EMAIL_PW", "")
+EMAIL_FROM_NAME = os.getenv("EMAIL_FROM_NAME", "PicPayGo")
+SUPPORT_EMAIL = os.getenv("SUPPORT_EMAIL", "")

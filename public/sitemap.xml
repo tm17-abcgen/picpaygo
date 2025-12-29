@@ -73,11 +73,6 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://yourdomain.com/series/victorias-secret-shoot</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://yourdomain.com/series/studio-vogue-editorial</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>

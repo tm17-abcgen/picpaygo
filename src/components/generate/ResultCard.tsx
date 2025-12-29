@@ -9,14 +9,15 @@ interface ResultCardProps {
 
 export function ResultCard({ imageUrl, onGenerateAnother, onDownload }: ResultCardProps) {
   const handleDownload = () => {
-    // Trigger download for guests and logged-in users
-    const link = document.createElement('a');
-    link.href = imageUrl;
-    link.download = `picpaygo-${Date.now()}.jpg`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
     onDownload?.();
+    const url = new URL(imageUrl, window.location.origin);
+    url.searchParams.set('download', '1');
+    const a = document.createElement('a');
+    a.href = url.toString();
+    a.download = '';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
 
   return (

@@ -43,7 +43,7 @@ async def get_session_user(request: Request) -> Optional[Dict[str, str]]:
     async with get_connection() as conn:
         row = await conn.fetchrow(
             """
-            SELECT u.email, s.expires_at
+            SELECT u.email, u.is_verified, s.expires_at
             FROM sessions s
             JOIN users u ON s.user_id = u.id
             WHERE s.session_token_hash = $1 AND s.expires_at > NOW()
@@ -52,7 +52,7 @@ async def get_session_user(request: Request) -> Optional[Dict[str, str]]:
         )
         if not row:
             return None
-        return {"email": row["email"]}
+        return {"email": row["email"], "is_verified": row["is_verified"]}
 
 
 # =============================================================================
@@ -86,6 +86,12 @@ async def rotate_guest_token(conn: asyncpg.Connection, old_token_hash: str, new_
 
 async def delete_guest_generations(conn: asyncpg.Connection, guest_session_id: UUID) -> int:
     result = await conn.execute("DELETE FROM generations WHERE guest_session_id = $1", guest_session_id)
+    return int(result.split()[-1]) if result else 0
+
+
+async def delete_user_generations(conn: asyncpg.Connection, user_id: UUID) -> int:
+    """Delete all generations for a logged-in user."""
+    result = await conn.execute("DELETE FROM generations WHERE user_id = $1", user_id)
     return int(result.split()[-1]) if result else 0
 
 

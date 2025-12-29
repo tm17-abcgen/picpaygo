@@ -28,8 +28,14 @@ class CreditsResponse(BaseModel):
     isLoggedIn: bool
 
 
+class UserResponse(BaseModel):
+    email: str
+    verificationRequired: Optional[bool] = None
+    isVerified: Optional[bool] = None
+
+
 class AuthResponse(BaseModel):
-    user: Optional[Dict[str, str]]
+    user: Optional[UserResponse] = None
 
 
 class GenerationListItem(BaseModel):

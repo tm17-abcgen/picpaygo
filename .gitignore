@@ -27,3 +27,12 @@ dist-ssr
 !.env.example
 .env
 *.pyc
+.claude
+AGENTS.md
+
+# Continuous Claude cache (local only)
+.claude/cache/
+
+# Claude onboard artifacts (local only)
+thoughts/
+.context/

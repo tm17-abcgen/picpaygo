@@ -1,10 +1,10 @@
 """Generation endpoints (create job, status, listing, image proxy)."""
 
-from __future__ import annotations
-
+import re
 import uuid
+from pathlib import Path
 from typing import Any, Dict, Optional
-from urllib.parse import unquote, urljoin
+from urllib.parse import unquote
 
 from fastapi import APIRouter, File, Form, HTTPException, Request, Response, UploadFile
 
@@ -21,12 +21,14 @@ from services.database.connection import get_connection
 from services.generate.functions.jobs import (
     create_generation,
     create_generation_asset,
+    delete_generation_by_id,
     enqueue_job,
     get_generation,
     get_generation_assets,
     list_generations,
 )
 from services.generate.functions.prompts import PROMPT_BY_TYPE, build_prompt
+from services.generate.functions.image_utils import is_heic, convert_heic_to_jpeg
 
 router = APIRouter(prefix=config.API_PREFIX)
 
@@ -36,12 +38,12 @@ async def health() -> Dict[str, bool]:
     return {"ok": True}
 
 
-def _build_proxy_url(request: Request, bucket: str, key: str) -> str:
-    return urljoin(str(request.base_url), storage.get_proxy_url(bucket, key))
+def _build_proxy_url(bucket: str, key: str) -> str:
+    return storage.get_proxy_url(bucket, key)
 
 
 @router.get("/images/{bucket}/{key:path}")
-async def get_image(bucket: str, key: str, request: Request) -> Response:
+async def get_image(bucket: str, key: str, request: Request, download: bool = False) -> Response:
     key = unquote(key)
 
     if bucket not in [storage.BUCKET_RAW, storage.BUCKET_GENERATED]:
@@ -73,12 +75,16 @@ async def get_image(bucket: str, key: str, request: Request) -> Response:
 
     try:
         image_bytes, content_type = await storage.get_object_with_content_type_async(bucket, key)
+        headers = {"Cache-Control": "public, max-age=31536000, immutable"}
+        if download:
+            raw_name = Path(key).name
+            safe_name = re.sub(r'["\r\n]', '', raw_name)
+            filename = f"picpaygo-{safe_name}"
+            headers["Content-Disposition"] = f'attachment; filename="{filename}"'
         return Response(
             content=image_bytes,
             media_type=content_type or "image/jpeg",
-            headers={
-                "Cache-Control": "public, max-age=31536000, immutable",
-            },
+            headers=headers,
         )
     except Exception:
         raise HTTPException(status_code=404, detail="Image not found")
@@ -101,6 +107,11 @@ async def generate_image(
     image_bytes = await image.read()
     if not image_bytes:
         raise HTTPException(status_code=400, detail="Empty image upload")
+
+    # Convert HEIC to JPEG for compatibility (iPhone photos)
+    content_type = image.content_type
+    if is_heic(image.content_type, image.filename):
+        image_bytes, content_type = convert_heic_to_jpeg(image_bytes)
 
     user = await get_session_user(request)
     guest_session_id = getattr(request.state, "guest_session_id", None)
@@ -160,7 +171,7 @@ async def generate_image(
 
     # Storage operations outside transaction (can retry independently)
     input_key = await storage.upload_input_async(
-        str(generation_id), image_bytes, image.content_type
+        str(generation_id), image_bytes, content_type
     )
 
     async with get_connection() as conn:
@@ -170,7 +181,7 @@ async def generate_image(
             "input",
             storage.BUCKET_RAW,
             input_key,
-            image.content_type,
+            content_type,
             len(image_bytes),
         )
 
@@ -178,8 +189,10 @@ async def generate_image(
         {
             "job_id": str(generation_id),
             "prompt": prompt,
-            "content_type": image.content_type,
+            "content_type": content_type,
             "client_ip": ip,
+            "credit_source": "user" if user_credit_used else "ip",
+            "user_id": str(user_id) if user_credit_used else None,
         }
     )
 
@@ -213,9 +226,9 @@ async def get_generation_status(job_id: str, request: Request) -> JobStatusRespo
 
         for asset in assets:
             if asset["kind"] == "input":
-                input_url = _build_proxy_url(request, asset["bucket"], asset["objectKey"])
+                input_url = _build_proxy_url(asset["bucket"], asset["objectKey"])
             elif asset["kind"] == "output":
-                output_url = _build_proxy_url(request, asset["bucket"], asset["objectKey"])
+                output_url = _build_proxy_url(asset["bucket"], asset["objectKey"])
 
     return JobStatusResponse(
         id=job_id,
@@ -252,7 +265,7 @@ async def list_generations_endpoint(
         # Build output URLs from JOIN data (no N+1 queries)
         for gen in generations:
             if gen["outputBucket"] and gen["outputKey"]:
-                gen["outputUrl"] = _build_proxy_url(request, gen["outputBucket"], gen["outputKey"])
+                gen["outputUrl"] = _build_proxy_url(gen["outputBucket"], gen["outputKey"])
             # Remove internal fields before returning
             gen.pop("outputBucket", None)
             gen.pop("outputKey", None)
@@ -261,3 +274,27 @@ async def list_generations_endpoint(
         generations=[GenerationListItem(**g) for g in generations],
         cursor=generations[-1]["createdAt"] if generations else None,
     )
+
+
+@router.delete("/generations/{generation_id}")
+async def delete_generation(generation_id: str, request: Request) -> Response:
+    """Delete a single generation. Must be owned by the current user/guest."""
+    try:
+        generation_uuid = uuid.UUID(generation_id)
+    except ValueError:
+        raise HTTPException(status_code=404, detail="Invalid generation ID")
+
+    user = await get_session_user(request)
+    guest_session_id = getattr(request.state, "guest_session_id", None)
+
+    user_id = None
+    if user:
+        async with get_connection() as conn:
+            user_id = await get_user_id_from_email(conn, user["email"])
+
+    async with get_connection() as conn:
+        deleted = await delete_generation_by_id(conn, generation_uuid, user_id, guest_session_id)
+        if not deleted:
+            raise HTTPException(status_code=404, detail="Generation not found")
+
+    return Response(status_code=204)

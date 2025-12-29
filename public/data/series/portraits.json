@@ -12,8 +12,8 @@
       "images": [
         {
           "id": "prof-head-001",
-          "src": "https://images.pexels.com/photos/19456424/pexels-photo-19456424.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Professional headshot example",
+          "src": "/examples/professional_headshot/generated_134849f5-dba6-4c00-bdba-4adf76924562_output.png",
+          "alt": "Professional headshot with clean lighting",
           "aspectRatio": 0.718,
           "caption": {
             "subject": "Professional",
@@ -28,8 +28,8 @@
         },
         {
           "id": "prof-head-002",
-          "src": "https://images.pexels.com/photos/19456424/pexels-photo-19456424.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Professional headshot example",
+          "src": "/examples/professional_headshot/generated_2b81b25d-b7eb-4632-8589-5f2850e4b87f_output.png",
+          "alt": "Professional headshot with neutral background",
           "aspectRatio": 0.718,
           "caption": {
             "subject": "Professional",
@@ -44,8 +44,8 @@
         },
         {
           "id": "prof-head-003",
-          "src": "https://images.pexels.com/photos/19456424/pexels-photo-19456424.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Professional headshot example",
+          "src": "/examples/professional_headshot/generated_4903e57d-f3d6-4fcf-a9ce-3b1722af670c_output.png",
+          "alt": "Professional headshot with confident expression",
           "aspectRatio": 0.718,
           "caption": {
             "subject": "Professional",
@@ -60,8 +60,8 @@
         },
         {
           "id": "prof-head-004",
-          "src": "https://images.pexels.com/photos/19456424/pexels-photo-19456424.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Professional headshot example",
+          "src": "/examples/professional_headshot/generated_96c42b8c-e10e-4e15-a300-ffde3cca539b_output.png",
+          "alt": "Professional headshot with approachable expression",
           "aspectRatio": 0.718,
           "caption": {
             "subject": "Professional",
@@ -83,8 +83,8 @@
       "images": [
         {
           "id": "business-port-001",
-          "src": "https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Business portrait example",
+          "src": "/examples/black_suit/generated_7cbee89d-456f-4a55-a0d6-e6a1e8cd389f_output.png",
+          "alt": "Business portrait in black suit",
           "aspectRatio": 0.667,
           "caption": {
             "subject": "Executive",
@@ -99,8 +99,8 @@
         },
         {
           "id": "business-port-002",
-          "src": "https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Business portrait example",
+          "src": "/examples/black_suit/generated_c95b108f-42eb-406d-90fb-53b3215d0c45_output.png",
+          "alt": "Corporate portrait with professional attire",
           "aspectRatio": 0.667,
           "caption": {
             "subject": "Executive",
@@ -115,8 +115,8 @@
         },
         {
           "id": "business-port-003",
-          "src": "https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Business portrait example",
+          "src": "/examples/black_suit/generated_d5ccad2f-7896-4cb3-a578-8349881356bd_output.png",
+          "alt": "Leadership portrait in formal wear",
           "aspectRatio": 0.667,
           "caption": {
             "subject": "Executive",
@@ -131,8 +131,8 @@
         },
         {
           "id": "business-port-004",
-          "src": "https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Business portrait example",
+          "src": "/examples/black_suit/generated_d79994b5-13e8-4830-8845-8f877ccb7995_output.png",
+          "alt": "Professional executive portrait",
           "aspectRatio": 0.667,
           "caption": {
             "subject": "Executive",
@@ -154,8 +154,8 @@
       "images": [
         {
           "id": "90s-camera-001",
-          "src": "https://images.pexels.com/photos/1708148/pexels-photo-1708148.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "90s point and shoot style portrait",
+          "src": "/examples/90s/generated_b5829c9f-7dac-4314-9413-041d036e3d6c_output.png",
+          "alt": "90s point and shoot style portrait with flash",
           "aspectRatio": 0.75,
           "caption": {
             "subject": "Retro",
@@ -170,8 +170,8 @@
         },
         {
           "id": "90s-camera-002",
-          "src": "https://images.pexels.com/photos/1708148/pexels-photo-1708148.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "90s point and shoot style portrait",
+          "src": "/examples/90s/picpaygo-output (1).png",
+          "alt": "90s nostalgic portrait with soft detail",
           "aspectRatio": 0.75,
           "caption": {
             "subject": "Retro",
@@ -186,8 +186,8 @@
         },
         {
           "id": "90s-camera-003",
-          "src": "https://images.pexels.com/photos/1708148/pexels-photo-1708148.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "90s point and shoot style portrait",
+          "src": "/examples/90s/picpaygo-output (2).png",
+          "alt": "90s camera aesthetic portrait",
           "aspectRatio": 0.75,
           "caption": {
             "subject": "Retro",
@@ -202,8 +202,8 @@
         },
         {
           "id": "90s-camera-004",
-          "src": "https://images.pexels.com/photos/1708148/pexels-photo-1708148.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "90s point and shoot style portrait",
+          "src": "/examples/90s/picpaygo-output (3).png",
+          "alt": "Vintage 90s style portrait",
           "aspectRatio": 0.75,
           "caption": {
             "subject": "Retro",
@@ -225,8 +225,8 @@
       "images": [
         {
           "id": "ixus-001",
-          "src": "https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Canon IXUS aesthetic portrait",
+          "src": "/examples/canon/picpaygo-output.png",
+          "alt": "Canon IXUS style portrait with punchy colors",
           "aspectRatio": 0.75,
           "caption": {
             "subject": "Digital",
@@ -241,8 +241,8 @@
         },
         {
           "id": "ixus-002",
-          "src": "https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Canon IXUS aesthetic portrait",
+          "src": "/examples/canon/picpaygo-output (1).png",
+          "alt": "Compact digital camera style portrait",
           "aspectRatio": 0.75,
           "caption": {
             "subject": "Digital",
@@ -257,8 +257,8 @@
         },
         {
           "id": "ixus-003",
-          "src": "https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Canon IXUS aesthetic portrait",
+          "src": "/examples/canon/picpaygo-output (2).png",
+          "alt": "Early digital snapshot portrait",
           "aspectRatio": 0.75,
           "caption": {
             "subject": "Digital",
@@ -273,8 +273,8 @@
         },
         {
           "id": "ixus-004",
-          "src": "https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Canon IXUS aesthetic portrait",
+          "src": "/examples/canon/picpaygo-output (3).png",
+          "alt": "Bright flash compact camera portrait",
           "aspectRatio": 0.75,
           "caption": {
             "subject": "Digital",
@@ -296,7 +296,7 @@
       "images": [
         {
           "id": "left-profile-001",
-          "src": "https://images.pexels.com/photos/5384445/pexels-photo-5384445.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+          "src": "/examples/left_view/picpaygo-output.png",
           "alt": "Left profile portrait view",
           "aspectRatio": 0.667,
           "caption": {
@@ -312,8 +312,8 @@
         },
         {
           "id": "left-profile-002",
-          "src": "https://images.pexels.com/photos/5384445/pexels-photo-5384445.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Left profile portrait view",
+          "src": "/examples/left_view/picpaygo-output (1).png",
+          "alt": "Side profile showing left angle",
           "aspectRatio": 0.667,
           "caption": {
             "subject": "Profile",
@@ -328,8 +328,8 @@
         },
         {
           "id": "left-profile-003",
-          "src": "https://images.pexels.com/photos/5384445/pexels-photo-5384445.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Left profile portrait view",
+          "src": "/examples/left_view/picpaygo-output (2).png",
+          "alt": "Left side portrait composition",
           "aspectRatio": 0.667,
           "caption": {
             "subject": "Profile",
@@ -344,8 +344,8 @@
         },
         {
           "id": "left-profile-004",
-          "src": "https://images.pexels.com/photos/5384445/pexels-photo-5384445.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Left profile portrait view",
+          "src": "/examples/left_view/picpaygo-output (3).png",
+          "alt": "Left angle portrait study",
           "aspectRatio": 0.667,
           "caption": {
             "subject": "Profile",
@@ -367,7 +367,7 @@
       "images": [
         {
           "id": "right-profile-001",
-          "src": "https://images.pexels.com/photos/428364/pexels-photo-428364.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+          "src": "/examples/right_view/picpaygo-output (4).png",
           "alt": "Right profile portrait view",
           "aspectRatio": 0.667,
           "caption": {
@@ -383,8 +383,8 @@
         },
         {
           "id": "right-profile-002",
-          "src": "https://images.pexels.com/photos/428364/pexels-photo-428364.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Right profile portrait view",
+          "src": "/examples/right_view/picpaygo-output (5).png",
+          "alt": "Side profile showing right angle",
           "aspectRatio": 0.667,
           "caption": {
             "subject": "Profile",
@@ -399,8 +399,8 @@
         },
         {
           "id": "right-profile-003",
-          "src": "https://images.pexels.com/photos/428364/pexels-photo-428364.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Right profile portrait view",
+          "src": "/examples/right_view/picpaygo-output (6).png",
+          "alt": "Right side portrait composition",
           "aspectRatio": 0.667,
           "caption": {
             "subject": "Profile",
@@ -415,8 +415,8 @@
         },
         {
           "id": "right-profile-004",
-          "src": "https://images.pexels.com/photos/428364/pexels-photo-428364.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
-          "alt": "Right profile portrait view",
+          "src": "/examples/right_view/picpaygo-output (7).png",
+          "alt": "Right angle portrait study",
           "aspectRatio": 0.667,
           "caption": {
             "subject": "Profile",

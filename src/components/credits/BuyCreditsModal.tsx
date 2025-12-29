@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button';
 import { CREDIT_PACKS, createCheckout } from '@/services/api';
 import { useCredits } from '@/context/CreditsContext';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 interface BuyCreditsModalProps {
   open: boolean;
@@ -15,31 +15,22 @@ export function BuyCreditsModal({ open, onOpenChange }: BuyCreditsModalProps) {
   const [selectedPack, setSelectedPack] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { isLoggedIn } = useCredits();
-  const { toast } = useToast();
 
   const handlePurchase = async () => {
     if (!selectedPack) return;
 
     if (!isLoggedIn) {
-      toast({
-        title: 'Login required',
-        description: 'Please sign in to buy credits.',
-        variant: 'destructive',
-      });
+      toast.error('Login required', { description: 'Please sign in to buy credits.' });
       return;
     }
-    
+
     setLoading(true);
     try {
       const { url } = await createCheckout(selectedPack);
       window.location.assign(url);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Something went wrong. Please try again.';
-      toast({
-        title: 'Purchase failed',
-        description: message,
-        variant: 'destructive',
-      });
+      toast.error('Purchase failed', { description: message });
     } finally {
       setLoading(false);
     }

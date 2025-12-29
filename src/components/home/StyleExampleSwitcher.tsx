@@ -17,12 +17,12 @@ const exampleStyles: ExampleStyle[] = [
     id: 'portraits',
     label: 'Portraits',
     before: {
-      src: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=75',
+      src: '/examples/home/portraits_before.jpg',
       alt: 'Portrait before transformation',
       caption: 'Original',
     },
     after: {
-      src: 'https://images.unsplash.com/photo-1504593811423-6dd665756598?auto=format&fit=crop&w=900&q=75',
+      src: '/examples/home/portraits_after.png',
       alt: 'Portrait after transformation',
       caption: 'PicPayGo result',
     },
@@ -31,12 +31,12 @@ const exampleStyles: ExampleStyle[] = [
     id: 'selfies',
     label: 'Selfies',
     before: {
-      src: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=900&q=75',
+      src: '/examples/home/selfies_before.jpg',
       alt: 'Selfie before transformation',
       caption: 'Original',
     },
     after: {
-      src: 'https://images.unsplash.com/photo-1516733968668-dbdce39c4651?auto=format&fit=crop&w=900&q=75',
+      src: '/examples/home/selfies_after.png',
       alt: 'Selfie after transformation',
       caption: 'PicPayGo result',
     },
@@ -45,12 +45,12 @@ const exampleStyles: ExampleStyle[] = [
     id: 'fashion',
     label: 'Fashion / Editorial',
     before: {
-      src: 'https://images.unsplash.com/photo-1525134479668-1bee5c7c6845?auto=format&fit=crop&w=900&q=75',
+      src: '/examples/home/fashion_before.jpg',
       alt: 'Fashion before transformation',
       caption: 'Original',
     },
     after: {
-      src: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=900&q=75',
+      src: '/examples/home/fashion_after.png',
       alt: 'Fashion after transformation',
       caption: 'PicPayGo result',
     },
@@ -59,12 +59,12 @@ const exampleStyles: ExampleStyle[] = [
     id: 'film',
     label: 'Film / Mood',
     before: {
-      src: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=900&q=75',
+      src: '/examples/home/film_before.jpg',
       alt: 'Film before transformation',
       caption: 'Original',
     },
     after: {
-      src: 'https://images.unsplash.com/photo-1524502397800-2eeaad7c3fe5?auto=format&fit=crop&w=900&q=75',
+      src: '/examples/home/film_after.png',
       alt: 'Film after transformation',
       caption: 'PicPayGo result',
     },
@@ -84,13 +84,6 @@ export function StyleExampleSwitcher() {
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
-      <div className="text-center max-w-2xl mx-auto text-sm text-muted-foreground leading-relaxed">
-        <p>
-          PicPayGo preserves identity while enhancing lighting, styling, and composition. Use it for
-          CV headshots, personal branding, or editorial looks without a full shoot.
-        </p>
-      </div>
-
       <div className="grain-panel editorial-grid rounded-[36px] border border-border/50 bg-card/40 p-6 sm:p-8">
         <div className="grid gap-8 lg:grid-cols-[1.05fr_0.9fr_1.05fr] lg:items-center">
           <div>
@@ -166,6 +159,13 @@ export function StyleExampleSwitcher() {
               </div>
             </div>
         </div>
+      </div>
+
+      <div className="text-center max-w-2xl mx-auto text-sm text-muted-foreground leading-relaxed">
+        <p>
+          PicPayGo preserves identity while enhancing lighting, styling, and composition. Use it for
+          CV headshots, personal branding, or editorial looks without a full shoot.
+        </p>
       </div>
     </div>
   );

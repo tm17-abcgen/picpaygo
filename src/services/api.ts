@@ -28,12 +28,19 @@ export interface CreditsPack {
 }
 
 export const CREDIT_PACKS: CreditsPack[] = [
-  { id: 'pack_2_5', credits: 5, price: 2.0 },
-  { id: 'pack_3_10', credits: 10, price: 3.0 },
-  { id: 'pack_5_20', credits: 20, price: 5.0 },
+  { id: 'pack_0_99_3', credits: 3, price: 0.99 },
+  { id: 'pack_2_99_15', credits: 15, price: 2.99 },
+  { id: 'pack_4_99_30', credits: 30, price: 4.99 },
 ];
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+
+export class ApiError extends Error {
+  constructor(message: string, public status: number) {
+    super(message);
+    this.name = 'ApiError';
+  }
+}
 
 const apiFetch = async (path: string, options: RequestInit = {}) => {
   try {
@@ -64,7 +71,7 @@ const apiFetch = async (path: string, options: RequestInit = {}) => {
           message = `Request failed with status ${response.status}`;
         }
       }
-      throw new Error(message);
+      throw new ApiError(message, response.status);
     }
 
     if (response.status === 204) {
@@ -81,9 +88,6 @@ const apiFetch = async (path: string, options: RequestInit = {}) => {
     throw error;
   }
 };
-
-// UX delay to prevent UI flicker on fast responses (not for security - server rate limiting handles abuse)
-const delay = (ms: number): Promise<void> => new Promise(resolve => setTimeout(resolve, ms));
 
 // API Functions
 
@@ -198,10 +202,17 @@ export async function getGenerations(
 }
 
 /**
- * Clear all generations for the current guest session.
- * Only works for guest users (not logged in).
+ * Delete a single generation by ID.
+ * Works for both guests and logged-in users.
  */
-export async function clearGuestHistory(): Promise<void> {
+export async function deleteGeneration(generationId: string): Promise<void> {
+  await apiFetch(`/generations/${generationId}`, { method: 'DELETE' });
+}
+
+/**
+ * Clear all generations for the current user (guest or logged-in).
+ */
+export async function clearAllGenerations(): Promise<void> {
   await apiFetch('/history/clear', { method: 'POST' });
 }
 
@@ -236,7 +247,9 @@ export async function register(
     method: 'POST',
     body: JSON.stringify({ email, password }),
   });
-  return { verificationRequired: !!data?.verificationRequired };
+  // Backend returns verificationRequired under user object
+  const verified = data?.user?.verificationRequired;
+  return { verificationRequired: verified === true || verified === 'true' };
 }
 
 export async function logout(): Promise<void> {
@@ -253,61 +266,54 @@ export async function getUser(): Promise<{ email: string; isVerified?: boolean }
 }
 
 export async function verifyEmail(token: string): Promise<{ success: boolean }> {
-  await apiFetch(`/auth/verify?token=${encodeURIComponent(token)}`);
+  try {
+    // Prefer POST with body
+    await apiFetch('/auth/verify', {
+      method: 'POST',
+      body: JSON.stringify({ token }),
+    });
+  } catch {
+    // Fall back to GET for backward compatibility
+    await apiFetch(`/auth/verify?token=${encodeURIComponent(token)}`);
+  }
   return { success: true };
 }
 
-export async function forgotPassword(email: string): Promise<{ ok: boolean }> {
-  const minDelay = delay(200);
-  try {
-    await apiFetch('/auth/forgot-password', {
-      method: 'POST',
-      body: JSON.stringify({ email }),
-    });
-    return { ok: true };
-  } finally {
-    await minDelay;
-  }
+export async function requestVerificationEmail(email: string): Promise<{ success: boolean }> {
+  await apiFetch('/auth/request-verification', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  });
+  return { success: true };
 }
 
-export async function resetPassword(token: string, password: string): Promise<{ ok: boolean }> {
-  const minDelay = delay(200);
-  try {
-    await apiFetch('/auth/reset-password', {
-      method: 'POST',
-      body: JSON.stringify({ token, password }),
-    });
-    return { ok: true };
-  } finally {
-    await minDelay;
-  }
+export async function forgotPassword(email: string): Promise<{ success: boolean }> {
+  await apiFetch('/auth/forgot-password', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  });
+  return { success: true };
 }
 
-export async function changePassword(
-  currentPassword: string,
-  newPassword: string
-): Promise<{ ok: boolean }> {
-  const minDelay = delay(200);
-  try {
-    await apiFetch('/auth/change-password', {
-      method: 'POST',
-      body: JSON.stringify({ currentPassword, newPassword }),
-    });
-    return { ok: true };
-  } finally {
-    await minDelay;
-  }
+export async function resetPassword(token: string, password: string): Promise<{ success: boolean }> {
+  await apiFetch('/auth/reset-password', {
+    method: 'POST',
+    body: JSON.stringify({ token, password }),
+  });
+  return { success: true };
 }
 
-export async function deleteAccount(password: string): Promise<{ ok: boolean }> {
-  const minDelay = delay(200);
-  try {
-    await apiFetch('/auth/delete-account', {
-      method: 'POST',
-      body: JSON.stringify({ password }),
-    });
-    return { ok: true };
-  } finally {
-    await minDelay;
-  }
+export interface ContactFormData {
+  name: string;
+  email: string;
+  subject?: string;
+  message: string;
+}
+
+export async function submitContactForm(data: ContactFormData): Promise<{ success: boolean }> {
+  await apiFetch('/contact', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+  return { success: true };
 }
