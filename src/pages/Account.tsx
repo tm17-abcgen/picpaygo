@@ -417,12 +417,13 @@ export default function Account() {
 
         {activeTab === 'history' && (
           <div className="max-w-4xl mx-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-foreground text-center flex-1">
+            <div className="relative flex items-center justify-center mb-4">
+              <h2 className="text-lg font-semibold text-foreground">
                 {isLoggedIn ? 'Your Generations' : 'Your Generations (Guest)'}
               </h2>
               {generations.length > 0 && (
                 <Button
+                  className="absolute right-0"
                   variant="outline"
                   size="sm"
                   onClick={() => setDeleteTarget({ type: 'all' })}
