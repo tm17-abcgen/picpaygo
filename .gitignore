@@ -30,6 +30,9 @@ dist-ssr
 .claude
 AGENTS.md
 
+# Password files
+nginx/.htpasswd
+
 # Continuous Claude cache (local only)
 .claude/cache/
 
